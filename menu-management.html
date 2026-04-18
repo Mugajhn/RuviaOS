@@ -6,46 +6,47 @@
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
+body{font-family:'Inter','Segoe UI',sans-serif;padding:2rem}
 .container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:28px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.tab{padding:10px 20px;background:var(--card,#fff);border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;color:var(--text,#222);transition:all .2s}
-.tab.active{background:var(--accent,#2c5f4a);color:#fff}
+.header{background:var(--header-gradient);color:#fff;padding:2rem;border-radius:var(--radius);margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:var(--shadow-lg)}
+.header h1{font-size:1.5rem;font-weight:800;letter-spacing:-0.025em}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.5rem;margin-bottom:2rem}
+.stat-card{background:var(--card);padding:1.5rem;border-radius:var(--radius);text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-value{font-size:1.875rem;font-weight:800;color:var(--accent)}
+.stat-label{color:var(--text2);margin-top:0.5rem;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.tabs{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:0.75rem 1.25rem;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-weight:700;font-size:0.875rem;color:var(--text2);transition:all 0.2s}
+.tab:hover{background:var(--th-bg);color:var(--text)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--shadow)}
 .tab-content{display:none}.tab-content.active{display:block}
-.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.search-input{flex:1;min-width:160px;padding:9px 14px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.cat-filter{padding:9px 12px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;margin:2px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-primary:hover{background:var(--accent2,#1a3c34)}
-.btn-warning{background:#ffc107;color:#333}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-sm{padding:5px 10px;font-size:11px}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:16px}
+.toolbar{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.search-input{flex:1;min-width:200px;padding:0.75rem 1.25rem;border:1px solid var(--border);border-radius:8px;font-size:0.875rem;background:var(--card);color:var(--text);outline:none;box-shadow:var(--shadow)}
+.cat-filter{padding:0.75rem;border:1px solid var(--border);border-radius:8px;font-size:0.875rem;background:var(--card);color:var(--text)}
+.btn{padding:0.75rem 1.25rem;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.75rem;margin:0.25rem;transition:all 0.2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-warning{background:#f59e0b;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.table-container{background:var(--card);border-radius:var(--radius);overflow-x:auto;box-shadow:var(--shadow);margin-bottom:2rem;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.form-container{background:var(--card,#fff);padding:18px;border-radius:12px;margin-bottom:16px;box-shadow:var(--shadow)}
-.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:22px;border-radius:14px;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.cat-tag{display:inline-flex;align-items:center;gap:6px;background:var(--th-bg,#e9ecef);padding:5px 12px;border-radius:20px;font-size:12px;margin:3px;color:var(--text,#222)}
-.cat-rm{color:#dc3545;cursor:pointer;font-weight:700}
-.badge{padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700}
-.badge-active{background:#d4edda;color:#155724}
-.badge-inactive{background:#f8d7da;color:#721c24}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
+th,td{padding:1rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.875rem}
+th{background:var(--th-bg);font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;font-size:0.75rem}
+tr:hover{background:var(--row-hover)}
+.form-container{background:var(--card);padding:2rem;border-radius:var(--radius);margin-bottom:2rem;box-shadow:var(--shadow);border:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-bottom:1.5rem}
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-weight:700;margin-bottom:0.5rem;font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem;border:1px solid var(--border);border-radius:8px;font-size:0.875rem;background:var(--input-bg);color:var(--text);transition:all 0.2s}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);justify-content:center;align-items:center;z-index:1000}
+.modal-content{background:var(--card);padding:2.5rem;border-radius:var(--radius);max-width:500px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text);box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.modal-content h3{margin-bottom:1.5rem;color:var(--accent);font-weight:800;font-size:1.5rem;letter-spacing:-0.025em}
+.cat-tag{display:inline-flex;align-items:center;gap:0.5rem;background:var(--th-bg);padding:0.375rem 1rem;border-radius:9999px;font-size:0.8125rem;margin:0.25rem;color:var(--text);border:1px solid var(--border);font-weight:600}
+.cat-rm{color:#ef4444;cursor:pointer;font-weight:800;font-size:0.875rem}
+.badge{padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:700}
+.badge-active{background:rgba(16,185,129,0.1);color:#10b981}
+.badge-inactive{background:rgba(239,68,68,0.1);color:#ef4444}
+.toast{position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;border-radius:10px;display:none;z-index:9999;font-size:0.875rem;font-weight:700;color:#fff;box-shadow:var(--shadow-lg)}
+.toast.success{background:#10b981}.toast.error{background:#ef4444}
 @media(max-width:768px){.form-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -58,14 +59,14 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
 <div class="container">
 <div class="header">
   <h1>📋 Menu Management</h1>
-  <button class="btn btn-primary" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600" onclick="loadAll()">🔄 Refresh</button>
+  <button class="btn btn-primary" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:0.625rem 1.25rem;border-radius:8px;cursor:pointer;font-weight:700" onclick="loadAll()">Refresh</button>
 </div>
 
 <div class="stats-grid">
   <div class="stat-card"><div class="stat-value" id="stItems">-</div><div class="stat-label">Menu Items</div></div>
   <div class="stat-card"><div class="stat-value" id="stCats">-</div><div class="stat-label">Categories</div></div>
-  <div class="stat-card"><div class="stat-value" id="stLow" style="color:#e0a800">-</div><div class="stat-label">Low Stock</div></div>
-  <div class="stat-card"><div class="stat-value" id="stOut" style="color:#dc3545">-</div><div class="stat-label">Out of Stock</div></div>
+  <div class="stat-card"><div class="stat-value" id="stLow" style="color:#f59e0b">-</div><div class="stat-label">Low Stock</div></div>
+  <div class="stat-card"><div class="stat-value" id="stOut" style="color:#ef4444">-</div><div class="stat-label">Out of Stock</div></div>
 </div>
 
 <div class="tabs">
@@ -77,11 +78,11 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
 <!-- ITEMS TAB -->
 <div id="tab-items" class="tab-content active">
   <div class="toolbar">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search items..." oninput="loadAll()">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search items..." oninput="loadAll()">
     <select id="catFilter" class="cat-filter" onchange="loadAll()">
       <option value="">All Categories</option>
     </select>
-    <button class="btn btn-primary" onclick="showTab('add',document.querySelectorAll('.tab')[1])">➕ Add Item</button>
+    <button class="btn btn-primary" onclick="showTab('add',document.querySelectorAll('.tab')[1])">+ Add Item</button>
   </div>
   <div class="table-container"><table>
     <thead><tr><th>Icon</th><th>Item Name</th><th>Category</th><th>Price (UGX)</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
@@ -92,7 +93,7 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
 <!-- ADD ITEM TAB -->
 <div id="tab-add" class="tab-content">
   <div class="form-container">
-    <h3 style="margin-bottom:14px;color:var(--accent,#2c5f4a)">Add New Menu Item</h3>
+    <h3 style="margin-bottom:1.5rem;color:var(--accent);font-weight:800">New Menu Item</h3>
     <div class="form-row">
       <div class="form-group"><label>Item Name *</label><input id="aName" placeholder="e.g. Grilled Tilapia"></div>
       <div class="form-group"><label>Category *</label><select id="aCat"></select></div>
@@ -103,23 +104,23 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
       <div class="form-group"><label>Initial Stock</label><input type="number" id="aStock" value="20"></div>
       <div class="form-group"><label>Reorder Level</label><input type="number" id="aReorder" value="10"></div>
     </div>
-    <div class="form-group"><label>Description</label><textarea id="aDesc" rows="2" placeholder="Brief description of the item..."></textarea></div>
+    <div class="form-group"><label>Description</label><textarea id="aDesc" rows="2" placeholder="Brief description..."></textarea></div>
     <div class="form-group"><label>Unit Cost (UGX)</label><input type="number" id="aCost" step="500" placeholder="15000"></div>
-    <button class="btn btn-primary" onclick="addItem()">➕ Add to Menu</button>
+    <button class="btn btn-primary" style="width:100%;padding:1rem;margin-top:1rem" onclick="addItem()">Add to Menu</button>
   </div>
 </div>
 
 <!-- CATEGORIES TAB -->
 <div id="tab-categories" class="tab-content">
   <div class="form-container">
-    <h3 style="margin-bottom:12px;color:var(--accent,#2c5f4a)">Existing Categories</h3>
-    <div id="catList" style="margin-bottom:20px"></div>
-    <hr style="border-color:var(--border,#eee);margin-bottom:16px">
-    <h3 style="margin-bottom:12px;color:var(--accent,#2c5f4a)">Add New Category</h3>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input type="text" id="newCatInput" placeholder="e.g. Seafood" style="flex:1;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)">
-      <input type="text" id="newCatEmoji" placeholder="🐟" maxlength="4" style="width:70px;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)">
-      <button class="btn btn-primary" onclick="addCategory()">Add</button>
+    <h3 style="margin-bottom:1.25rem;color:var(--accent);font-weight:800">Categories</h3>
+    <div id="catList" style="margin-bottom:2.5rem; display:flex; flex-wrap:wrap"></div>
+    <hr style="border:none; border-top:1px solid var(--border); margin-bottom:2rem">
+    <h3 style="margin-bottom:1.25rem;color:var(--accent);font-weight:800">New Category</h3>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap">
+      <input type="text" id="newCatInput" placeholder="Category name" style="flex:1;min-width:200px">
+      <input type="text" id="newCatEmoji" placeholder="Emoji" maxlength="4" style="width:100px">
+      <button class="btn btn-primary" onclick="addCategory()">Add Category</button>
     </div>
   </div>
 </div>
@@ -128,7 +129,7 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
 <!-- Edit Modal -->
 <div id="editModal" class="modal">
   <div class="modal-content">
-    <h3>Edit Item</h3>
+    <h3>Edit Menu Item</h3>
     <div class="form-group"><label>Name</label><input id="eName"></div>
     <div class="form-group"><label>Category</label><select id="eCat"></select></div>
     <div class="form-group"><label>Price (UGX)</label><input type="number" id="ePrice" step="500"></div>
@@ -136,9 +137,9 @@ tr:hover{background:var(--row-hover,#f5f7fa)}
     <div class="form-group"><label>Reorder Level</label><input type="number" id="eReorder"></div>
     <div class="form-group"><label>Emoji</label><input id="eEmoji" maxlength="4"></div>
     <div class="form-group"><label>Description</label><textarea id="eDesc" rows="2"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveEdit()">Save</button>
-      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
+      <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-danger" style="flex:1" onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -171,32 +172,29 @@ function loadAll(){
   document.getElementById('stLow').textContent=low;
   document.getElementById('stOut').textContent=out;
 
-  // Populate category dropdowns
   const catOpts='<option value="">All</option>'+cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
   document.getElementById('catFilter').innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
   document.getElementById('aCat').innerHTML=cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
   document.getElementById('eCat').innerHTML=cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
 
-  // Category list
   document.getElementById('catList').innerHTML=cats.length===0?`<p style="color:var(--text2)">No categories yet</p>`:
     cats.map(c=>`<span class="cat-tag">${CAT_LABELS[c]||c}<span class="cat-rm" onclick="removeCategory('${c}')">✕</span></span>`).join('');
 
-  // Items table
   document.getElementById('itemsBody').innerHTML=list.length===0
     ?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">No items found</td></tr>`
     :list.map(p=>{
       const isOut=p.current_stock===0,isLow=!isOut&&p.current_stock<=p.reorder_level;
-      const stockColor=isOut?'#dc3545':isLow?'#e0a800':'#28a745';
+      const stockColor=isOut?'#ef4444':isLow?'#f59e0b':'#10b981';
       const statusLabel=isOut?'Out of Stock':isLow?'Low Stock':'In Stock';
       return `<tr>
-        <td style="font-size:26px">${p.emoji||'🍽️'}</td>
+        <td style="font-size:2rem">${p.emoji||'🍽️'}</td>
         <td><strong>${p.name}</strong>${p.description?`<br><small style="color:var(--text2)">${p.description}</small>`:''}</td>
         <td style="text-transform:capitalize">${CAT_LABELS[p.category]||p.category}</td>
-        <td>${fmt(p.unit_price)}</td>
+        <td><strong>${fmt(p.unit_price)}</strong></td>
         <td><strong style="color:${stockColor}">${p.current_stock}</strong></td>
-        <td><span style="color:${stockColor};font-weight:600;font-size:11px">${statusLabel}</span></td>
+        <td><span style="color:${stockColor};font-weight:700;font-size:0.75rem;text-transform:uppercase">${statusLabel}</span></td>
         <td>
-          <button class="btn btn-warning btn-sm" onclick="openEdit(${p.id})">✏️ Edit</button>
+          <button class="btn btn-warning btn-sm" onclick="openEdit(${p.id})">Edit</button>
           <button class="btn btn-danger btn-sm" onclick="deleteItem(${p.id})">🗑️</button>
         </td>
       </tr>`;

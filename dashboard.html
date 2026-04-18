@@ -3,48 +3,54 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RuviaOS – Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="darkmode.css">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
+body{font-family:'Inter',sans-serif;padding:20px;background-color:var(--bg)}
 .main{max-width:1400px;margin:0 auto}
-.banner{background:linear-gradient(135deg,#2c5f4a,#1a3f30);color:#fff;padding:24px 28px;border-radius:14px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.banner h1{font-size:24px;margin-bottom:6px}
-.banner p{opacity:.85;font-size:14px}
-.quick-btns{display:flex;gap:10px;flex-wrap:wrap}
-.qbtn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
-.qbtn:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:24px}
-.stat-card{background:var(--card,#fff);border-radius:14px;padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all .3s}
-.stat-card:hover{transform:translateY(-4px);box-shadow:0 6px 22px rgba(0,0,0,.13)}
-.stat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.stat-icon{font-size:36px}
-.stat-title{font-size:12px;color:var(--text2,#666);text-transform:uppercase;letter-spacing:.07em}
-.stat-value{font-size:32px;font-weight:700;color:var(--accent,#2c5f4a);margin:6px 0}
-.stat-sub{font-size:12px;color:var(--text2,#666)}
-.rows{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
-.card{background:var(--card,#fff);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
-.card h3{font-size:15px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--accent,#2c5f4a);display:inline-block;color:var(--text,#222)}
-.room-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:13px}
+.banner{background:var(--accent);color:#fff;padding:40px;border-radius:24px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;border:1px solid rgba(255,255,255,0.1)}
+.banner h1{font-size:32px;margin-bottom:8px;letter-spacing:-0.03em}
+.banner p{opacity:.85;font-size:16px}
+.quick-btns{display:flex;gap:12px;flex-wrap:wrap}
+.qbtn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:12px 20px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);display:flex;align-items:center;gap:8px}
+.qbtn:hover{background:var(--accent2);color:var(--accent);border-color:var(--accent2);transform:translateY(-3px)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-bottom:32px}
+.stat-card{background:var(--card,#fff);border-radius:24px;padding:28px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);border:1px solid var(--border)}
+.stat-card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,0.1);border-color:var(--accent2)}
+.stat-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.stat-icon{font-size:32px;color:var(--accent);background:var(--bg);width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:16px}
+.stat-title{font-size:13px;color:var(--text2,#666);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.stat-value{font-size:36px;font-weight:800;color:var(--text);margin:8px 0;letter-spacing:-0.03em}
+.stat-sub{font-size:13px;color:var(--text2,#666);font-weight:500}
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:32px}
+.card{background:var(--card,#fff);border-radius:24px;padding:32px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card h3{font-size:18px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px;color:var(--text,#222);font-family:'Montserrat',sans-serif}
+.card h3 i{color:var(--accent2)}
+.room-row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--border);font-size:14px;transition:all 0.2s}
+.room-row:hover{background:var(--row-hover)}
 .room-row:last-child{border-bottom:none}
-.rnum{font-weight:700;width:40px;color:var(--text,#222)}
-.rtype{flex:1;color:var(--text2,#666);font-size:12px}
-.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700}
-.badge-ready{background:#d4edda;color:#155724}
-.badge-occupied{background:#fff3cd;color:#856404}
-.badge-dirty{background:#f8d7da;color:#721c24}
-.badge-cleaning{background:#d1ecf1;color:#0c5460}
-.activity-item{padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.rnum{font-weight:800;width:48px;color:var(--accent);font-size:15px}
+.rtype{flex:1;color:var(--text2,#666);font-size:13px;font-weight:500}
+.badge{display:inline-block;padding:6px 12px;border-radius:10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em}
+.badge-ready{background:#dcfce7;color:#166534}
+.badge-occupied{background:#fef9c3;color:#854d0e}
+.badge-dirty{background:#fee2e2;color:#991b1b}
+.badge-cleaning{background:#e0f2fe;color:#075985}
+.activity-item{padding:16px 0;border-bottom:1px solid var(--border);font-size:13px}
 .activity-item:last-child{border-bottom:none}
-.act-title{font-weight:600;color:var(--text,#222)}
-.act-sub{color:var(--text2,#666);margin-top:2px}
-.low-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.act-title{font-weight:700;color:var(--text,#222);margin-bottom:4px}
+.act-sub{color:var(--text2,#666);font-size:12px}
+.low-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);font-size:14px}
 .low-item:last-child{border-bottom:none}
-.link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
-.link-card{background:var(--card,#fff);border-radius:12px;padding:16px;text-align:center;text-decoration:none;color:var(--text,#222);box-shadow:var(--shadow);transition:all .2s;display:block}
-.link-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
-.link-icon{font-size:28px;display:block;margin-bottom:8px}
-.link-label{font-size:12px;font-weight:600;color:var(--text,#222)}
+.link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:20px;margin-bottom:32px}
+.link-card{background:var(--card,#fff);border-radius:20px;padding:24px;text-align:center;text-decoration:none;color:var(--text,#222);box-shadow:var(--shadow);transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);display:block;border:1px solid var(--border)}
+.link-card:hover{transform:translateY(-5px);box-shadow:0 12px 24px rgba(0,0,0,0.1);border-color:var(--accent2)}
+.link-icon{font-size:32px;display:block;margin-bottom:12px;color:var(--accent)}
+.link-label{font-size:13px;font-weight:700;color:var(--text,#222)}
 .empty-state{text-align:center;color:var(--text2,#999);padding:24px;font-style:italic;font-size:13px}
 @media(max-width:900px){.rows{grid-template-columns:1fr}}
 </style>
@@ -56,48 +62,48 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
 <script src="ruvia-store.js"></script>
 
 <div class="main">
-  <div class="banner">
+  <div class="banner shadow-lg">
     <div>
-      <h1>👋 Good <span id="timeOfDay">morning</span>, <span id="username">Admin</span></h1>
+      <h1>Good <span id="timeOfDay">morning</span>, <span id="username">Admin</span></h1>
       <p id="todayDate">Loading date...</p>
     </div>
     <div class="quick-btns">
-      <button class="qbtn" onclick="location.href='frontdesk.html'">🏨 Front Desk</button>
-      <button class="qbtn" onclick="location.href='pos.html'">🍽️ POS</button>
-      <button class="qbtn" onclick="location.href='pms.html'">📅 New Booking</button>
-      <button class="qbtn" onclick="location.href='housekeeping.html'">🧹 Housekeeping</button>
+      <button class="qbtn" onclick="location.href='frontdesk.html'"><i class="ph ph-buildings"></i> Front Desk</button>
+      <button class="qbtn" onclick="location.href='pos.html'"><i class="ph ph-cooking-pot"></i> POS</button>
+      <button class="qbtn" onclick="location.href='pms.html'"><i class="ph ph-calendar-plus"></i> New Booking</button>
+      <button class="qbtn" onclick="location.href='housekeeping.html'"><i class="ph ph-broom"></i> Housekeeping</button>
     </div>
   </div>
 
   <!-- KPIs -->
   <div class="stats-grid">
     <div class="stat-card" onclick="location.href='pms.html'">
-      <div class="stat-header"><div class="stat-title">Occupancy Rate</div><div class="stat-icon">🛏️</div></div>
+      <div class="stat-header"><div class="stat-title">Occupancy Rate</div><div class="stat-icon"><i class="ph-duotone ph-bed"></i></div></div>
       <div class="stat-value" id="kOccRate">-</div>
       <div class="stat-sub" id="kOccSub">- of - rooms occupied</div>
     </div>
     <div class="stat-card" onclick="location.href='frontdesk.html'">
-      <div class="stat-header"><div class="stat-title">Today's Arrivals</div><div class="stat-icon">📥</div></div>
+      <div class="stat-header"><div class="stat-title">Today's Arrivals</div><div class="stat-icon"><i class="ph-duotone ph-sign-in"></i></div></div>
       <div class="stat-value" id="kArrivals">-</div>
       <div class="stat-sub" id="kDepartures">- departures today</div>
     </div>
     <div class="stat-card" onclick="location.href='reports.html'">
-      <div class="stat-header"><div class="stat-title">Total Revenue</div><div class="stat-icon">💰</div></div>
+      <div class="stat-header"><div class="stat-title">Total Revenue</div><div class="stat-icon"><i class="ph-duotone ph-coins"></i></div></div>
       <div class="stat-value" id="kRevenue">-</div>
       <div class="stat-sub" id="kPOS">POS: -</div>
     </div>
     <div class="stat-card" onclick="location.href='reports.html'">
-      <div class="stat-header"><div class="stat-title">Outstanding Balance</div><div class="stat-icon">⚠️</div></div>
+      <div class="stat-header"><div class="stat-title">Outstanding</div><div class="stat-icon"><i class="ph-duotone ph-warning-circle"></i></div></div>
       <div class="stat-value" id="kBalance" style="color:#dc3545">-</div>
       <div class="stat-sub">Unpaid guest balances</div>
     </div>
     <div class="stat-card" onclick="location.href='housekeeping.html'">
-      <div class="stat-header"><div class="stat-title">Rooms Needing Cleaning</div><div class="stat-icon">🧹</div></div>
+      <div class="stat-header"><div class="stat-title">Needs Cleaning</div><div class="stat-icon"><i class="ph-duotone ph-sparkle"></i></div></div>
       <div class="stat-value" id="kDirty" style="color:#e0a800">-</div>
       <div class="stat-sub" id="kDirtySub">- cleaning in progress</div>
     </div>
     <div class="stat-card" onclick="location.href='stock.html'">
-      <div class="stat-header"><div class="stat-title">Low Stock Alerts</div><div class="stat-icon">📦</div></div>
+      <div class="stat-header"><div class="stat-title">Stock Alerts</div><div class="stat-icon"><i class="ph-duotone ph-package"></i></div></div>
       <div class="stat-value" id="kLowStock" style="color:#e0a800">-</div>
       <div class="stat-sub" id="kOutStock">- out of stock</div>
     </div>
@@ -105,24 +111,24 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
 
   <!-- Quick Nav -->
   <div class="link-grid">
-    <a class="link-card" href="frontdesk.html"><span class="link-icon">🏨</span><span class="link-label">Front Desk</span></a>
-    <a class="link-card" href="pms.html"><span class="link-icon">📅</span><span class="link-label">Reservations</span></a>
-    <a class="link-card" href="pos.html"><span class="link-icon">🍽️</span><span class="link-label">Restaurant POS</span></a>
-    <a class="link-card" href="housekeeping.html"><span class="link-icon">🧹</span><span class="link-label">Housekeeping</span></a>
-    <a class="link-card" href="stock.html"><span class="link-icon">📦</span><span class="link-label">Stock</span></a>
-    <a class="link-card" href="reports.html"><span class="link-icon">📊</span><span class="link-label">Reports</span></a>
-    <a class="link-card" href="staff.html"><span class="link-icon">👥</span><span class="link-label">Staff</span></a>
-    <a class="link-card" href="menu-management.html"><span class="link-icon">📋</span><span class="link-label">Menu</span></a>
+    <a class="link-card" href="frontdesk.html"><span class="link-icon"><i class="ph-duotone ph-buildings"></i></span><span class="link-label">Front Desk</span></a>
+    <a class="link-card" href="pms.html"><span class="link-icon"><i class="ph-duotone ph-calendar-check"></i></span><span class="link-label">Reservations</span></a>
+    <a class="link-card" href="pos.html"><span class="link-icon"><i class="ph-duotone ph-cooking-pot"></i></span><span class="link-label">Restaurant POS</span></a>
+    <a class="link-card" href="housekeeping.html"><span class="link-icon"><i class="ph-duotone ph-broom"></i></span><span class="link-label">Housekeeping</span></a>
+    <a class="link-card" href="stock.html"><span class="link-icon"><i class="ph-duotone ph-package"></i></span><span class="link-label">Stock</span></a>
+    <a class="link-card" href="reports.html"><span class="link-icon"><i class="ph-duotone ph-chart-line-up"></i></span><span class="link-label">Reports</span></a>
+    <a class="link-card" href="staff.html"><span class="link-icon"><i class="ph-duotone ph-users-three"></i></span><span class="link-label">Staff</span></a>
+    <a class="link-card" href="menu-management.html"><span class="link-icon"><i class="ph-duotone ph-list-bullets"></i></span><span class="link-label">Menu</span></a>
   </div>
 
   <!-- Rooms + Activity -->
   <div class="rows">
     <div class="card">
-      <h3>🛏️ Room Status</h3>
+      <h3><i class="ph ph-bed"></i> Room Status</h3>
       <div id="roomList"></div>
     </div>
     <div class="card">
-      <h3>📋 Recent Housekeeping</h3>
+      <h3><i class="ph ph-clipboard-text"></i> Recent Housekeeping</h3>
       <div id="hkActivity"></div>
     </div>
   </div>
@@ -130,11 +136,11 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
   <!-- Low stock + Upcoming -->
   <div class="rows">
     <div class="card">
-      <h3>⚠️ Low Stock Items</h3>
+      <h3><i class="ph ph-warning"></i> Low Stock Items</h3>
       <div id="lowStockList"></div>
     </div>
     <div class="card">
-      <h3>📅 Upcoming Arrivals</h3>
+      <h3><i class="ph ph-calendar"></i> Upcoming Arrivals</h3>
       <div id="upcomingList"></div>
     </div>
   </div>
@@ -147,7 +153,18 @@ const fmtShort=n=>{if(n>=1e6)return 'UGX '+(n/1e6).toFixed(1)+'M';if(n>=1e3)retu
 function init(){
   const h=new Date().getHours();
   document.getElementById('timeOfDay').textContent=h<12?'morning':h<17?'afternoon':'evening';
-  document.getElementById('username').textContent=localStorage.getItem('ruviaos_user')||'Admin';
+
+  let userRaw = localStorage.getItem('ruviaos_user') || 'Admin';
+  let userName = 'Admin';
+  try {
+    if(userRaw.startsWith('{')) {
+      userName = JSON.parse(userRaw).username || 'Admin';
+    } else {
+      userName = userRaw;
+    }
+  } catch(e) { userName = userRaw; }
+
+  document.getElementById('username').textContent=userName;
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
 

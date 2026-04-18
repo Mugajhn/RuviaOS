@@ -1,46 +1,156 @@
-/* RuviaOS – Global Dark Mode (v2) */
+/* RuviaOS — darkmode.css v3 — Zero-flicker, professional dark mode */
+
+/* Early dark flash prevention — applied by ruvia-core.js before paint */
+html.dark-mode-early body { background: #111318 !important; color: #e2e4ea !important; }
+
+/* ─── CSS Custom Properties ─────────────────────────────────────────── */
 :root {
-  --bg:#f0f2f5;--card:#fff;--text:#222;--text2:#555;--border:#e0e0e0;
-  --input-bg:#fff;--input-border:#ccc;--th-bg:#f8f9fa;--row-hover:#f5f7fa;
-  --accent:#2c5f4a;--accent2:#1a3c34;--shadow:0 2px 10px rgba(0,0,0,.07);
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text2: #6b7280;
+  --border: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --th-bg: #f9fafb;
+  --row-hover: #f3f4f6;
+  --accent: #2c5f4a;
+  --accent2: #1a3c34;
+  --accent-light: #e8f5e9;
+  --shadow: 0 1px 4px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  --radius: 12px;
+  --navbar-bg: #1a3c34;
 }
-body.dark-mode{
-  --bg:#111318;--card:#1c1f26;--text:#e2e4ea;--text2:#9a9da8;--border:#2e3240;
-  --input-bg:#242730;--input-border:#3a3f52;--th-bg:#1e2230;--row-hover:#222635;
-  --accent:#4caf87;--accent2:#2c5f4a;--shadow:0 2px 14px rgba(0,0,0,.45);
+
+body.dark-mode {
+  --bg: #0f1117;
+  --card: #1c2030;
+  --text: #e2e4ea;
+  --text2: #8b8fa8;
+  --border: rgba(255,255,255,.09);
+  --input-bg: #252535;
+  --input-border: rgba(255,255,255,.14);
+  --th-bg: #1e2230;
+  --row-hover: #222638;
+  --accent: #4caf87;
+  --accent2: #2c5f4a;
+  --accent-light: rgba(76,175,135,.12);
+  --shadow: 0 1px 4px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.5);
 }
-body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
-/* Cards + panels */
-.stat-card,.chart-card,.table-container,.form-container,.modal-content,
-.filter-section,.card,.section,.room-card,.product-tile,.cart-panel,
-.products-panel,.search-bar,.receipt{background:var(--card)!important;color:var(--text)!important;box-shadow:var(--shadow)!important}
-/* Table cells */
-th{background:var(--th-bg)!important;color:var(--text)!important;border-bottom-color:var(--border)!important}
-td{border-bottom-color:var(--border)!important;color:var(--text)!important}
-tr:hover{background:var(--row-hover)!important}
-/* Inputs */
-input,select,textarea{background:var(--input-bg)!important;border-color:var(--input-border)!important;color:var(--text)!important}
-input::placeholder,textarea::placeholder{color:var(--text2)!important}
-/* Labels & secondary text */
-.stat-label,.form-group label,.room-type,.product-price,.cart-item-price,
-label{color:var(--text2)!important}
-/* Accent values */
-.stat-value,.stat-number{color:var(--accent)!important}
-/* Filter buttons unselected */
-.filter-btn:not(.active),.tab:not(.active),.main-cat-btn:not(.active){background:var(--card)!important;color:var(--text)!important;border-color:var(--border)}
-/* Room cards toned backgrounds */
-body.dark-mode .room-card.ready{background:#162318!important;border-left-color:#4caf87}
-body.dark-mode .room-card.dirty{background:#231618!important;border-left-color:#e05c5c}
-body.dark-mode .room-card.occupied{background:#231f10!important;border-left-color:#e0a84c}
-body.dark-mode .room-card.cleaning{background:#102230!important;border-left-color:#4cafd6}
-/* POS product panel */
-body.dark-mode .products-panel,body.dark-mode .search-bar{background:var(--bg)!important}
-body.dark-mode .product-tile{background:var(--card)!important}
-body.dark-mode .product-name{color:var(--text)!important}
-body.dark-mode .cart-summary{background:var(--th-bg)!important}
-body.dark-mode .cart-item{border-bottom-color:var(--border)!important}
-body.dark-mode .assigned-info{background:var(--th-bg)!important;color:var(--text2)!important}
-/* Section titles */
-.section-title{border-bottom-color:var(--accent)!important;color:var(--text)!important}
-/* Modals overlay stays dark */
-.modal,.payment-modal,.receipt-modal{background:rgba(0,0,0,.6)!important}
+
+/* ─── Base ──────────────────────────────────────────────────────────── */
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background .25s ease, color .25s ease;
+}
+
+/* ─── Cards & surfaces ──────────────────────────────────────────────── */
+.stat-card, .chart-card, .table-container, .form-container,
+.card, .section, .action-card, .backup-list, .modal-content,
+.filter-section, .receipt, .form-wrap, .kpi,
+[class*="-card"], [class*="-panel"] {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow) !important;
+  transition: background .25s, box-shadow .25s;
+}
+
+/* ─── Tables ────────────────────────────────────────────────────────── */
+th {
+  background: var(--th-bg) !important;
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+td {
+  border-bottom-color: var(--border) !important;
+  color: var(--text) !important;
+}
+tr:hover { background: var(--row-hover) !important; }
+
+/* ─── Inputs ────────────────────────────────────────────────────────── */
+input, select, textarea {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text) !important;
+  transition: background .2s, border-color .2s;
+}
+input::placeholder, textarea::placeholder { color: var(--text2) !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; }
+
+/* ─── Labels & secondary text ───────────────────────────────────────── */
+.stat-label, .stat-title, .form-group label,
+.kpi-label, label, .tile-title, .tile-unit { color: var(--text2) !important; }
+
+/* ─── Accent values ─────────────────────────────────────────────────── */
+.stat-value, .stat-number, .kpi-val { color: var(--accent) !important; }
+
+/* ─── Section titles & dividers ─────────────────────────────────────── */
+.section-title, h3.section-header { border-bottom-color: var(--accent) !important; color: var(--text) !important; }
+hr { border-color: var(--border) !important; }
+
+/* ─── Modals ─────────────────────────────────────────────────────────── */
+body.dark-mode .modal,
+body.dark-mode .payment-modal,
+body.dark-mode .rcpt-overlay { background: rgba(0,0,0,.7) !important; }
+body.dark-mode .modal-content,
+body.dark-mode .rcpt-modal,
+body.dark-mode .rcpt-paper { background: var(--card) !important; color: var(--text) !important; }
+body.dark-mode .rcpt-paper { background: #252535 !important; color: var(--text) !important; }
+
+/* ─── Room cards (housekeeping) ─────────────────────────────────────── */
+body.dark-mode .room-card.ready  { background: #0d2018 !important; border-left-color: #4caf87; }
+body.dark-mode .room-card.dirty  { background: #1f0f0f !important; border-left-color: #e05c5c; }
+body.dark-mode .room-card.occupied { background: #1e1a08 !important; border-left-color: #e0a84c; }
+body.dark-mode .room-card.cleaning { background: #0a1c2c !important; border-left-color: #4cafd6; }
+
+/* ─── POS ────────────────────────────────────────────────────────────── */
+body.dark-mode .products-panel { background: var(--bg) !important; }
+body.dark-mode .product-tile, body.dark-mode .tile { background: var(--card) !important; }
+body.dark-mode .tile-name, body.dark-mode .product-name { color: var(--text) !important; }
+body.dark-mode .cart-panel { background: var(--card) !important; }
+body.dark-mode .cart-footer { background: var(--th-bg) !important; }
+body.dark-mode .cart-item { border-bottom-color: var(--border) !important; }
+body.dark-mode .ci-name, body.dark-mode .ci-total { color: var(--text) !important; }
+
+/* ─── Filter buttons ─────────────────────────────────────────────────── */
+.filter-btn:not(.active), .tab:not(.active), .cat-btn:not(.active), .main-cat-btn:not(.active) {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.filter-btn.active, .tab.active, .cat-btn.active { background: var(--accent) !important; color: #fff !important; }
+
+/* ─── Badges ─────────────────────────────────────────────────────────── */
+.badge-ready, .b-ready     { background: #0d2018 !important; color: #4caf87 !important; }
+.badge-occupied, .b-occupied { background: #1e1a08 !important; color: #ffc107 !important; }
+.badge-dirty, .b-dirty     { background: #1f0f0f !important; color: #e05c5c !important; }
+.badge-cleaning, .b-cleaning { background: #0a1c2c !important; color: #4cafd6 !important; }
+
+body:not(.dark-mode) .badge-ready   { background: #d4edda; color: #155724; }
+body:not(.dark-mode) .badge-occupied{ background: #fff3cd; color: #856404; }
+body:not(.dark-mode) .badge-dirty   { background: #f8d7da; color: #721c24; }
+body:not(.dark-mode) .badge-cleaning{ background: #d1ecf1; color: #0c5460; }
+body:not(.dark-mode) .b-ready       { background: #d4edda; color: #155724; }
+body:not(.dark-mode) .b-occupied    { background: #fff3cd; color: #856404; }
+body:not(.dark-mode) .b-dirty       { background: #f8d7da; color: #721c24; }
+
+/* ─── Dark mode toggle button state ─────────────────────────────────── */
+body.dark-mode .rnav-dark-btn::after { content: '' }
+
+/* ─── Scrollbars (dark) ──────────────────────────────────────────────── */
+body.dark-mode ::-webkit-scrollbar { width: 6px; height: 6px; }
+body.dark-mode ::-webkit-scrollbar-track { background: var(--bg); }
+body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+body.dark-mode ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); }
+
+/* ─── Headers / banners ──────────────────────────────────────────────── */
+body.dark-mode .header, .header { background: linear-gradient(135deg,#1a3c34,#2c5f4a); }
+
+/* ─── Print — always light ──────────────────────────────────────────── */
+@media print {
+  :root { --bg:#fff; --card:#fff; --text:#000; --text2:#555; --border:#ccc; }
+  body.dark-mode { background: #fff !important; color: #000 !important; }
+}

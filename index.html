@@ -2,111 +2,289 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Ruvia Hotel</title>
+<title>RuviaOS — Ruvia Hotel</title>
+<script src="ruvia-core.js"></script>
 <link rel="stylesheet" href="darkmode.css">
-<script src="darkmode.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding-bottom:40px}
-.container{max-width:1200px;margin:0 auto;padding:20px}
-.hero{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:50px 30px;border-radius:20px;margin-bottom:30px;text-align:center}
-.hero h1{font-size:40px;margin-bottom:12px}
-.hero p{font-size:17px;opacity:.9}
-.login-card{background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:26px;text-align:center;margin-bottom:28px;border:1px solid #ffc107}
-body.dark-mode .login-card{background:linear-gradient(135deg,#2a2210,#1f1a08);border-color:#a07800}
-.login-card h3{color:#856404;margin-bottom:10px;font-size:17px}
-body.dark-mode .login-card h3{color:#ffc107}
-.login-card p{color:var(--text2,#666);font-size:13px;margin-bottom:14px}
-.login-btn{background:var(--accent,#2c5f4a);color:#fff;border:none;padding:12px 32px;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-.login-btn:hover{background:var(--accent2,#1a3c34)}
-.stats-section{margin-bottom:28px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
-.stat-card{background:var(--card,#fff);padding:18px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:26px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.modules-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:18px;color:var(--text,#222)}
-.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.module-card{background:var(--card,#fff);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:var(--shadow);text-decoration:none;display:block;color:var(--text,#222)}
-.module-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.13)}
-.module-card.locked{opacity:.45;filter:blur(1px);cursor:default}
-.module-icon{font-size:42px;margin-bottom:10px}
-.module-card h3{font-size:15px;font-weight:700;color:var(--text,#222)}
-.module-card p{font-size:12px;color:var(--text2,#666);margin-top:4px}
-.locked-badge{background:#ffc107;color:#333;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;display:inline-block;margin-top:8px}
-.footer{text-align:center;padding:24px 20px 0;color:var(--text2,#666);font-size:13px;border-top:1px solid var(--border,#eee);margin-top:30px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg,#f0f2f5);padding-bottom:40px;transition:background .25s,color .25s}
+.main{max-width:1400px;margin:0 auto;padding:20px 20px 0}
+.hero{background:linear-gradient(135deg,#1a3c34,#2c5f4a,#3d7a62);color:#fff;padding:28px 32px;border-radius:16px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hero-text h1{font-size:26px;margin-bottom:4px}
+.hero-text p{opacity:.8;font-size:14px}
+.hero-quick{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.qbtn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);color:#fff;padding:9px 16px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-decoration:none}
+.qbtn:hover{background:rgba(255,255,255,.3);transform:translateY(-1px)}
+.login-banner{background:linear-gradient(135deg,#fff8e1,#fffde7);border:1px solid #ffc107;border-radius:14px;padding:24px;text-align:center;margin-bottom:24px}
+body.dark-mode .login-banner{background:linear-gradient(135deg,#2a2210,#1f1a08);border-color:#a07800}
+.login-banner h3{color:#856404;margin-bottom:6px;font-size:17px}
+body.dark-mode .login-banner h3{color:#ffc107}
+.login-banner p{color:var(--text2,#666);font-size:13px;margin-bottom:14px}
+.login-banner-btn{background:#2c5f4a;color:#fff;border:none;padding:12px 32px;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.kpi{background:var(--card,#fff);padding:20px;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;transition:all .25s;border-left:3px solid transparent}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.kpi-val{font-size:32px;font-weight:700;color:var(--accent,#2c5f4a);margin-bottom:4px}
+.kpi-label{font-size:12px;color:var(--text2,#666);text-transform:uppercase;letter-spacing:.05em}
+.kpi-sub{font-size:11px;color:var(--text2,#888);margin-top:3px}
+.kpi.warn .kpi-val{color:#e0a800}
+.kpi.danger .kpi-val{color:#dc3545}
+.content-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+@media(max-width:1000px){.content-grid{grid-template-columns:1fr}}
+.card{background:var(--card,#fff);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border,#eee);display:flex;justify-content:space-between;align-items:center}
+.card-hdr h3{font-size:14px;font-weight:700;color:var(--text,#222)}
+.card-body{padding:0}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.module{background:var(--card,#fff);border-radius:13px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.06);text-decoration:none;display:block;color:var(--text,#222);position:relative;border:1px solid var(--border,#eee)}
+.module:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.1);border-color:#2c5f4a}
+.module.locked{opacity:.4;cursor:not-allowed;pointer-events:none;filter:grayscale(.5)}
+.module-icon{font-size:32px;display:block;margin-bottom:8px;line-height:1}
+.module-lbl{font-size:12px;font-weight:600;color:var(--text,#222)}
+.module-sub{font-size:10px;color:var(--text2,#777);margin-top:2px}
+.mod-badge{position:absolute;top:6px;right:6px;background:#e05c5c;color:#fff;border-radius:20px;font-size:9px;font-weight:700;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.room-row{display:flex;align-items:center;gap:10px;padding:9px 18px;border-bottom:1px solid var(--border,#eee);font-size:13px}
+.room-row:last-child{border-bottom:none}
+.rnum{font-weight:700;width:42px;color:var(--text,#222)}
+.rtype{flex:1;color:var(--text2,#666);font-size:11px}
+.rbadge{padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-ready{background:#d4edda;color:#155724}.b-occupied{background:#fff3cd;color:#856404}.b-dirty{background:#f8d7da;color:#721c24}.b-cleaning{background:#d1ecf1;color:#0c5460}
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.act-item:last-child{border-bottom:none}
+.act-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.act-content{flex:1}
+.act-msg{color:var(--text,#222);line-height:1.4}
+.act-who{color:var(--text2,#888);font-size:11px;margin-top:2px}
+.act-time{font-size:10px;color:var(--text2,#aaa);flex-shrink:0;white-space:nowrap}
+.empty-state{text-align:center;color:var(--text2,#999);padding:28px;font-size:12px;font-style:italic}
+.section-label{font-size:11px;font-weight:600;color:var(--text2,#888);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
 <script src="navbar.js"></script>
+<script src="darkmode.js"></script>
 <script src="ruvia-store.js"></script>
+<script src="ruvia-statusbar.js"></script>
 
-<div class="container">
-  <div class="hero">
-    <h1>🏨 Ruvia Hotel</h1>
-    <p>Welcome to Ruvia Hotel Management System</p>
-  </div>
+<div class="main">
 
-  <div id="loginPrompt" class="login-card" style="display:none">
+  <!-- Login banner (shown if not logged in) -->
+  <div id="loginBanner" class="login-banner" style="display:none">
     <h3>🔐 Employee Access Required</h3>
-    <p>Please login to access the hotel management system.</p>
-    <button class="login-btn" onclick="location.href='login.html'">🔐 Go to Login</button>
+    <p>Please sign in to access the Ruvia Hotel management system.</p>
+    <button class="login-banner-btn" onclick="location.href='login.html'">🔐 Sign In</button>
     <p style="margin-top:12px;font-size:11px;color:var(--text2)">Demo: admin / admin123</p>
   </div>
 
-  <div class="stats-section" id="statsSection" style="display:none">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value" id="stRooms">-</div><div class="stat-label">Total Rooms</div></div>
-      <div class="stat-card"><div class="stat-value" id="stOcc">-</div><div class="stat-label">🔴 Occupied</div></div>
-      <div class="stat-card"><div class="stat-value" id="stRate">-</div><div class="stat-label">Occupancy Rate</div></div>
-      <div class="stat-card"><div class="stat-value" id="stArrivals">-</div><div class="stat-label">📥 Arrivals Today</div></div>
-      <div class="stat-card"><div class="stat-value" id="stLowStock" style="color:#e0a800">-</div><div class="stat-label">⚠️ Low Stock</div></div>
-      <div class="stat-card"><div class="stat-value" id="stPending" style="color:#dc3545">-</div><div class="stat-label">💳 Outstanding</div></div>
+  <!-- Hero (shown when logged in) -->
+  <div id="heroSection" class="hero" style="display:none">
+    <div class="hero-text" style="position:relative;z-index:1">
+      <h1>👋 Good <span id="timeOfDay">morning</span>, <span id="userName">Admin</span></h1>
+      <p id="todayDate">Loading...</p>
+    </div>
+    <div class="hero-quick">
+      <a href="frontdesk.html" class="qbtn">🏨 Front Desk</a>
+      <a href="pos.html" class="qbtn">🍽 POS</a>
+      <a href="pms.html" class="qbtn">📅 New Booking</a>
+      <a href="housekeeping.html" class="qbtn">🧹 Housekeeping</a>
     </div>
   </div>
 
-  <h3 class="modules-title">📋 System Modules</h3>
-  <div class="modules-grid" id="modulesGrid">
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'frontdesk.html')"><div class="module-icon">🏨</div><h3>Reception</h3><p>Check-in/out & front desk</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'pms.html')"><div class="module-icon">📅</div><h3>Reservations (PMS)</h3><p>Guests, rooms, bookings</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'pos.html')"><div class="module-icon">🍽️</div><h3>Restaurant POS</h3><p>Take & process orders</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'housekeeping.html')"><div class="module-icon">🧹</div><h3>Housekeeping</h3><p>Room cleaning & status</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'stock.html')"><div class="module-icon">📦</div><h3>Stock Management</h3><p>Inventory & supplies</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'tables.html')"><div class="module-icon">🪑</div><h3>Table Management</h3><p>Dining room tables</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'menu-management.html')"><div class="module-icon">📋</div><h3>Menu Management</h3><p>Food & beverage menu</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'reports.html')"><div class="module-icon">📊</div><h3>Reports & Analytics</h3><p>Sales, occupancy, stock</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'staff.html')"><div class="module-icon">👥</div><h3>Staff Management</h3><p>Team members & roles</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'dashboard.html')"><div class="module-icon">📈</div><h3>Dashboard</h3><p>Live hotel overview</p><span class="locked-badge">🔒 Login required</span></a>
+  <!-- KPIs (logged in) -->
+  <div id="kpiSection" class="kpis" style="display:none">
+    <div class="kpi" onclick="location.href='pms.html'">
+      <div class="kpi-val" id="kOccRate">-</div>
+      <div class="kpi-label">Occupancy Rate</div>
+      <div class="kpi-sub" id="kOccSub">- rooms occupied</div>
+    </div>
+    <div class="kpi" onclick="location.href='frontdesk.html'">
+      <div class="kpi-val" id="kArrivals">-</div>
+      <div class="kpi-label">Arrivals Today</div>
+      <div class="kpi-sub" id="kDeparts">- departures today</div>
+    </div>
+    <div class="kpi" onclick="location.href='reports.html'" id="kpiRevCard">
+      <div class="kpi-val" id="kRevenue">-</div>
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-sub" id="kPOS">POS: -</div>
+    </div>
+    <div class="kpi warn" onclick="location.href='housekeeping.html'">
+      <div class="kpi-val" id="kDirty">-</div>
+      <div class="kpi-label">Need Cleaning</div>
+      <div class="kpi-sub" id="kDirtySub">- in progress</div>
+    </div>
+    <div class="kpi warn" onclick="location.href='stock.html'" id="kpiStockCard">
+      <div class="kpi-val" id="kLowStock">-</div>
+      <div class="kpi-label">Low Stock Alerts</div>
+      <div class="kpi-sub" id="kOutStock">- out of stock</div>
+    </div>
+    <div class="kpi danger" onclick="location.href='pms.html'">
+      <div class="kpi-val" id="kBalance">-</div>
+      <div class="kpi-label">Outstanding Bal.</div>
+      <div class="kpi-sub">Unpaid balances</div>
+    </div>
   </div>
 
-  <div class="footer"><p>RuviaOS – Hotel Management System &nbsp;|&nbsp; Ruvia Hotel &nbsp;|&nbsp; © 2026</p></div>
+  <!-- Modules grid -->
+  <div class="section-label" id="moduleLabel" style="display:none">System Modules</div>
+  <div class="modules-grid" id="modulesGrid"></div>
+
+  <!-- Content grid: rooms + activity -->
+  <div class="content-grid" id="contentGrid" style="display:none">
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-hdr">
+          <h3>🛏 Room Status</h3>
+          <a href="housekeeping.html" style="font-size:12px;color:#2c5f4a;text-decoration:none">View all →</a>
+        </div>
+        <div class="card-body" id="roomList"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <h3>📅 Upcoming Arrivals</h3>
+          <a href="frontdesk.html" style="font-size:12px;color:#2c5f4a;text-decoration:none">View all →</a>
+        </div>
+        <div class="card-body" id="upcomingList"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-hdr">
+          <h3>📋 Activity Feed</h3>
+          <span style="font-size:11px;color:var(--text2,#999)" id="actFeedTime">Live</span>
+        </div>
+        <div id="ruvia-statusbar" class="card-body"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-function isLoggedIn(){return localStorage.getItem('ruviaos_logged_in')==='true';}
-function checkAccess(e,page){e.preventDefault();if(isLoggedIn())location.href=page;else{alert('🔐 Please login first.\n\nDemo: admin / admin123');location.href='login.html';}}
-function updateUI(){
-  const loggedIn=isLoggedIn();
-  document.getElementById('loginPrompt').style.display=loggedIn?'none':'block';
-  document.getElementById('statsSection').style.display=loggedIn?'block':'none';
-  document.querySelectorAll('.module-card').forEach(m=>{m.classList.toggle('locked',!loggedIn);});
-  if(loggedIn){
-    const rooms=RuviaStore.getRooms(),res=RuviaStore.getReservations(),products=RuviaStore.getProducts();
-    const today=new Date().toISOString().slice(0,10);
-    const occ=rooms.filter(r=>r.status==='occupied').length;
-    const arrivals=res.filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
-    const low=products.filter(p=>p.current_stock<=p.reorder_level).length;
-    const pending=Math.max(0,res.reduce((s,r)=>s+(r.balance||(r.total_amount-r.paid_amount)||0),0));
-    document.getElementById('stRooms').textContent=rooms.length;
-    document.getElementById('stOcc').textContent=occ;
-    document.getElementById('stRate').textContent=Math.round(occ/rooms.length*100)+'%';
-    document.getElementById('stArrivals').textContent=arrivals;
-    document.getElementById('stLowStock').textContent=low;
-    document.getElementById('stPending').textContent='USh '+(pending>=1e6?(pending/1e6).toFixed(1)+'M':pending>=1e3?(pending/1e3).toFixed(0)+'K':pending.toLocaleString());
-  }
+const fmtS = n => { const v = Math.round(n||0); if(v>=1e6) return 'USh '+(v/1e6).toFixed(1)+'M'; if(v>=1e3) return 'USh '+(v/1e3).toFixed(0)+'K'; return 'USh '+v; };
+
+const MODULE_CONFIG = {
+  admin:   { pages:['frontdesk','pms','pos','dashboard','housekeeping','tables','stock','menu-management','reports','staff'] },
+  manager: { pages:['frontdesk','pms','pos','dashboard','housekeeping','tables','stock','menu-management','reports','staff'] },
+  reception: { pages:['frontdesk','pms'] },
+  kitchen: { pages:['pos','stock','menu-management'] },
+  housekeeping: { pages:['housekeeping'] }
+};
+const MODULE_META = {
+  'frontdesk':       { icon:'🏨', label:'Front Desk', sub:'Check-in & out', badge:'arrivals' },
+  'pms':             { icon:'📅', label:'Reservations', sub:'PMS & bookings', badge:'res' },
+  'pos':             { icon:'🍽', label:'Restaurant POS', sub:'Take orders', badge:null },
+  'dashboard':       { icon:'📊', label:'Dashboard', sub:'Live overview', badge:null },
+  'housekeeping':    { icon:'🧹', label:'Housekeeping', sub:'Room status', badge:'dirty' },
+  'tables':          { icon:'🪑', label:'Table Mgmt', sub:'Dining tables', badge:null },
+  'stock':           { icon:'📦', label:'Stock', sub:'Inventory', badge:'stock' },
+  'menu-management': { icon:'📋', label:'Menu', sub:'Food & beverage', badge:null },
+  'reports':         { icon:'📈', label:'Reports', sub:'Analytics', badge:null },
+  'staff':           { icon:'👥', label:'Staff', sub:'HR & profiles', badge:null }
+};
+function getBadge(type) {
+  if(!window.RuviaStore) return 0;
+  const today = new Date().toISOString().slice(0,10);
+  if(type==='arrivals') return RuviaStore.getReservations().filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
+  if(type==='dirty') return RuviaStore.getRooms().filter(r=>r.status==='dirty'||r.status==='cleaning').length;
+  if(type==='stock') return RuviaStore.getProducts().filter(p=>p.current_stock<=p.reorder_level).length;
+  return 0;
 }
-updateUI();
-setInterval(updateUI, 5000);
+
+function updateUI() {
+  const loggedIn = localStorage.getItem('ruviaos_logged_in') === 'true';
+  const user = localStorage.getItem('ruviaos_user') || 'Admin';
+  const role = localStorage.getItem('ruviaos_role') || 'reception';
+  const perms = window.ROLE_PERMISSIONS ? (ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.reception) : { nav: Object.keys(MODULE_META) };
+
+  document.getElementById('loginBanner').style.display = loggedIn ? 'none' : 'block';
+  document.getElementById('heroSection').style.display = loggedIn ? 'flex' : 'none';
+  document.getElementById('kpiSection').style.display = loggedIn ? 'grid' : 'none';
+  document.getElementById('moduleLabel').style.display = loggedIn ? 'block' : 'none';
+  document.getElementById('contentGrid').style.display = loggedIn ? 'grid' : 'none';
+
+  const h = new Date().getHours();
+  document.getElementById('timeOfDay').textContent = h<12?'morning':h<17?'afternoon':'evening';
+  document.getElementById('userName').textContent = user;
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Modules
+  const allowedPages = perms.pages?.includes('*') ? Object.keys(MODULE_META) : (perms.nav || perms.pages || []);
+  const mgrid = document.getElementById('modulesGrid');
+  if (mgrid) {
+    mgrid.innerHTML = Object.entries(MODULE_META).map(([key, m]) => {
+      const allowed = allowedPages.includes(key);
+      const badge = m.badge ? getBadge(m.badge) : 0;
+      return `<a href="${key}.html" class="module${!loggedIn||!allowed?' locked':''}" ${!loggedIn?'onclick="event.preventDefault();location.href=\'login.html\'"':''}>
+        <span class="module-icon">${m.icon}</span>
+        <span class="module-lbl">${m.label}</span>
+        <span class="module-sub">${m.sub}</span>
+        ${badge>0?`<span class="mod-badge">${badge}</span>`:''}
+      </a>`;
+    }).join('');
+  }
+
+  if (!loggedIn) return;
+
+  // KPI: hide financial data for restricted roles
+  const showFinancials = window.ROLE_PERMISSIONS ? (ROLE_PERMISSIONS[role]?.canViewFinancials !== false) : true;
+  const showStock = window.ROLE_PERMISSIONS ? (ROLE_PERMISSIONS[role]?.canViewStock !== false) : true;
+  const kpiRev = document.getElementById('kpiRevCard');
+  const kpiStock = document.getElementById('kpiStockCard');
+  if (kpiRev) kpiRev.style.display = showFinancials ? '' : 'none';
+  if (kpiStock) kpiStock.style.display = showStock ? '' : 'none';
+
+  if (!window.RuviaStore) return;
+  const rooms = RuviaStore.getRooms(), guests = RuviaStore.getGuests(),
+        res = RuviaStore.getReservations(), orders = RuviaStore.getOrders(),
+        products = RuviaStore.getProducts();
+  const today = new Date().toISOString().slice(0,10);
+  const occ = rooms.filter(r=>r.status==='occupied').length;
+  const dirty = rooms.filter(r=>r.status==='dirty').length;
+  const cleaning = rooms.filter(r=>r.status==='cleaning').length;
+  const arrivals = res.filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
+  const departures = res.filter(r=>r.status==='checked-in'&&r.check_out<=today).length;
+  const totalRev = res.reduce((s,r)=>s+(r.paid_amount||0),0);
+  const posSales = orders.reduce((s,o)=>s+(o.total||0),0);
+  const pending = Math.max(0,res.reduce((s,r)=>s+(r.balance||(r.total_amount-r.paid_amount)||0),0));
+  const lowStock = products.filter(p=>p.current_stock>0&&p.current_stock<=p.reorder_level).length;
+  const outStock = products.filter(p=>p.current_stock===0).length;
+
+  document.getElementById('kOccRate').textContent = Math.round(occ/rooms.length*100)+'%';
+  document.getElementById('kOccSub').textContent = `${occ} of ${rooms.length} rooms`;
+  document.getElementById('kArrivals').textContent = arrivals;
+  document.getElementById('kDeparts').textContent = `${departures} departure${departures!==1?'s':''} today`;
+  if(showFinancials){document.getElementById('kRevenue').textContent=fmtS(totalRev);document.getElementById('kPOS').textContent='POS: '+fmtS(posSales);}
+  document.getElementById('kDirty').textContent = dirty;
+  document.getElementById('kDirtySub').textContent = `${cleaning} cleaning in progress`;
+  if(showStock){document.getElementById('kLowStock').textContent=lowStock;document.getElementById('kOutStock').textContent=`${outStock} out of stock`;}
+  document.getElementById('kBalance').textContent = fmtS(pending);
+
+  // Room list
+  const bmap={ready:'b-ready',occupied:'b-occupied',dirty:'b-dirty',cleaning:'b-cleaning'};
+  const lmap={ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
+  document.getElementById('roomList').innerHTML = rooms.slice(0,10).map(r=>`
+    <div class="room-row">
+      <span class="rnum">${r.room_number}</span>
+      <span class="rtype">${r.room_type}</span>
+      <span class="rbadge ${bmap[r.status]||''}">${lmap[r.status]||r.status}</span>
+    </div>`).join('') + (rooms.length>10?`<div class="empty-state" style="font-size:11px;padding:10px">+${rooms.length-10} more</div>`:'');
+
+  // Upcoming arrivals
+  const upcoming = res.filter(r=>r.status==='confirmed'&&r.check_in>=today).sort((a,b)=>a.check_in.localeCompare(b.check_in)).slice(0,6);
+  document.getElementById('upcomingList').innerHTML = upcoming.length===0
+    ?'<div class="empty-state">No upcoming arrivals</div>'
+    :upcoming.map(r=>{const g=guests.find(x=>x.id===r.guest_id)||{};const rm=rooms.find(x=>x.id===r.room_id)||{};
+      return `<div class="room-row"><span class="rnum">${rm.room_number||'?'}</span><span class="rtype">${g.full_name||'Guest'}</span><span class="rbadge" style="background:#d1ecf1;color:#0c5460">${r.check_in}</span></div>`;}).join('');
+
+  // Activity feed handled by ruvia-statusbar.js
+  if(window.RuviaStatusBar) RuviaStatusBar.render('ruvia-statusbar');
+}
+
+if(window.RuviaStore) RuviaStore.onChange(()=>updateUI());
+document.addEventListener('DOMContentLoaded', updateUI);
+setInterval(updateUI, 15000);
 </script>
 </body>
 </html>

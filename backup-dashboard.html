@@ -2,22 +2,8 @@
 <html lang="en">
 <head>
     <!-- Currency Formatter -->
-    <script src="currency.js">
-    // AI offline fallback
-    if (!navigator.onLine) {
-        const aiGrid = document.getElementById('aiGrid');
-        if (aiGrid) {
-            aiGrid.innerHTML = '<div class="ai-card"><h3>📡 Offline Mode</h3><p>AI predictions require internet connection. Will update automatically when connection is restored.</p></div>';
-        }
-    }
-    
-    // Listen for online event to reload AI
-    window.addEventListener('online', () => {
-        if (typeof loadAIPredictions === 'function') {
-            loadAIPredictions();
-        }
-    });
-</script>
+    <script src="currency.js"></script>
+    <script src="ruvia-store.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RuviaOS - Backup Dashboard</title>
@@ -438,22 +424,10 @@
     <!-- Offline Status Bar -->
     <div id="offlineStatusContainer"></div>
     <script>
-        fetch('offline-status.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('offlineStatusContainer').innerHTML = data;
-            });
+        
     </script>
-    <!-- Navigation Bar -->
-<div id="navbar-placeholder"></div>
-
-<script>
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-        });
-</script>
+    <div id="navbar-placeholder"></div>
+<script src="navbar.js"></script>
 
 <div class="container">
     <div class="header">

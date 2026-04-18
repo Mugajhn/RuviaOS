@@ -1,120 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RuviaOS - Login</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a3c34, #2c5f4a);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .login-container h1 {
-            color: #2c5f4a;
-            margin-bottom: 10px;
-        }
-        .login-container h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-        .login-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #2c5f4a;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background: #1a3c34;
-        }
-        .error {
-            color: #dc3545;
-            margin-top: 10px;
-            display: none;
-        }
-        .demo-info {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 12px;
-            color: #666;
-        }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS – Login</title>
+<link rel="stylesheet" href="darkmode.css">
+<script src="darkmode.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#1a3c34,#2c5f4a);padding:20px}
+.card{background:var(--card,#fff);padding:40px 36px;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);width:100%;max-width:400px;text-align:center}
+.logo{font-size:58px;margin-bottom:14px}
+h1{color:var(--accent,#2c5f4a);font-size:28px;margin-bottom:6px}
+h2{color:var(--text,#333);font-size:16px;font-weight:400;margin-bottom:28px}
+.form-group{margin-bottom:14px;text-align:left}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2,#555);margin-bottom:4px}
+.form-group input{width:100%;padding:13px 16px;border:1.5px solid var(--input-border,#ddd);border-radius:9px;font-size:15px;background:var(--input-bg,#fff);color:var(--text,#222);transition:border-color .2s;outline:none}
+.form-group input:focus{border-color:var(--accent,#2c5f4a)}
+.btn-login{width:100%;padding:14px;background:var(--accent,#2c5f4a);color:#fff;border:none;border-radius:9px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:background .2s}
+.btn-login:hover{background:var(--accent2,#1a3c34)}
+.error{color:#dc3545;font-size:13px;margin-top:10px;display:none;padding:8px 12px;background:#f8d7da;border-radius:7px}
+.demo{margin-top:22px;padding-top:16px;border-top:1px solid var(--border,#eee);font-size:12px;color:var(--text2,#666);line-height:1.8}
+.demo strong{color:var(--text,#333)}
+</style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-icon">🏨</div>
-        <h1>RuviaOS</h1>
-        <h2>Employee Login</h2>
-        <input type="text" id="username" placeholder="Username" autocomplete="off">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="doLogin()">🔐 Login</button>
-        <div id="errorMsg" class="error"></div>
-        <div class="demo-info">
-            <strong>Demo Credentials:</strong><br>
-            Username: <strong>admin</strong> | Password: <strong>admin123</strong><br>
-            (or any: manager, reception, kitchen, housekeeping)
-        </div>
-    </div>
-
-    <script>
-        function doLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMsg');
-            
-            const validUsers = ['admin', 'manager', 'reception', 'kitchen', 'housekeeping'];
-            
-            if (username && password === 'admin123' && validUsers.includes(username.toLowerCase())) {
-                // Save login info to localStorage
-                localStorage.setItem('ruviaos_logged_in', 'true');
-                localStorage.setItem('ruviaos_user', username);
-                localStorage.setItem('ruviaos_role', username);
-                
-                // Redirect to home page
-                window.location.href = '/index.html';
-            } else {
-                errorDiv.innerHTML = '❌ Invalid username or password. Try admin / admin123';
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        // Press Enter to login
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') doLogin();
-        });
-    </script>
+<div class="card">
+  <div class="logo">🏨</div>
+  <h1>RuviaOS</h1>
+  <h2>Employee Login</h2>
+  <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="e.g. admin" autocomplete="off"></div>
+  <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+  <button class="btn-login" onclick="doLogin()">🔐 Login</button>
+  <div class="error" id="err"></div>
+  <div class="demo">
+    <strong>Demo Credentials</strong><br>
+    Username: <strong>admin</strong> &nbsp;|&nbsp; Password: <strong>admin123</strong><br>
+    Also: manager · reception · kitchen · housekeeping
+  </div>
+</div>
+<script src="ruvia-store.js"></script>
+<script>
+const USERS={admin:'admin123',manager:'admin123',reception:'admin123',kitchen:'admin123',housekeeping:'admin123'};
+function doLogin(){
+  const u=document.getElementById('username').value.trim().toLowerCase();
+  const p=document.getElementById('password').value;
+  const err=document.getElementById('err');
+  if(USERS[u]&&USERS[u]===p){
+    localStorage.setItem('ruviaos_logged_in','true');
+    localStorage.setItem('ruviaos_user',u);
+    localStorage.setItem('ruviaos_role',u);
+    window.location.href='index.html';
+  } else {
+    err.textContent='❌ Invalid username or password. Try admin / admin123';
+    err.style.display='block';
+  }
+}
+// Redirect if already logged in
+if(localStorage.getItem('ruviaos_logged_in')==='true') window.location.href='index.html';
+</script>
 </body>
 </html>

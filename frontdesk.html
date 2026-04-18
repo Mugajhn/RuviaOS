@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuviaOS - Front Desk</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
+        .header { background: linear-gradient(135deg, #1a3c34, #2c5f4a); color: white; padding: 20px 30px; border-radius: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header h1 { font-size: 28px; }
+        .date-time { text-align: right; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stat-number { font-size: 36px; font-weight: bold; color: #2c5f4a; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-weight: 600; border-bottom: 2px solid #e9ecef; }
+        td { padding: 12px 15px; border-bottom: 1px solid #e9ecef; }
+        tr:hover { background: #f8f9fa; }
+        .empty-row td { text-align:center; color:#999; font-style:italic; padding:30px; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .badge-ready { background: #d4edda; color: #155724; }
+        .badge-dirty { background: #f8d7da; color: #721c24; }
+        .badge-occupied { background: #fff3cd; color: #856404; }
+        .badge-cleaning { background: #ffeaa7; color: #d35400; }
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; margin: 2px; }
+        .btn-checkin { background: #28a745; color: white; }
+        .btn-checkout { background: #dc3545; color: white; }
+        .btn-pay { background: #007bff; color: white; }
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; padding: 15px; }
+        .room-card { background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; background: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; transition: all 0.2s; }
+        .tab.active { background: #2c5f4a; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .toast { position:fixed; bottom:30px; right:30px; background:#2c5f4a; color:white; padding:14px 22px; border-radius:10px; font-size:14px; opacity:0; transform:translateY(20px); transition:all 0.3s; z-index:9999; pointer-events:none; }
+        .toast.show { opacity:1; transform:translateY(0); }
+    </style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
+<script src="ruvia-store.js"></script>
+
+<div class="header">
+    <h1>🏨 RuviaOS - Front Desk</h1>
+    <div class="date-time">
+        <div style="font-size:18px;font-weight:bold" id="currentDate"></div>
+        <div style="font-size:14px;opacity:.9" id="currentTime"></div>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card"><div class="stat-number" id="statTotal">-</div><div class="stat-label">Total Rooms</div></div>
+    <div class="stat-card"><div class="stat-number" id="statAvailable">-</div><div class="stat-label">🟢 Available</div></div>
+    <div class="stat-card"><div class="stat-number" id="statOccupied">-</div><div class="stat-label">🔴 Occupied</div></div>
+    <div class="stat-card"><div class="stat-number" id="statDirty">-</div><div class="stat-label">🟡 Dirty/Cleaning</div></div>
+    <div class="stat-card"><div class="stat-number" id="statArrivals">-</div><div class="stat-label">📥 Arrivals Today</div></div>
+    <div class="stat-card"><div class="stat-number" id="statDepartures">-</div><div class="stat-label">📤 Departures Today</div></div>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="showTab('arrivals',this)">📥 Arrivals</button>
+    <button class="tab" onclick="showTab('departures',this)">📤 Departures</button>
+    <button class="tab" onclick="showTab('rooms',this)">🛏️ Room Status</button>
+</div>
+
+<div id="tab-arrivals" class="tab-content active">
+    <div class="table-container">
+        <table><thead><tr><th>Guest</th><th>Res #</th><th>Room</th><th>Type</th><th>Nights</th><th>Total</th><th>Paid</th><th>Action</th></tr></thead>
+        <tbody id="arrivalsBody"></tbody></table>
+    </div>
+</div>
+<div id="tab-departures" class="tab-content">
+    <div class="table-container">
+        <table><thead><tr><th>Guest</th><th>Res #</th><th>Room</th><th>Balance</th><th>Actions</th></tr></thead>
+        <tbody id="departuresBody"></tbody></table>
+    </div>
+</div>
+<div id="tab-rooms" class="tab-content">
+    <div class="room-grid" id="roomGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function updateDateTime(){const n=new Date();document.getElementById('currentDate').textContent=n.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});document.getElementById('currentTime').textContent=n.toLocaleTimeString();}
+updateDateTime();setInterval(updateDateTime,1000);
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function fmt(n){return'UGX '+Math.round(n||0).toLocaleString();}
+function nights(ci,co){return Math.max(1,Math.round((new Date(co)-new Date(ci))/86400000));}
+function showTab(name,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');}
+
+function loadAll(){
+    const rooms=RuviaStore.getRooms(),guests=RuviaStore.getGuests(),reservations=RuviaStore.getReservations();
+    const today=new Date().toISOString().slice(0,10);
+    document.getElementById('statTotal').textContent=rooms.length;
+    document.getElementById('statAvailable').textContent=rooms.filter(r=>r.status==='ready').length;
+    document.getElementById('statOccupied').textContent=rooms.filter(r=>r.status==='occupied').length;
+    document.getElementById('statDirty').textContent=rooms.filter(r=>r.status==='dirty'||r.status==='cleaning').length;
+    const arrivals=reservations.filter(r=>r.status==='confirmed'&&r.check_in<=today);
+    document.getElementById('statArrivals').textContent=arrivals.length;
+    const ab=document.getElementById('arrivalsBody');
+    ab.innerHTML=arrivals.length===0?'<tr class="empty-row"><td colspan="8">No arrivals today</td></tr>':
+        arrivals.map(res=>{const g=guests.find(x=>x.id===res.guest_id)||{};const rm=rooms.find(x=>x.id===res.room_id)||{};
+        return`<tr><td>${g.full_name||'Unknown'}</td><td>${res.reservation_number}</td><td>${rm.room_number||'-'}</td><td>${rm.room_type||'-'}</td><td>${nights(res.check_in,res.check_out)}n</td><td>${fmt(res.total_amount)}</td><td>${fmt(res.paid_amount)}</td><td><button class="btn btn-checkin" onclick="doCheckIn(${res.id})">✓ Check In</button></td></tr>`;}).join('');
+    const departures=reservations.filter(r=>r.status==='checked-in'&&r.check_out<=today);
+    document.getElementById('statDepartures').textContent=departures.length;
+    const db=document.getElementById('departuresBody');
+    db.innerHTML=departures.length===0?'<tr class="empty-row"><td colspan="5">No departures today</td></tr>':
+        departures.map(res=>{const g=guests.find(x=>x.id===res.guest_id)||{};const rm=rooms.find(x=>x.id===res.room_id)||{};
+        return`<tr><td>${g.full_name||'Unknown'}</td><td>${res.reservation_number}</td><td>${rm.room_number||'-'}</td><td>${res.balance>0?'<strong style="color:#dc3545;">'+fmt(res.balance)+'</strong>':'<span style="color:#28a745">✓ Cleared</span>'}</td><td>${res.balance>0?`<button class="btn btn-pay" onclick="doPayment(${res.id},${res.balance})">💳 Collect</button>`:''}<button class="btn btn-checkout" onclick="doCheckOut(${res.id})">✗ Check Out</button></td></tr>`;}).join('');
+    const statusMap={ready:'badge-ready',occupied:'badge-occupied',dirty:'badge-dirty',cleaning:'badge-cleaning'};
+    const labelMap={ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
+    document.getElementById('roomGrid').innerHTML=rooms.map(r=>`<div class="room-card"><div style="font-size:20px;font-weight:bold">${r.room_number}</div><div style="font-size:11px;color:#666">${r.room_type}</div><div style="font-size:11px;color:#2c5f4a">UGX ${(r.base_price||0).toLocaleString()}</div><div style="margin-top:6px"><span class="badge ${statusMap[r.status]||''}">${labelMap[r.status]||r.status}</span></div></div>`).join('');
+}
+function doCheckIn(id){if(!confirm('Confirm check-in?'))return;RuviaStore.checkIn(id);showToast('✅ Checked in! Room marked Occupied.');loadAll();}
+function doCheckOut(id){const res=RuviaStore.getReservations().find(r=>r.id===id);if(res&&res.balance>0){if(!confirm('Balance of UGX '+res.balance.toLocaleString()+' outstanding. Check out anyway?'))return;}else if(!confirm('Confirm check-out?'))return;RuviaStore.checkOut(id);showToast('👋 Checked out! Room queued for housekeeping.');loadAll();}
+function doPayment(id,bal){const a=prompt('Payment amount (balance: UGX '+bal.toLocaleString()+'):');if(!a)return;const n=parseInt(a.replace(/[^0-9]/g,''));if(!n||n<=0)return;RuviaStore.recordPayment(id,Math.min(n,bal));showToast('💳 Payment recorded!');loadAll();}
+RuviaStore.onChange(()=>loadAll());
+loadAll();
+</script>
+</body>
+</html>

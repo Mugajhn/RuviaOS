@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS – Stock Management</title>
+<link rel="stylesheet" href="darkmode.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;padding:20px}
+.container{max-width:1400px;margin:0 auto}
+.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
+.stat-value{font-size:26px;font-weight:700;color:var(--accent,#2c5f4a)}
+.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-input{flex:1;min-width:180px;padding:9px 14px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
+.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;margin:2px;transition:all .2s}
+.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
+.btn-primary:hover{background:var(--accent2,#1a3c34)}
+.btn-success{background:#28a745;color:#fff}
+.btn-warning{background:#ffc107;color:#333}
+.btn-info{background:#17a2b8;color:#fff}
+.btn-danger{background:#dc3545;color:#fff}
+.btn-sm{padding:5px 10px;font-size:11px}
+.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
+th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
+tr:hover{background:var(--row-hover,#f5f7fa)}
+.badge{padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700;display:inline-block}
+.badge-high{background:#d4edda;color:#155724}
+.badge-low{background:#fff3cd;color:#856404}
+.badge-out{background:#f8d7da;color:#721c24}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.dot-high{background:#28a745}.dot-low{background:#ffc107}.dot-out{background:#dc3545}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
+.modal-content{background:var(--card,#fff);padding:22px;border-radius:14px;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text,#222)}
+.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
+.form-group input,.form-group select{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
+.toast.success{background:#28a745}.toast.error{background:#dc3545}
+@media(max-width:768px){th,td{font-size:11px;padding:8px}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
+<script src="darkmode.js"></script>
+<script src="ruvia-store.js"></script>
+
+<div class="container">
+<div class="header">
+  <h1>📦 Stock Management</h1>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="loadAll()">🔄 Refresh</button>
+    <button class="btn btn-success" onclick="exportCSV()">📄 Export</button>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-value" id="stTotal">-</div><div class="stat-label">Total Products</div></div>
+  <div class="stat-card"><div class="stat-value" id="stValue">-</div><div class="stat-label">Inventory Value</div></div>
+  <div class="stat-card"><div class="stat-value" id="stLow" style="color:#e0a800">-</div><div class="stat-label">Low Stock Items</div></div>
+  <div class="stat-card"><div class="stat-value" id="stOut" style="color:#dc3545">-</div><div class="stat-label">Out of Stock</div></div>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by name, SKU, or category..." oninput="loadAll()">
+  <button class="btn btn-primary" onclick="clearSearch()">Clear</button>
+  <button class="btn btn-info" onclick="openAddModal()">➕ Add Product</button>
+  <button class="btn btn-warning" onclick="openStocktakeModal()">🔍 Stocktake</button>
+</div>
+
+<div class="table-container"><table>
+  <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Stock</th><th>Unit Price</th><th>Reorder Level</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody id="stockBody"></tbody>
+</table></div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <h3 id="addTitle">Add Product</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Product Name</label><input id="pName"></div>
+      <div class="form-group"><label>SKU</label><input id="pSku" placeholder="e.g. BEER-002"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Category</label>
+        <select id="pCat"><option>food</option><option>beverage</option><option>spa</option><option>other</option></select></div>
+      <div class="form-group"><label>Emoji</label><input id="pEmoji" placeholder="🍺" maxlength="4"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Unit Price (UGX)</label><input type="number" id="pPrice" step="500"></div>
+      <div class="form-group"><label>Unit Cost (UGX)</label><input type="number" id="pCost" step="500"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Current Stock</label><input type="number" id="pStock" value="0"></div>
+      <div class="form-group"><label>Reorder Level</label><input type="number" id="pReorder" value="5"></div>
+    </div>
+    <div class="form-group"><label>Location</label><input id="pLocation" placeholder="e.g. Bar Cooler"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary" onclick="saveProduct()">Save</button>
+      <button class="btn btn-danger" onclick="closeModal('addModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Adjust Modal -->
+<div id="adjustModal" class="modal">
+  <div class="modal-content">
+    <h3 id="adjTitle">Adjust Stock</h3>
+    <div class="form-group"><label>Current Stock</label><input type="number" id="adjCurrent" readonly style="background:var(--th-bg,#f0f0f0)"></div>
+    <div class="form-group"><label>Adjustment (+/-)</label><input type="number" id="adjDelta" placeholder="e.g. 10 or -3"></div>
+    <div class="form-group"><label>Reason</label><input id="adjReason" placeholder="e.g. Received delivery, Spoilage..."></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary" onclick="saveAdjust()">Apply</button>
+      <button class="btn btn-danger" onclick="closeModal('adjustModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stocktake Modal -->
+<div id="stocktakeModal" class="modal">
+  <div class="modal-content">
+    <h3>🔍 Stocktake</h3>
+    <p style="font-size:13px;color:var(--text2,#666);margin-bottom:14px">Enter actual counted quantities. Leave blank to skip an item.</p>
+    <div id="stocktakeBody" style="max-height:50vh;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" onclick="applyStocktake()">Apply Counts</button>
+      <button class="btn btn-danger" onclick="closeModal('stocktakeModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
+let _editPid=null, _adjustPid=null;
+function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+function closeModal(id){document.getElementById(id).style.display='none';}
+window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+function clearSearch(){document.getElementById('searchInput').value='';loadAll();}
+
+function loadAll(){
+  const products=RuviaStore.getProducts();
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const list=q?products.filter(p=>p.name.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q)||p.category.includes(q)):products;
+  
+  const totalVal=products.reduce((s,p)=>s+(p.current_stock||0)*(p.unit_cost||0),0);
+  const low=products.filter(p=>p.current_stock>0&&p.current_stock<=p.reorder_level).length;
+  const out=products.filter(p=>p.current_stock===0).length;
+  document.getElementById('stTotal').textContent=products.length;
+  document.getElementById('stValue').textContent=fmt(totalVal);
+  document.getElementById('stLow').textContent=low;
+  document.getElementById('stOut').textContent=out;
+
+  document.getElementById('stockBody').innerHTML=list.length===0
+    ?`<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:24px">No products found</td></tr>`
+    :list.map(p=>{
+      const isOut=p.current_stock===0;
+      const isLow=p.current_stock>0&&p.current_stock<=p.reorder_level;
+      const badge=isOut?'badge-out':isLow?'badge-low':'badge-high';
+      const dot=isOut?'dot-out':isLow?'dot-low':'dot-high';
+      const label=isOut?'Out of Stock':isLow?'Low Stock':'In Stock';
+      return `<tr>
+        <td style="font-family:monospace;font-size:11px">${p.sku}</td>
+        <td><strong>${p.emoji||''} ${p.name}</strong></td>
+        <td style="text-transform:capitalize">${p.category}</td>
+        <td><strong style="color:${isOut?'#dc3545':isLow?'#e0a800':'#28a745'}">${p.current_stock}</strong></td>
+        <td>${fmt(p.unit_price)}</td>
+        <td>${p.reorder_level}</td>
+        <td><span class="dot ${dot}"></span><span class="badge ${badge}">${label}</span></td>
+        <td>
+          <button class="btn btn-info btn-sm" onclick="openAdjust(${p.id})">±</button>
+          <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+}
+
+function openAddModal(){
+  _editPid=null;document.getElementById('addTitle').textContent='Add Product';
+  ['pName','pSku','pEmoji','pLocation'].forEach(id=>document.getElementById(id).value='');
+  ['pPrice','pCost','pStock','pReorder'].forEach(id=>document.getElementById(id).value='0');
+  document.getElementById('addModal').style.display='flex';
+}
+function editProduct(id){
+  const p=RuviaStore.getProducts().find(x=>x.id===id);if(!p)return;
+  _editPid=id;document.getElementById('addTitle').textContent='Edit Product';
+  document.getElementById('pName').value=p.name||'';document.getElementById('pSku').value=p.sku||'';
+  document.getElementById('pEmoji').value=p.emoji||'';document.getElementById('pLocation').value=p.location||'';
+  document.getElementById('pCat').value=p.category||'food';
+  document.getElementById('pPrice').value=p.unit_price||0;document.getElementById('pCost').value=p.unit_cost||0;
+  document.getElementById('pStock').value=p.current_stock||0;document.getElementById('pReorder').value=p.reorder_level||5;
+  document.getElementById('addModal').style.display='flex';
+}
+function saveProduct(){
+  const d={name:document.getElementById('pName').value,sku:document.getElementById('pSku').value,emoji:document.getElementById('pEmoji').value||'📦',category:document.getElementById('pCat').value,unit_price:parseInt(document.getElementById('pPrice').value)||0,unit_cost:parseInt(document.getElementById('pCost').value)||0,current_stock:parseInt(document.getElementById('pStock').value)||0,reorder_level:parseInt(document.getElementById('pReorder').value)||5,location:document.getElementById('pLocation').value};
+  if(!d.name){toast('Enter product name','error');return;}
+  if(_editPid){const products=RuviaStore.getProducts();const i=products.findIndex(p=>p.id===_editPid);if(i>=0){products[i]={...products[i],...d};RuviaStore.saveProducts(products);}toast('Product updated');}
+  else{RuviaStore.addProduct(d);toast('Product added');}
+  closeModal('addModal');loadAll();
+}
+function deleteProduct(id){if(!confirm('Delete this product?'))return;RuviaStore.saveProducts(RuviaStore.getProducts().filter(p=>p.id!==id));toast('Deleted');loadAll();}
+
+function openAdjust(id){
+  _adjustPid=id;const p=RuviaStore.getProducts().find(x=>x.id===id);
+  document.getElementById('adjTitle').textContent=`Adjust: ${p.emoji||''} ${p.name}`;
+  document.getElementById('adjCurrent').value=p.current_stock||0;
+  document.getElementById('adjDelta').value='';document.getElementById('adjReason').value='';
+  document.getElementById('adjustModal').style.display='flex';
+}
+function saveAdjust(){
+  const delta=parseInt(document.getElementById('adjDelta').value);
+  if(isNaN(delta)){toast('Enter a number','error');return;}
+  const reason=document.getElementById('adjReason').value||'Manual adjustment';
+  RuviaStore.updateStock(_adjustPid,delta,reason);toast('Stock adjusted');closeModal('adjustModal');loadAll();
+}
+
+function openStocktakeModal(){
+  const products=RuviaStore.getProducts();
+  document.getElementById('stocktakeBody').innerHTML=products.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border,#eee)">
+    <span style="flex:2;font-size:12px">${p.emoji||''} ${p.name}</span>
+    <span style="font-size:11px;color:var(--text2);min-width:60px">Current: ${p.current_stock}</span>
+    <input type="number" data-pid="${p.id}" placeholder="Counted" style="width:80px;padding:6px;border:1px solid var(--input-border,#ddd);border-radius:6px;font-size:12px;background:var(--input-bg,#fff);color:var(--text,#222)">
+  </div>`).join('');
+  document.getElementById('stocktakeModal').style.display='flex';
+}
+function applyStocktake(){
+  let count=0;
+  document.querySelectorAll('#stocktakeBody input').forEach(inp=>{
+    const val=inp.value.trim();if(!val)return;
+    const pid=parseInt(inp.getAttribute('data-pid'));
+    const counted=parseInt(val);if(isNaN(counted)||counted<0)return;
+    const products=RuviaStore.getProducts();const p=products.find(x=>x.id===pid);if(!p)return;
+    const delta=counted-p.current_stock;
+    if(delta!==0){RuviaStore.updateStock(pid,delta,'Stocktake adjustment');count++;}
+  });
+  toast(`✅ ${count} product(s) updated`);closeModal('stocktakeModal');loadAll();
+}
+
+function exportCSV(){
+  const products=RuviaStore.getProducts();
+  const rows=[['SKU','Name','Category','Stock','Unit Price','Reorder Level','Status'],...products.map(p=>[p.sku,p.name,p.category,p.current_stock,p.unit_price,p.reorder_level,p.current_stock===0?'Out of Stock':p.current_stock<=p.reorder_level?'Low Stock':'In Stock'])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='ruvia_stock.csv';a.click();
+}
+
+RuviaStore.onChange(()=>loadAll());
+loadAll();
+</script>
+</body>
+</html>

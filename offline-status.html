@@ -1,0 +1,15 @@
+<!-- RuviaOS - Offline Status Bar Component -->
+<div id="offlineStatusBar" style="display: none; background: #ff9800; color: #333; padding: 8px 15px; text-align: center; font-size: 12px; position: sticky; top: 0; z-index: 9999;">
+    ⚠️ You are offline. Changes will be saved and synced when your connection returns.
+    <button onclick="RuviaOffline.syncPendingRequests()" style="margin-left: 10px; padding: 2px 10px; background: white; border: none; border-radius: 5px; cursor: pointer;">Sync Now</button>
+</div>
+
+<script>
+    // Check for pending requests on load
+    if (typeof RuviaOffline !== 'undefined') {
+        const pendingCount = RuviaOffline.getPendingCount();
+        if (pendingCount > 0 && navigator.onLine) {
+            RuviaOffline.syncPendingRequests();
+        }
+    }
+</script>

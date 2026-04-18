@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS – Dashboard</title>
+<link rel="stylesheet" href="darkmode.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;padding:20px}
+.main{max-width:1400px;margin:0 auto}
+.banner{background:linear-gradient(135deg,#2c5f4a,#1a3f30);color:#fff;padding:24px 28px;border-radius:14px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.banner h1{font-size:24px;margin-bottom:6px}
+.banner p{opacity:.85;font-size:14px}
+.quick-btns{display:flex;gap:10px;flex-wrap:wrap}
+.qbtn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.qbtn:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:24px}
+.stat-card{background:var(--card,#fff);border-radius:14px;padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all .3s}
+.stat-card:hover{transform:translateY(-4px);box-shadow:0 6px 22px rgba(0,0,0,.13)}
+.stat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.stat-icon{font-size:36px}
+.stat-title{font-size:12px;color:var(--text2,#666);text-transform:uppercase;letter-spacing:.07em}
+.stat-value{font-size:32px;font-weight:700;color:var(--accent,#2c5f4a);margin:6px 0}
+.stat-sub{font-size:12px;color:var(--text2,#666)}
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+.card{background:var(--card,#fff);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.card h3{font-size:15px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--accent,#2c5f4a);display:inline-block;color:var(--text,#222)}
+.room-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:13px}
+.room-row:last-child{border-bottom:none}
+.rnum{font-weight:700;width:40px;color:var(--text,#222)}
+.rtype{flex:1;color:var(--text2,#666);font-size:12px}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700}
+.badge-ready{background:#d4edda;color:#155724}
+.badge-occupied{background:#fff3cd;color:#856404}
+.badge-dirty{background:#f8d7da;color:#721c24}
+.badge-cleaning{background:#d1ecf1;color:#0c5460}
+.activity-item{padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.activity-item:last-child{border-bottom:none}
+.act-title{font-weight:600;color:var(--text,#222)}
+.act-sub{color:var(--text2,#666);margin-top:2px}
+.low-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.low-item:last-child{border-bottom:none}
+.link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
+.link-card{background:var(--card,#fff);border-radius:12px;padding:16px;text-align:center;text-decoration:none;color:var(--text,#222);box-shadow:var(--shadow);transition:all .2s;display:block}
+.link-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.link-icon{font-size:28px;display:block;margin-bottom:8px}
+.link-label{font-size:12px;font-weight:600;color:var(--text,#222)}
+.empty-state{text-align:center;color:var(--text2,#999);padding:24px;font-style:italic;font-size:13px}
+@media(max-width:900px){.rows{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
+<script src="darkmode.js"></script>
+<script src="ruvia-store.js"></script>
+
+<div class="main">
+  <div class="banner">
+    <div>
+      <h1>👋 Good <span id="timeOfDay">morning</span>, <span id="username">Admin</span></h1>
+      <p id="todayDate">Loading date...</p>
+    </div>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="location.href='frontdesk.html'">🏨 Front Desk</button>
+      <button class="qbtn" onclick="location.href='pos.html'">🍽️ POS</button>
+      <button class="qbtn" onclick="location.href='pms.html'">📅 New Booking</button>
+      <button class="qbtn" onclick="location.href='housekeeping.html'">🧹 Housekeeping</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="stats-grid">
+    <div class="stat-card" onclick="location.href='pms.html'">
+      <div class="stat-header"><div class="stat-title">Occupancy Rate</div><div class="stat-icon">🛏️</div></div>
+      <div class="stat-value" id="kOccRate">-</div>
+      <div class="stat-sub" id="kOccSub">- of - rooms occupied</div>
+    </div>
+    <div class="stat-card" onclick="location.href='frontdesk.html'">
+      <div class="stat-header"><div class="stat-title">Today's Arrivals</div><div class="stat-icon">📥</div></div>
+      <div class="stat-value" id="kArrivals">-</div>
+      <div class="stat-sub" id="kDepartures">- departures today</div>
+    </div>
+    <div class="stat-card" onclick="location.href='reports.html'">
+      <div class="stat-header"><div class="stat-title">Total Revenue</div><div class="stat-icon">💰</div></div>
+      <div class="stat-value" id="kRevenue">-</div>
+      <div class="stat-sub" id="kPOS">POS: -</div>
+    </div>
+    <div class="stat-card" onclick="location.href='reports.html'">
+      <div class="stat-header"><div class="stat-title">Outstanding Balance</div><div class="stat-icon">⚠️</div></div>
+      <div class="stat-value" id="kBalance" style="color:#dc3545">-</div>
+      <div class="stat-sub">Unpaid guest balances</div>
+    </div>
+    <div class="stat-card" onclick="location.href='housekeeping.html'">
+      <div class="stat-header"><div class="stat-title">Rooms Needing Cleaning</div><div class="stat-icon">🧹</div></div>
+      <div class="stat-value" id="kDirty" style="color:#e0a800">-</div>
+      <div class="stat-sub" id="kDirtySub">- cleaning in progress</div>
+    </div>
+    <div class="stat-card" onclick="location.href='stock.html'">
+      <div class="stat-header"><div class="stat-title">Low Stock Alerts</div><div class="stat-icon">📦</div></div>
+      <div class="stat-value" id="kLowStock" style="color:#e0a800">-</div>
+      <div class="stat-sub" id="kOutStock">- out of stock</div>
+    </div>
+  </div>
+
+  <!-- Quick Nav -->
+  <div class="link-grid">
+    <a class="link-card" href="frontdesk.html"><span class="link-icon">🏨</span><span class="link-label">Front Desk</span></a>
+    <a class="link-card" href="pms.html"><span class="link-icon">📅</span><span class="link-label">Reservations</span></a>
+    <a class="link-card" href="pos.html"><span class="link-icon">🍽️</span><span class="link-label">Restaurant POS</span></a>
+    <a class="link-card" href="housekeeping.html"><span class="link-icon">🧹</span><span class="link-label">Housekeeping</span></a>
+    <a class="link-card" href="stock.html"><span class="link-icon">📦</span><span class="link-label">Stock</span></a>
+    <a class="link-card" href="reports.html"><span class="link-icon">📊</span><span class="link-label">Reports</span></a>
+    <a class="link-card" href="staff.html"><span class="link-icon">👥</span><span class="link-label">Staff</span></a>
+    <a class="link-card" href="menu-management.html"><span class="link-icon">📋</span><span class="link-label">Menu</span></a>
+  </div>
+
+  <!-- Rooms + Activity -->
+  <div class="rows">
+    <div class="card">
+      <h3>🛏️ Room Status</h3>
+      <div id="roomList"></div>
+    </div>
+    <div class="card">
+      <h3>📋 Recent Housekeeping</h3>
+      <div id="hkActivity"></div>
+    </div>
+  </div>
+
+  <!-- Low stock + Upcoming -->
+  <div class="rows">
+    <div class="card">
+      <h3>⚠️ Low Stock Items</h3>
+      <div id="lowStockList"></div>
+    </div>
+    <div class="card">
+      <h3>📅 Upcoming Arrivals</h3>
+      <div id="upcomingList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
+const fmtShort=n=>{if(n>=1e6)return 'UGX '+(n/1e6).toFixed(1)+'M';if(n>=1e3)return 'UGX '+(n/1e3).toFixed(0)+'K';return 'UGX '+n;};
+
+function init(){
+  const h=new Date().getHours();
+  document.getElementById('timeOfDay').textContent=h<12?'morning':h<17?'afternoon':'evening';
+  document.getElementById('username').textContent=localStorage.getItem('ruviaos_user')||'Admin';
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+function loadAll(){
+  const rooms=RuviaStore.getRooms(),guests=RuviaStore.getGuests(),
+        res=RuviaStore.getReservations(),orders=RuviaStore.getOrders(),
+        products=RuviaStore.getProducts(),log=RuviaStore.getHousekeepingLog();
+  const today=new Date().toISOString().slice(0,10);
+  const occ=rooms.filter(r=>r.status==='occupied').length;
+  const dirty=rooms.filter(r=>r.status==='dirty').length;
+  const cleaning=rooms.filter(r=>r.status==='cleaning').length;
+  const occRate=Math.round(occ/rooms.length*100);
+  const arrivals=res.filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
+  const departures=res.filter(r=>r.status==='checked-in'&&r.check_out<=today).length;
+  const totalRev=res.reduce((s,r)=>s+(r.paid_amount||0),0);
+  const posSales=orders.reduce((s,o)=>s+(o.total||0),0);
+  const pending=Math.max(0,res.reduce((s,r)=>s+(r.balance||(r.total_amount-r.paid_amount)||0),0));
+  const lowStock=products.filter(p=>p.current_stock>0&&p.current_stock<=p.reorder_level).length;
+  const outStock=products.filter(p=>p.current_stock===0).length;
+
+  document.getElementById('kOccRate').textContent=occRate+'%';
+  document.getElementById('kOccSub').textContent=`${occ} of ${rooms.length} rooms occupied`;
+  document.getElementById('kArrivals').textContent=arrivals;
+  document.getElementById('kDepartures').textContent=`${departures} departure${departures!==1?'s':''} today`;
+  document.getElementById('kRevenue').textContent=fmtShort(totalRev);
+  document.getElementById('kPOS').textContent='POS: '+fmtShort(posSales);
+  document.getElementById('kBalance').textContent=fmtShort(pending);
+  document.getElementById('kDirty').textContent=dirty;
+  document.getElementById('kDirtySub').textContent=`${cleaning} cleaning in progress`;
+  document.getElementById('kLowStock').textContent=lowStock;
+  document.getElementById('kOutStock').textContent=`${outStock} out of stock`;
+
+  // Room list
+  const bmap={ready:'badge-ready',occupied:'badge-occupied',dirty:'badge-dirty',cleaning:'badge-cleaning'};
+  const lmap={ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
+  document.getElementById('roomList').innerHTML=rooms.length===0?`<div class="empty-state">No rooms</div>`:
+    rooms.map(r=>`<div class="room-row"><span class="rnum">${r.room_number}</span><span class="rtype">${r.room_type}</span><span class="badge ${bmap[r.status]||''}">${lmap[r.status]||r.status}</span></div>`).join('');
+
+  // HK activity
+  document.getElementById('hkActivity').innerHTML=log.length===0?`<div class="empty-state">No activity yet</div>`:
+    log.slice(0,8).map(e=>`<div class="activity-item"><div class="act-title">Room ${e.room} – ${e.action}</div><div class="act-sub">${e.old_status||''} → ${e.new_status||''} ${e.assigned_to&&e.assigned_to!=='-'?'('+e.assigned_to+')':''} · ${e.time||''}</div></div>`).join('');
+
+  // Low stock
+  const lowItems=products.filter(p=>p.current_stock<=p.reorder_level).sort((a,b)=>a.current_stock-b.current_stock);
+  document.getElementById('lowStockList').innerHTML=lowItems.length===0?`<div class="empty-state">✅ All stock levels OK</div>`:
+    lowItems.slice(0,8).map(p=>`<div class="low-item"><span>${p.emoji||'📦'} <strong>${p.name}</strong></span><span style="color:${p.current_stock===0?'#dc3545':'#e0a800'};font-weight:700">${p.current_stock===0?'Out of stock':'Stock: '+p.current_stock}</span></div>`).join('');
+
+  // Upcoming arrivals
+  const upcoming=res.filter(r=>r.status==='confirmed'&&r.check_in>=today).sort((a,b)=>a.check_in.localeCompare(b.check_in));
+  document.getElementById('upcomingList').innerHTML=upcoming.length===0?`<div class="empty-state">No upcoming arrivals</div>`:
+    upcoming.slice(0,8).map(r=>{const g=guests.find(x=>x.id===r.guest_id)||{};const rm=rooms.find(x=>x.id===r.room_id)||{};
+      return `<div class="activity-item"><div class="act-title">${g.full_name||'Guest'} – Room ${rm.room_number||'?'}</div><div class="act-sub">Check in: ${r.check_in} · ${r.reservation_number}</div></div>`;}).join('');
+}
+
+RuviaStore.onChange(()=>loadAll());
+init();loadAll();
+</script>
+</body>
+</html>

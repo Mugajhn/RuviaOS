@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS – Ruvia Hotel</title>
+<link rel="stylesheet" href="darkmode.css">
+<script src="darkmode.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;padding-bottom:40px}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.hero{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:50px 30px;border-radius:20px;margin-bottom:30px;text-align:center}
+.hero h1{font-size:40px;margin-bottom:12px}
+.hero p{font-size:17px;opacity:.9}
+.login-card{background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:26px;text-align:center;margin-bottom:28px;border:1px solid #ffc107}
+body.dark-mode .login-card{background:linear-gradient(135deg,#2a2210,#1f1a08);border-color:#a07800}
+.login-card h3{color:#856404;margin-bottom:10px;font-size:17px}
+body.dark-mode .login-card h3{color:#ffc107}
+.login-card p{color:var(--text2,#666);font-size:13px;margin-bottom:14px}
+.login-btn{background:var(--accent,#2c5f4a);color:#fff;border:none;padding:12px 32px;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.login-btn:hover{background:var(--accent2,#1a3c34)}
+.stats-section{margin-bottom:28px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+.stat-card{background:var(--card,#fff);padding:18px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
+.stat-value{font-size:26px;font-weight:700;color:var(--accent,#2c5f4a)}
+.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
+.modules-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:18px;color:var(--text,#222)}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.module-card{background:var(--card,#fff);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:var(--shadow);text-decoration:none;display:block;color:var(--text,#222)}
+.module-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.13)}
+.module-card.locked{opacity:.45;filter:blur(1px);cursor:default}
+.module-icon{font-size:42px;margin-bottom:10px}
+.module-card h3{font-size:15px;font-weight:700;color:var(--text,#222)}
+.module-card p{font-size:12px;color:var(--text2,#666);margin-top:4px}
+.locked-badge{background:#ffc107;color:#333;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;display:inline-block;margin-top:8px}
+.footer{text-align:center;padding:24px 20px 0;color:var(--text2,#666);font-size:13px;border-top:1px solid var(--border,#eee);margin-top:30px}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
+<script src="ruvia-store.js"></script>
+
+<div class="container">
+  <div class="hero">
+    <h1>🏨 Ruvia Hotel</h1>
+    <p>Welcome to Ruvia Hotel Management System</p>
+  </div>
+
+  <div id="loginPrompt" class="login-card" style="display:none">
+    <h3>🔐 Employee Access Required</h3>
+    <p>Please login to access the hotel management system.</p>
+    <button class="login-btn" onclick="location.href='login.html'">🔐 Go to Login</button>
+    <p style="margin-top:12px;font-size:11px;color:var(--text2)">Demo: admin / admin123</p>
+  </div>
+
+  <div class="stats-section" id="statsSection" style="display:none">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="stRooms">-</div><div class="stat-label">Total Rooms</div></div>
+      <div class="stat-card"><div class="stat-value" id="stOcc">-</div><div class="stat-label">🔴 Occupied</div></div>
+      <div class="stat-card"><div class="stat-value" id="stRate">-</div><div class="stat-label">Occupancy Rate</div></div>
+      <div class="stat-card"><div class="stat-value" id="stArrivals">-</div><div class="stat-label">📥 Arrivals Today</div></div>
+      <div class="stat-card"><div class="stat-value" id="stLowStock" style="color:#e0a800">-</div><div class="stat-label">⚠️ Low Stock</div></div>
+      <div class="stat-card"><div class="stat-value" id="stPending" style="color:#dc3545">-</div><div class="stat-label">💳 Outstanding</div></div>
+    </div>
+  </div>
+
+  <h3 class="modules-title">📋 System Modules</h3>
+  <div class="modules-grid" id="modulesGrid">
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'frontdesk.html')"><div class="module-icon">🏨</div><h3>Reception</h3><p>Check-in/out & front desk</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'pms.html')"><div class="module-icon">📅</div><h3>Reservations (PMS)</h3><p>Guests, rooms, bookings</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'pos.html')"><div class="module-icon">🍽️</div><h3>Restaurant POS</h3><p>Take & process orders</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'housekeeping.html')"><div class="module-icon">🧹</div><h3>Housekeeping</h3><p>Room cleaning & status</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'stock.html')"><div class="module-icon">📦</div><h3>Stock Management</h3><p>Inventory & supplies</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'tables.html')"><div class="module-icon">🪑</div><h3>Table Management</h3><p>Dining room tables</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'menu-management.html')"><div class="module-icon">📋</div><h3>Menu Management</h3><p>Food & beverage menu</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'reports.html')"><div class="module-icon">📊</div><h3>Reports & Analytics</h3><p>Sales, occupancy, stock</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'staff.html')"><div class="module-icon">👥</div><h3>Staff Management</h3><p>Team members & roles</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'dashboard.html')"><div class="module-icon">📈</div><h3>Dashboard</h3><p>Live hotel overview</p><span class="locked-badge">🔒 Login required</span></a>
+  </div>
+
+  <div class="footer"><p>RuviaOS – Hotel Management System &nbsp;|&nbsp; Ruvia Hotel &nbsp;|&nbsp; © 2026</p></div>
+</div>
+
+<script>
+function isLoggedIn(){return localStorage.getItem('ruviaos_logged_in')==='true';}
+function checkAccess(e,page){e.preventDefault();if(isLoggedIn())location.href=page;else{alert('🔐 Please login first.\n\nDemo: admin / admin123');location.href='login.html';}}
+function updateUI(){
+  const loggedIn=isLoggedIn();
+  document.getElementById('loginPrompt').style.display=loggedIn?'none':'block';
+  document.getElementById('statsSection').style.display=loggedIn?'block':'none';
+  document.querySelectorAll('.module-card').forEach(m=>{m.classList.toggle('locked',!loggedIn);});
+  if(loggedIn){
+    const rooms=RuviaStore.getRooms(),res=RuviaStore.getReservations(),products=RuviaStore.getProducts();
+    const today=new Date().toISOString().slice(0,10);
+    const occ=rooms.filter(r=>r.status==='occupied').length;
+    const arrivals=res.filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
+    const low=products.filter(p=>p.current_stock<=p.reorder_level).length;
+    const pending=Math.max(0,res.reduce((s,r)=>s+(r.balance||(r.total_amount-r.paid_amount)||0),0));
+    document.getElementById('stRooms').textContent=rooms.length;
+    document.getElementById('stOcc').textContent=occ;
+    document.getElementById('stRate').textContent=Math.round(occ/rooms.length*100)+'%';
+    document.getElementById('stArrivals').textContent=arrivals;
+    document.getElementById('stLowStock').textContent=low;
+    document.getElementById('stPending').textContent='USh '+(pending>=1e6?(pending/1e6).toFixed(1)+'M':pending>=1e3?(pending/1e3).toFixed(0)+'K':pending.toLocaleString());
+  }
+}
+updateUI();
+setInterval(updateUI, 5000);
+</script>
+</body>
+</html>

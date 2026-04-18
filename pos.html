@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>RuviaOS – POS Terminal</title>
+<link rel="stylesheet" href="darkmode.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;overflow:hidden}
+#navbar-placeholder{position:relative;z-index:20}
+.pos-wrap{display:flex;height:calc(100vh - 56px)}
+.products-panel{flex:3;background:var(--bg,#f0f2f5);display:flex;flex-direction:column;padding:12px;overflow:hidden}
+.search-row{display:flex;gap:8px;margin-bottom:10px}
+.search-row input{flex:1;padding:10px 16px;border:1.5px solid var(--input-border,#ddd);border-radius:24px;font-size:14px;background:var(--input-bg,#fff);color:var(--text,#222);outline:none}
+.search-row input:focus{border-color:var(--accent,#2c5f4a)}
+.cats{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cat-btn{padding:8px 16px;background:var(--card,#fff);border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.1);color:var(--text,#222);transition:all .2s}
+.cat-btn.active{background:var(--accent,#2c5f4a);color:#fff}
+.products-grid{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-right:4px}
+.group-title{font-size:14px;font-weight:700;color:var(--accent,#2c5f4a);border-bottom:2px solid var(--accent,#2c5f4a);padding-bottom:4px;margin-bottom:8px}
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.tile{background:var(--card,#fff);border:none;border-radius:11px;padding:10px 7px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.tile:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.13)}
+.tile-emoji{font-size:28px;display:block;margin-bottom:5px}
+.tile-name{font-size:11px;font-weight:600;color:var(--text,#222);line-height:1.3}
+.tile-price{font-size:11px;color:var(--accent,#2c5f4a);font-weight:700;margin-top:3px}
+.tile-stock{font-size:9px;padding:1px 5px;border-radius:8px;margin-top:3px;display:inline-block}
+.stock-ok{background:#d4edda;color:#155724}
+.stock-low{background:#fff3cd;color:#856404}
+.stock-out{background:#f8d7da;color:#721c24;cursor:not-allowed}
+/* Cart */
+.cart-panel{flex:1.2;background:var(--card,#fff);display:flex;flex-direction:column;box-shadow:-2px 0 8px rgba(0,0,0,.09)}
+.cart-header{padding:12px;background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff}
+.cart-header h3{font-size:14px;margin-bottom:10px}
+.info-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.info-select{flex:1;padding:7px;border-radius:6px;border:none;font-size:12px;background:rgba(255,255,255,.9);color:#222}
+.guest-row{display:flex;gap:6px;margin-bottom:6px}
+.guest-row input{flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;background:rgba(255,255,255,.9);color:#222}
+.guest-row button{padding:7px 10px;background:#ffc107;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
+.guest-select{width:100%;padding:7px;border:none;border-radius:6px;font-size:12px;background:rgba(255,255,255,.9);color:#222;cursor:pointer}
+.guest-badge{padding:6px 10px;background:rgba(255,255,255,.15);border-radius:6px;font-size:10px;margin-top:6px;min-height:24px}
+.cart-items{flex:1;overflow-y:auto;padding:8px}
+.cart-item{display:flex;align-items:center;gap:6px;padding:7px;border-bottom:1px solid var(--border,#eee);font-size:11px}
+.ci-name{flex:2;font-weight:600;color:var(--text,#222)}
+.ci-price{font-size:9px;color:var(--text2,#666)}
+.qty-wrap{display:flex;align-items:center;gap:4px}
+.qty-btn{width:20px;height:20px;border:none;border-radius:50%;background:var(--th-bg,#f0f0f0);font-size:12px;cursor:pointer;color:var(--text,#222)}
+.ci-total{font-weight:700;min-width:55px;text-align:right;font-size:10px;color:var(--text,#222)}
+.remove-btn{color:#dc3545;cursor:pointer;font-size:13px;padding:0 3px}
+.empty-cart{text-align:center;color:var(--text2,#999);padding:30px 10px;font-size:13px}
+.cart-footer{padding:12px;border-top:2px solid var(--border,#eee);background:var(--th-bg,#f8f9fa)}
+.cart-total{font-size:22px;font-weight:700;color:var(--accent,#2c5f4a);text-align:right;margin-bottom:12px}
+.cart-actions{display:flex;gap:8px}
+.btn-pay{flex:2;padding:14px;background:#28a745;color:#fff;border:none;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;transition:all .3s}
+.btn-pay:hover{background:#1e7e34;transform:scale(1.02)}
+.btn-clr{flex:1;padding:14px;background:#6c757d;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+/* Modals */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
+.modal-content{background:var(--card,#fff);padding:20px;border-radius:14px;max-width:400px;width:92%;color:var(--text,#222)}
+.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
+.pay-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.pay-opt{padding:10px;border:2px solid var(--border,#ddd);border-radius:10px;text-align:center;cursor:pointer;background:var(--card,#fff);font-weight:600;font-size:13px;color:var(--text,#222)}
+.pay-opt.selected{border-color:var(--accent,#2c5f4a);background:#e8f5e9}
+.pay-amount{font-size:22px;font-weight:700;text-align:center;color:var(--accent,#2c5f4a);margin:10px 0}
+.pay-actions{display:flex;gap:8px;margin-top:12px}
+.btn-confirm{flex:1;padding:10px;background:#28a745;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer}
+.btn-cancel-pay{flex:1;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer}
+.receipt-box{font-family:monospace;font-size:10px;background:var(--th-bg,#f8f9fa);padding:12px;border-radius:8px;margin:10px 0;text-align:center;white-space:pre-wrap;color:var(--text,#222)}
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:8px;display:none;z-index:9999;font-size:12px;font-weight:700;color:#fff}
+.toast.success{background:#28a745}.toast.error{background:#dc3545}
+@media(max-width:900px){.pos-wrap{flex-direction:column;overflow-y:auto;height:auto}.products-panel{max-height:55vh}.cart-panel{min-height:300px}}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
+<script src="darkmode.js"></script>
+<script src="ruvia-store.js"></script>
+
+<div class="pos-wrap">
+  <!-- Products -->
+  <div class="products-panel">
+    <div class="search-row">
+      <input type="text" id="searchBox" placeholder="🔍 Search menu items..." oninput="renderProducts()">
+      <button class="cat-btn" onclick="document.getElementById('searchBox').value='';renderProducts()">✕</button>
+    </div>
+    <div class="cats" id="catBar"></div>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+
+  <!-- Cart -->
+  <div class="cart-panel">
+    <div class="cart-header">
+      <h3>🧾 Order</h3>
+      <div class="info-row">
+        <select id="orderType" class="info-select" onchange="toggleTableSel()">
+          <option value="dine_in">🍽️ Dine In</option>
+          <option value="takeaway">🥡 Takeaway</option>
+          <option value="room_service">🏨 Room Service</option>
+        </select>
+        <select id="tableSelect" class="info-select" style="display:none">
+          <option value="">-- Table --</option>
+          <option>Table 1</option><option>Table 2</option><option>Table 3</option>
+          <option>Table 4</option><option>Table 5</option><option>Table 6</option>
+        </select>
+      </div>
+      <div class="guest-row">
+        <input type="text" id="guestSearch" placeholder="Guest name (optional)">
+        <button onclick="searchGuest()">🔍</button>
+      </div>
+      <select id="guestDrop" class="guest-select" onchange="selectGuest(this.value)">
+        <option value="">-- Walk-in / No guest --</option>
+      </select>
+      <div class="guest-badge" id="guestBadge">No guest selected</div>
+    </div>
+
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="cart-footer">
+      <div class="cart-total" id="cartTotal">UGX 0</div>
+      <div class="cart-actions">
+        <button class="btn-pay" onclick="openPayModal()">💳 Checkout</button>
+        <button class="btn-clr" onclick="clearCart()">🗑️ Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="payModal" class="modal">
+  <div class="modal-content">
+    <h3>💳 Payment</h3>
+    <div class="pay-amount" id="payAmount">UGX 0</div>
+    <div class="pay-opts">
+      <div class="pay-opt" onclick="pickPay('cash',this)">💵 Cash</div>
+      <div class="pay-opt" onclick="pickPay('momo',this)">📱 Mobile Money</div>
+      <div class="pay-opt" onclick="pickPay('card',this)">💳 Card</div>
+      <div class="pay-opt" onclick="pickPay('room',this)">🏨 Room Charge</div>
+    </div>
+    <div class="pay-actions">
+      <button class="btn-confirm" onclick="confirmPayment()">✓ Confirm</button>
+      <button class="btn-cancel-pay" onclick="closeModal('payModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div id="receiptModal" class="modal">
+  <div class="modal-content" style="text-align:center">
+    <h3>✅ Order Complete!</h3>
+    <div class="receipt-box" id="receiptBox"></div>
+    <button class="btn-confirm" style="width:100%;margin-top:8px" onclick="closeModal('receiptModal');clearCart()">New Order</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let cart=[], selectedGuest=null, selectedPayMethod=null;
+const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
+
+function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+function closeModal(id){document.getElementById(id).style.display='none';}
+window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+
+// Categories
+const catMeta={all:{label:'📋 All'},breakfast:{label:'🍳 Breakfast'},maincourse:{label:'🍽️ Main'},snacks:{label:'🍔 Snacks'},beverages:{label:'🥤 Drinks'},spa:{label:'💆 Spa'}};
+let activeCat='all';
+
+function buildCatBar(){
+  const products=RuviaStore.getProducts();
+  const cats=['all',...new Set(products.map(p=>p.category))];
+  document.getElementById('catBar').innerHTML=cats.map(c=>`<button class="cat-btn${c===activeCat?' active':''}" onclick="selectCat('${c}')">${(catMeta[c]||{label:c}).label}</button>`).join('');
+}
+function selectCat(c){activeCat=c;buildCatBar();renderProducts();}
+
+function toggleTableSel(){
+  const v=document.getElementById('orderType').value;
+  document.getElementById('tableSelect').style.display=v==='dine_in'?'block':'none';
+}
+
+function searchGuest(){
+  const q=document.getElementById('guestSearch').value.toLowerCase();
+  const guests=RuviaStore.getGuests();
+  const matches=guests.filter(g=>g.full_name.toLowerCase().includes(q)||String(g.phone).includes(q));
+  const drop=document.getElementById('guestDrop');
+  drop.innerHTML='<option value="">-- Select --</option>'+matches.map(g=>`<option value="${g.id}">${g.full_name} (${g.phone||'?'})</option>`).join('');
+}
+function loadGuestDrop(){
+  const guests=RuviaStore.getGuests();
+  document.getElementById('guestDrop').innerHTML='<option value="">-- Walk-in / No guest --</option>'+guests.map(g=>`<option value="${g.id}">${g.full_name}</option>`).join('');
+}
+function selectGuest(id){
+  if(!id){selectedGuest=null;document.getElementById('guestBadge').textContent='No guest selected';return;}
+  const g=RuviaStore.getGuests().find(x=>x.id==id);
+  selectedGuest=g||null;
+  document.getElementById('guestBadge').textContent=g?`👤 ${g.full_name} — ${g.phone||''}`:'-';
+}
+
+function renderProducts(){
+  const products=RuviaStore.getProducts();
+  const q=document.getElementById('searchBox').value.toLowerCase();
+  let list=products.filter(p=>activeCat==='all'||p.category===activeCat);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.category.includes(q));
+  // Group by category
+  const groups={};
+  list.forEach(p=>{if(!groups[p.category])groups[p.category]=[];groups[p.category].push(p);});
+  const grid=document.getElementById('productsGrid');
+  if(list.length===0){grid.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)">No items found</div>`;return;}
+  grid.innerHTML=Object.entries(groups).map(([cat,items])=>`
+    <div class="product-group">
+      <div class="group-title">${(catMeta[cat]||{label:cat}).label} ${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>
+      <div class="items-grid">${items.map(p=>{
+        const out=p.current_stock===0;
+        const low=p.current_stock>0&&p.current_stock<=p.reorder_level;
+        return `<div class="tile${out?' stock-out':''}" onclick="${out?'':('addToCart('+p.id+')')}">
+          <span class="tile-emoji">${p.emoji||'🍴'}</span>
+          <div class="tile-name">${p.name}</div>
+          <div class="tile-price">${fmt(p.unit_price)}</div>
+          <div class="tile-stock ${out?'stock-out':low?'stock-low':'stock-ok'}">${out?'Out of stock':low?'Low: '+p.current_stock:'Stock: '+p.current_stock}</div>
+        </div>`;}).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function addToCart(pid){
+  const p=RuviaStore.getProducts().find(x=>x.id===pid);
+  if(!p||p.current_stock===0){toast('Out of stock','error');return;}
+  const existing=cart.find(c=>c.product_id===pid);
+  if(existing){
+    if(existing.quantity>=p.current_stock){toast('Not enough stock','error');return;}
+    existing.quantity++;
+  } else {
+    cart.push({product_id:pid,name:p.name,unit_price:p.unit_price,quantity:1,emoji:p.emoji||'🍴'});
+  }
+  renderCart();
+}
+function changeQty(pid,delta){
+  const i=cart.findIndex(c=>c.product_id===pid);
+  if(i<0)return;
+  cart[i].quantity+=delta;
+  if(cart[i].quantity<=0)cart.splice(i,1);
+  renderCart();
+}
+function removeItem(pid){cart=cart.filter(c=>c.product_id!==pid);renderCart();}
+function clearCart(){cart=[];selectedGuest=null;selectedPayMethod=null;document.getElementById('guestBadge').textContent='No guest selected';document.getElementById('guestDrop').value='';renderCart();}
+
+function renderCart(){
+  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
+  document.getElementById('cartTotal').textContent=fmt(total);
+  if(cart.length===0){document.getElementById('cartItems').innerHTML=`<div class="empty-cart">🛒<br>Cart is empty<br><small>Tap items to add</small></div>`;return;}
+  document.getElementById('cartItems').innerHTML=cart.map(c=>`<div class="cart-item">
+    <div class="ci-name">${c.emoji} ${c.name}<div class="ci-price">${fmt(c.unit_price)} each</div></div>
+    <div class="qty-wrap">
+      <button class="qty-btn" onclick="changeQty(${c.product_id},-1)">-</button>
+      <span style="font-size:12px;font-weight:700;min-width:18px;text-align:center">${c.quantity}</span>
+      <button class="qty-btn" onclick="changeQty(${c.product_id},1)">+</button>
+    </div>
+    <div class="ci-total">${fmt(c.unit_price*c.quantity)}</div>
+    <span class="remove-btn" onclick="removeItem(${c.product_id})">✕</span>
+  </div>`).join('');
+}
+
+function openPayModal(){
+  if(cart.length===0){toast('Cart is empty','error');return;}
+  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
+  document.getElementById('payAmount').textContent=fmt(total);
+  selectedPayMethod=null;
+  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('payModal').style.display='flex';
+}
+function pickPay(m,el){selectedPayMethod=m;document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+
+function confirmPayment(){
+  if(!selectedPayMethod){toast('Select payment method','error');return;}
+  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
+  const table=document.getElementById('tableSelect').value||'';
+  const orderId=RuviaStore.addOrder({
+    items:cart.map(c=>({product_id:c.product_id,name:c.name,quantity:c.quantity,unit_price:c.unit_price})),
+    total,payment_method:selectedPayMethod,
+    order_type:document.getElementById('orderType').value,
+    table,guest_id:selectedGuest?selectedGuest.id:null,
+    guest_name:selectedGuest?selectedGuest.full_name:'Walk-in',
+  });
+  closeModal('payModal');
+  const now=new Date().toLocaleTimeString();
+  document.getElementById('receiptBox').textContent=`===== RUVIA HOTEL =====\nOrder #: ORD-${String(orderId).padStart(4,'0')}\nTime: ${now}\n${selectedGuest?'Guest: '+selectedGuest.full_name+'\n':''}\n${cart.map(c=>c.emoji+' '+c.name.padEnd(16)+' x'+c.quantity+'  '+fmt(c.unit_price*c.quantity)).join('\n')}\n\n${'─'.repeat(26)}\nTOTAL:  ${fmt(total)}\nPaid via: ${selectedPayMethod.toUpperCase()}\n${'═'.repeat(26)}\nThank you! Come again!`;
+  document.getElementById('receiptModal').style.display='flex';
+  renderProducts(); // refresh stock display
+}
+
+// Init
+buildCatBar();renderProducts();renderCart();loadGuestDrop();
+RuviaStore.onChange(()=>{renderProducts();loadGuestDrop();});
+</script>
+</body>
+</html>

@@ -1,46 +1,137 @@
-/* RuviaOS – Global Dark Mode (v2) */
+/* RuviaOS – Global Theme (Indigo & Slate) */
 :root {
-  --bg:#f0f2f5;--card:#fff;--text:#222;--text2:#555;--border:#e0e0e0;
-  --input-bg:#fff;--input-border:#ccc;--th-bg:#f8f9fa;--row-hover:#f5f7fa;
-  --accent:#2c5f4a;--accent2:#1a3c34;--shadow:0 2px 10px rgba(0,0,0,.07);
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text2: #64748b;
+  --border: #e2e8f0;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --th-bg: #f1f5f9;
+  --row-hover: #f8fafc;
+  --accent: #4f46e5;
+  --accent2: #4338ca;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --radius: 12px;
+  --header-gradient: linear-gradient(135deg, #4f46e5, #4338ca);
 }
-body.dark-mode{
-  --bg:#111318;--card:#1c1f26;--text:#e2e4ea;--text2:#9a9da8;--border:#2e3240;
-  --input-bg:#242730;--input-border:#3a3f52;--th-bg:#1e2230;--row-hover:#222635;
-  --accent:#4caf87;--accent2:#2c5f4a;--shadow:0 2px 14px rgba(0,0,0,.45);
+
+body.dark-mode {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --border: #334155;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+  --th-bg: #1e293b;
+  --row-hover: #0f172a;
+  --accent: #818cf8;
+  --accent2: #6366f1;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --header-gradient: linear-gradient(135deg, #1e293b, #0f172a);
 }
-body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
-/* Cards + panels */
-.stat-card,.chart-card,.table-container,.form-container,.modal-content,
-.filter-section,.card,.section,.room-card,.product-tile,.cart-panel,
-.products-panel,.search-bar,.receipt{background:var(--card)!important;color:var(--text)!important;box-shadow:var(--shadow)!important}
-/* Table cells */
-th{background:var(--th-bg)!important;color:var(--text)!important;border-bottom-color:var(--border)!important}
-td{border-bottom-color:var(--border)!important;color:var(--text)!important}
-tr:hover{background:var(--row-hover)!important}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s, color 0.2s;
+  line-height: 1.5;
+}
+
+/* Base styles for modernization */
+.stat-card, .chart-card, .table-container, .form-container, .modal-content,
+.filter-section, .card, .section, .room-card, .product-tile, .cart-panel,
+.products-panel, .search-bar, .receipt {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Tables */
+th {
+  background: var(--th-bg) !important;
+  color: var(--text) !important;
+  border-bottom: 2px solid var(--border) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+td {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+tr:hover {
+  background: var(--row-hover) !important;
+}
+
 /* Inputs */
-input,select,textarea{background:var(--input-bg)!important;border-color:var(--input-border)!important;color:var(--text)!important}
-input::placeholder,textarea::placeholder{color:var(--text2)!important}
+input, select, textarea {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2) !important;
+}
+
 /* Labels & secondary text */
-.stat-label,.form-group label,.room-type,.product-price,.cart-item-price,
-label{color:var(--text2)!important}
+.stat-label, .form-group label, .room-type, .product-price, .cart-item-price,
+label, .text-muted {
+  color: var(--text2) !important;
+}
+
 /* Accent values */
-.stat-value,.stat-number{color:var(--accent)!important}
-/* Filter buttons unselected */
-.filter-btn:not(.active),.tab:not(.active),.main-cat-btn:not(.active){background:var(--card)!important;color:var(--text)!important;border-color:var(--border)}
-/* Room cards toned backgrounds */
-body.dark-mode .room-card.ready{background:#162318!important;border-left-color:#4caf87}
-body.dark-mode .room-card.dirty{background:#231618!important;border-left-color:#e05c5c}
-body.dark-mode .room-card.occupied{background:#231f10!important;border-left-color:#e0a84c}
-body.dark-mode .room-card.cleaning{background:#102230!important;border-left-color:#4cafd6}
-/* POS product panel */
-body.dark-mode .products-panel,body.dark-mode .search-bar{background:var(--bg)!important}
-body.dark-mode .product-tile{background:var(--card)!important}
-body.dark-mode .product-name{color:var(--text)!important}
-body.dark-mode .cart-summary{background:var(--th-bg)!important}
-body.dark-mode .cart-item{border-bottom-color:var(--border)!important}
-body.dark-mode .assigned-info{background:var(--th-bg)!important;color:var(--text2)!important}
+.stat-value, .stat-number {
+  color: var(--accent) !important;
+}
+
+/* Buttons */
+.btn-primary, .login-btn, .btn-login, .btn-confirm {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+}
+
+.btn-primary:hover, .login-btn:hover, .btn-login:hover, .btn-confirm:hover {
+  background: var(--accent2) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+/* Room cards */
+.room-card.ready { border-left: 4px solid #10b981 !important; }
+.room-card.dirty { border-left: 4px solid #f43f5e !important; }
+.room-card.occupied { border-left: 4px solid #f59e0b !important; }
+.room-card.cleaning { border-left: 4px solid #0ea5e9 !important; }
+
+body.dark-mode .room-card.ready { background: rgba(16, 185, 129, 0.1) !important; }
+body.dark-mode .room-card.dirty { background: rgba(244, 63, 94, 0.1) !important; }
+body.dark-mode .room-card.occupied { background: rgba(245, 158, 11, 0.1) !important; }
+body.dark-mode .room-card.cleaning { background: rgba(14, 165, 233, 0.1) !important; }
+
 /* Section titles */
-.section-title{border-bottom-color:var(--accent)!important;color:var(--text)!important}
-/* Modals overlay stays dark */
-.modal,.payment-modal,.receipt-modal{background:rgba(0,0,0,.6)!important}
+.section-title, .card h3 {
+  border-bottom: 2px solid var(--accent) !important;
+  color: var(--text) !important;
+  font-weight: 700 !important;
+}
+
+/* Modal Overlay */
+.modal, .payment-modal, .receipt-modal {
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(4px);
+}

@@ -6,46 +6,54 @@
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
+body{font-family:'Inter','Segoe UI',sans-serif;padding:2rem}
 .main{max-width:1400px;margin:0 auto}
-.banner{background:linear-gradient(135deg,#2c5f4a,#1a3f30);color:#fff;padding:24px 28px;border-radius:14px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.banner h1{font-size:24px;margin-bottom:6px}
-.banner p{opacity:.85;font-size:14px}
-.quick-btns{display:flex;gap:10px;flex-wrap:wrap}
-.qbtn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
-.qbtn:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:24px}
-.stat-card{background:var(--card,#fff);border-radius:14px;padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all .3s}
-.stat-card:hover{transform:translateY(-4px);box-shadow:0 6px 22px rgba(0,0,0,.13)}
-.stat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.stat-icon{font-size:36px}
-.stat-title{font-size:12px;color:var(--text2,#666);text-transform:uppercase;letter-spacing:.07em}
-.stat-value{font-size:32px;font-weight:700;color:var(--accent,#2c5f4a);margin:6px 0}
-.stat-sub{font-size:12px;color:var(--text2,#666)}
-.rows{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
-.card{background:var(--card,#fff);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
-.card h3{font-size:15px;font-weight:700;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--accent,#2c5f4a);display:inline-block;color:var(--text,#222)}
-.room-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:13px}
+.banner{background:var(--header-gradient);color:#fff;padding:2rem;border-radius:var(--radius);margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;box-shadow:var(--shadow-lg)}
+.banner h1{font-size:1.75rem;margin-bottom:0.5rem;font-weight:800;letter-spacing:-0.025em}
+.banner p{opacity:.9;font-size:1rem}
+.quick-btns{display:flex;gap:0.75rem;flex-wrap:wrap}
+.qbtn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:0.625rem 1.25rem;border-radius:8px;cursor:pointer;font-size:0.875rem;font-weight:600;transition:all 0.2s}
+.qbtn:hover{background:rgba(255,255,255,0.3);transform:translateY(-2px);box-shadow:var(--shadow)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:2.5rem}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);cursor:pointer;transition:all 0.3s;border:1px solid var(--border)}
+.stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+.stat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.stat-icon{font-size:2rem;opacity:0.8}
+.stat-title{font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.stat-value{font-size:2rem;font-weight:800;color:var(--accent);margin:0.5rem 0}
+.stat-sub{font-size:0.875rem;color:var(--text2)}
+
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.card{background:var(--card);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);border:1px solid var(--border)}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:2px solid var(--accent);display:inline-block;color:var(--text);letter-spacing:-0.01em}
+
+.room-row{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.875rem}
 .room-row:last-child{border-bottom:none}
-.rnum{font-weight:700;width:40px;color:var(--text,#222)}
-.rtype{flex:1;color:var(--text2,#666);font-size:12px}
-.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700}
-.badge-ready{background:#d4edda;color:#155724}
-.badge-occupied{background:#fff3cd;color:#856404}
-.badge-dirty{background:#f8d7da;color:#721c24}
-.badge-cleaning{background:#d1ecf1;color:#0c5460}
-.activity-item{padding:8px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.rnum{font-weight:700;width:45px;color:var(--text)}
+.rtype{flex:1;color:var(--text2);font-size:0.8125rem}
+
+.badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:700;border:1px solid transparent}
+.badge-ready{background:rgba(16,185,129,0.1);color:#10b981;border-color:rgba(16,185,129,0.2)}
+.badge-occupied{background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2)}
+.badge-dirty{background:rgba(244,63,94,0.1);color:#f43f5e;border-color:rgba(244,63,94,0.2)}
+.badge-cleaning{background:rgba(14,165,233,0.1);color:#0ea5e9;border-color:rgba(14,165,233,0.2)}
+
+.activity-item{padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.8125rem}
 .activity-item:last-child{border-bottom:none}
-.act-title{font-weight:600;color:var(--text,#222)}
-.act-sub{color:var(--text2,#666);margin-top:2px}
-.low-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border,#eee);font-size:12px}
+.act-title{font-weight:600;color:var(--text)}
+.act-sub{color:var(--text2);margin-top:0.25rem}
+
+.low-item{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.8125rem}
 .low-item:last-child{border-bottom:none}
-.link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
-.link-card{background:var(--card,#fff);border-radius:12px;padding:16px;text-align:center;text-decoration:none;color:var(--text,#222);box-shadow:var(--shadow);transition:all .2s;display:block}
-.link-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
-.link-icon{font-size:28px;display:block;margin-bottom:8px}
-.link-label{font-size:12px;font-weight:600;color:var(--text,#222)}
-.empty-state{text-align:center;color:var(--text2,#999);padding:24px;font-style:italic;font-size:13px}
+
+.link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2.5rem}
+.link-card{background:var(--card);border-radius:var(--radius);padding:1.25rem;text-align:center;text-decoration:none;color:var(--text);box-shadow:var(--shadow);transition:all 0.2s;display:block;border:1px solid var(--border)}
+.link-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+.link-icon{font-size:1.75rem;display:block;margin-bottom:0.75rem}
+.link-label{font-size:0.8125rem;font-weight:600;color:var(--text)}
+
+.empty-state{text-align:center;color:var(--text2);padding:2rem;font-style:italic;font-size:0.875rem}
 @media(max-width:900px){.rows{grid-template-columns:1fr}}
 </style>
 </head>
@@ -69,7 +77,6 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="stats-grid">
     <div class="stat-card" onclick="location.href='pms.html'">
       <div class="stat-header"><div class="stat-title">Occupancy Rate</div><div class="stat-icon">🛏️</div></div>
@@ -88,22 +95,21 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
     </div>
     <div class="stat-card" onclick="location.href='reports.html'">
       <div class="stat-header"><div class="stat-title">Outstanding Balance</div><div class="stat-icon">⚠️</div></div>
-      <div class="stat-value" id="kBalance" style="color:#dc3545">-</div>
+      <div class="stat-value" id="kBalance" style="color:#ef4444">-</div>
       <div class="stat-sub">Unpaid guest balances</div>
     </div>
     <div class="stat-card" onclick="location.href='housekeeping.html'">
       <div class="stat-header"><div class="stat-title">Rooms Needing Cleaning</div><div class="stat-icon">🧹</div></div>
-      <div class="stat-value" id="kDirty" style="color:#e0a800">-</div>
+      <div class="stat-value" id="kDirty" style="color:#f59e0b">-</div>
       <div class="stat-sub" id="kDirtySub">- cleaning in progress</div>
     </div>
     <div class="stat-card" onclick="location.href='stock.html'">
       <div class="stat-header"><div class="stat-title">Low Stock Alerts</div><div class="stat-icon">📦</div></div>
-      <div class="stat-value" id="kLowStock" style="color:#e0a800">-</div>
+      <div class="stat-value" id="kLowStock" style="color:#f59e0b">-</div>
       <div class="stat-sub" id="kOutStock">- out of stock</div>
     </div>
   </div>
 
-  <!-- Quick Nav -->
   <div class="link-grid">
     <a class="link-card" href="frontdesk.html"><span class="link-icon">🏨</span><span class="link-label">Front Desk</span></a>
     <a class="link-card" href="pms.html"><span class="link-icon">📅</span><span class="link-label">Reservations</span></a>
@@ -115,7 +121,6 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
     <a class="link-card" href="menu-management.html"><span class="link-icon">📋</span><span class="link-label">Menu</span></a>
   </div>
 
-  <!-- Rooms + Activity -->
   <div class="rows">
     <div class="card">
       <h3>🛏️ Room Status</h3>
@@ -127,7 +132,6 @@ body{font-family:'Segoe UI',sans-serif;padding:20px}
     </div>
   </div>
 
-  <!-- Low stock + Upcoming -->
   <div class="rows">
     <div class="card">
       <h3>⚠️ Low Stock Items</h3>
@@ -180,22 +184,18 @@ function loadAll(){
   document.getElementById('kLowStock').textContent=lowStock;
   document.getElementById('kOutStock').textContent=`${outStock} out of stock`;
 
-  // Room list
   const bmap={ready:'badge-ready',occupied:'badge-occupied',dirty:'badge-dirty',cleaning:'badge-cleaning'};
   const lmap={ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
   document.getElementById('roomList').innerHTML=rooms.length===0?`<div class="empty-state">No rooms</div>`:
     rooms.map(r=>`<div class="room-row"><span class="rnum">${r.room_number}</span><span class="rtype">${r.room_type}</span><span class="badge ${bmap[r.status]||''}">${lmap[r.status]||r.status}</span></div>`).join('');
 
-  // HK activity
   document.getElementById('hkActivity').innerHTML=log.length===0?`<div class="empty-state">No activity yet</div>`:
     log.slice(0,8).map(e=>`<div class="activity-item"><div class="act-title">Room ${e.room} – ${e.action}</div><div class="act-sub">${e.old_status||''} → ${e.new_status||''} ${e.assigned_to&&e.assigned_to!=='-'?'('+e.assigned_to+')':''} · ${e.time||''}</div></div>`).join('');
 
-  // Low stock
   const lowItems=products.filter(p=>p.current_stock<=p.reorder_level).sort((a,b)=>a.current_stock-b.current_stock);
   document.getElementById('lowStockList').innerHTML=lowItems.length===0?`<div class="empty-state">✅ All stock levels OK</div>`:
-    lowItems.slice(0,8).map(p=>`<div class="low-item"><span>${p.emoji||'📦'} <strong>${p.name}</strong></span><span style="color:${p.current_stock===0?'#dc3545':'#e0a800'};font-weight:700">${p.current_stock===0?'Out of stock':'Stock: '+p.current_stock}</span></div>`).join('');
+    lowItems.slice(0,8).map(p=>`<div class="low-item"><span>${p.emoji||'📦'} <strong>${p.name}</strong></span><span style="color:${p.current_stock===0?'#ef4444':'#f59e0b'};font-weight:700">${p.current_stock===0?'Out of stock':'Stock: '+p.current_stock}</span></div>`).join('');
 
-  // Upcoming arrivals
   const upcoming=res.filter(r=>r.status==='confirmed'&&r.check_in>=today).sort((a,b)=>a.check_in.localeCompare(b.check_in));
   document.getElementById('upcomingList').innerHTML=upcoming.length===0?`<div class="empty-state">No upcoming arrivals</div>`:
     upcoming.slice(0,8).map(r=>{const g=guests.find(x=>x.id===r.guest_id)||{};const rm=rooms.find(x=>x.id===r.room_id)||{};

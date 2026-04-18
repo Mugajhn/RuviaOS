@@ -7,35 +7,35 @@
 <script src="darkmode.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#1a3c34,#2c5f4a);padding:20px}
-.card{background:var(--card,#fff);padding:40px 36px;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);width:100%;max-width:400px;text-align:center}
-.logo{font-size:58px;margin-bottom:14px}
-h1{color:var(--accent,#2c5f4a);font-size:28px;margin-bottom:6px}
-h2{color:var(--text,#333);font-size:16px;font-weight:400;margin-bottom:28px}
-.form-group{margin-bottom:14px;text-align:left}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2,#555);margin-bottom:4px}
-.form-group input{width:100%;padding:13px 16px;border:1.5px solid var(--input-border,#ddd);border-radius:9px;font-size:15px;background:var(--input-bg,#fff);color:var(--text,#222);transition:border-color .2s;outline:none}
-.form-group input:focus{border-color:var(--accent,#2c5f4a)}
-.btn-login{width:100%;padding:14px;background:var(--accent,#2c5f4a);color:#fff;border:none;border-radius:9px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:background .2s}
-.btn-login:hover{background:var(--accent2,#1a3c34)}
-.error{color:#dc3545;font-size:13px;margin-top:10px;display:none;padding:8px 12px;background:#f8d7da;border-radius:7px}
-.demo{margin-top:22px;padding-top:16px;border-top:1px solid var(--border,#eee);font-size:12px;color:var(--text2,#666);line-height:1.8}
-.demo strong{color:var(--text,#333)}
+body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;background:var(--header-gradient);padding:2rem}
+.card{background:var(--card);padding:3rem;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:440px;text-align:center;border:1px solid rgba(255,255,255,0.1)}
+.logo{font-size:4rem;margin-bottom:1.5rem;display:block}
+h1{color:var(--accent);font-size:2rem;margin-bottom:0.5rem;font-weight:800;letter-spacing:-0.05em}
+h2{color:var(--text2);font-size:1rem;font-weight:500;margin-bottom:2.5rem}
+.form-group{margin-bottom:1.5rem;text-align:left}
+.form-group label{display:block;font-size:0.75rem;font-weight:700;color:var(--text2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em}
+.form-group input{width:100%;padding:0.875rem 1rem;border:1px solid var(--border);border-radius:8px;font-size:1rem;background:var(--input-bg);color:var(--text);transition:all 0.2s;outline:none}
+.form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
+.btn-login{width:100%;padding:1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:0.5rem;transition:all 0.2s}
+.btn-login:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:var(--shadow)}
+.error{color:#ef4444;font-size:0.875rem;margin-top:1.25rem;display:none;padding:0.75rem 1rem;background:rgba(239,68,68,0.1);border-radius:8px;border:1px solid rgba(239,68,68,0.2);font-weight:500}
+.demo{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:0.8125rem;color:var(--text2);line-height:1.6}
+.demo strong{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="logo">🏨</div>
+  <span class="logo">🏨</span>
   <h1>RuviaOS</h1>
-  <h2>Employee Login</h2>
+  <h2>Employee Access Portal</h2>
   <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="e.g. admin" autocomplete="off"></div>
-  <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-  <button class="btn-login" onclick="doLogin()">🔐 Login</button>
+  <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+  <button class="btn-login" onclick="doLogin()">🔐 Login to System</button>
   <div class="error" id="err"></div>
   <div class="demo">
     <strong>Demo Credentials</strong><br>
     Username: <strong>admin</strong> &nbsp;|&nbsp; Password: <strong>admin123</strong><br>
-    Also: manager · reception · kitchen · housekeeping
+    Manager · Reception · Kitchen · Housekeeping
   </div>
 </div>
 <script src="ruvia-store.js"></script>
@@ -51,11 +51,10 @@ function doLogin(){
     localStorage.setItem('ruviaos_role',u);
     window.location.href='index.html';
   } else {
-    err.textContent='❌ Invalid username or password. Try admin / admin123';
+    err.textContent='❌ Invalid username or password. Use admin / admin123';
     err.style.display='block';
   }
 }
-// Redirect if already logged in
 if(localStorage.getItem('ruviaos_logged_in')==='true') window.location.href='index.html';
 </script>
 </body>

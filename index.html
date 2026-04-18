@@ -7,33 +7,35 @@
 <script src="darkmode.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding-bottom:40px}
-.container{max-width:1200px;margin:0 auto;padding:20px}
-.hero{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:50px 30px;border-radius:20px;margin-bottom:30px;text-align:center}
-.hero h1{font-size:40px;margin-bottom:12px}
-.hero p{font-size:17px;opacity:.9}
-.login-card{background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:26px;text-align:center;margin-bottom:28px;border:1px solid #ffc107}
-body.dark-mode .login-card{background:linear-gradient(135deg,#2a2210,#1f1a08);border-color:#a07800}
-.login-card h3{color:#856404;margin-bottom:10px;font-size:17px}
-body.dark-mode .login-card h3{color:#ffc107}
-.login-card p{color:var(--text2,#666);font-size:13px;margin-bottom:14px}
-.login-btn{background:var(--accent,#2c5f4a);color:#fff;border:none;padding:12px 32px;border-radius:30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-.login-btn:hover{background:var(--accent2,#1a3c34)}
-.stats-section{margin-bottom:28px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
-.stat-card{background:var(--card,#fff);padding:18px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:26px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.modules-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:18px;color:var(--text,#222)}
-.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.module-card{background:var(--card,#fff);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:var(--shadow);text-decoration:none;display:block;color:var(--text,#222)}
-.module-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.13)}
-.module-card.locked{opacity:.45;filter:blur(1px);cursor:default}
-.module-icon{font-size:42px;margin-bottom:10px}
-.module-card h3{font-size:15px;font-weight:700;color:var(--text,#222)}
-.module-card p{font-size:12px;color:var(--text2,#666);margin-top:4px}
-.locked-badge{background:#ffc107;color:#333;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;display:inline-block;margin-top:8px}
-.footer{text-align:center;padding:24px 20px 0;color:var(--text2,#666);font-size:13px;border-top:1px solid var(--border,#eee);margin-top:30px}
+body{font-family:'Inter','Segoe UI',sans-serif;padding-bottom:60px}
+.container{max-width:1200px;margin:0 auto;padding:2rem}
+.hero{background:var(--header-gradient);color:#fff;padding:4rem 2rem;border-radius:var(--radius);margin-bottom:3rem;text-align:center;box-shadow:var(--shadow-lg)}
+.hero h1{font-size:3rem;margin-bottom:1rem;font-weight:800;letter-spacing:-0.05em}
+.hero p{font-size:1.25rem;opacity:.9;font-weight:400}
+
+.login-card{background:var(--card);border-radius:var(--radius);padding:3rem;text-align:center;margin-bottom:3rem;border:1px solid var(--border);box-shadow:var(--shadow-lg)}
+.login-card h3{color:var(--text);margin-bottom:0.75rem;font-size:1.5rem;font-weight:700}
+.login-card p{color:var(--text2);font-size:1rem;margin-bottom:1.5rem}
+.login-btn{background:var(--accent);color:#fff;border:none;padding:0.875rem 2.5rem;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s}
+.login-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:var(--shadow)}
+
+.stats-section{margin-bottom:3rem}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+.stat-card{background:var(--card);padding:1.5rem;border-radius:var(--radius);text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-value{font-size:2rem;font-weight:800;color:var(--accent)}
+.stat-label{color:var(--text2);margin-top:0.5rem;font-size:0.875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+
+.modules-title{font-size:1.75rem;font-weight:800;text-align:center;margin-bottom:2rem;color:var(--text);letter-spacing:-0.025em}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+.module-card{background:var(--card);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;transition:all 0.3s;box-shadow:var(--shadow);text-decoration:none;display:block;color:var(--text);border:1px solid var(--border)}
+.module-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+.module-card.locked{opacity:.6;filter:grayscale(0.5);cursor:default}
+.module-icon{font-size:3rem;margin-bottom:1rem;display:block}
+.module-card h3{font-size:1.125rem;font-weight:700;color:var(--text)}
+.module-card p{font-size:0.875rem;color:var(--text2);margin-top:0.5rem;line-height:1.4}
+.locked-badge{background:var(--th-bg);color:var(--text2);padding:0.375rem 0.875rem;border-radius:9999px;font-size:0.75rem;font-weight:700;display:inline-block;margin-top:1rem;border:1px solid var(--border)}
+
+.footer{text-align:center;padding:3rem 2rem 0;color:var(--text2);font-size:0.875rem;border-top:1px solid var(--border);margin-top:4rem}
 </style>
 </head>
 <body>
@@ -44,42 +46,42 @@ body.dark-mode .login-card h3{color:#ffc107}
 <div class="container">
   <div class="hero">
     <h1>🏨 Ruvia Hotel</h1>
-    <p>Welcome to Ruvia Hotel Management System</p>
+    <p>Premium Hotel Management & Operations System</p>
   </div>
 
   <div id="loginPrompt" class="login-card" style="display:none">
-    <h3>🔐 Employee Access Required</h3>
-    <p>Please login to access the hotel management system.</p>
+    <h3>🔐 Access Restricted</h3>
+    <p>Please log in with your employee credentials to access the system.</p>
     <button class="login-btn" onclick="location.href='login.html'">🔐 Go to Login</button>
-    <p style="margin-top:12px;font-size:11px;color:var(--text2)">Demo: admin / admin123</p>
+    <p style="margin-top:1.5rem;font-size:0.75rem;color:var(--text2)">Demo: admin / admin123</p>
   </div>
 
   <div class="stats-section" id="statsSection" style="display:none">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-value" id="stRooms">-</div><div class="stat-label">Total Rooms</div></div>
-      <div class="stat-card"><div class="stat-value" id="stOcc">-</div><div class="stat-label">🔴 Occupied</div></div>
+      <div class="stat-card"><div class="stat-value" id="stOcc">-</div><div class="stat-label">Occupied</div></div>
       <div class="stat-card"><div class="stat-value" id="stRate">-</div><div class="stat-label">Occupancy Rate</div></div>
-      <div class="stat-card"><div class="stat-value" id="stArrivals">-</div><div class="stat-label">📥 Arrivals Today</div></div>
-      <div class="stat-card"><div class="stat-value" id="stLowStock" style="color:#e0a800">-</div><div class="stat-label">⚠️ Low Stock</div></div>
-      <div class="stat-card"><div class="stat-value" id="stPending" style="color:#dc3545">-</div><div class="stat-label">💳 Outstanding</div></div>
+      <div class="stat-card"><div class="stat-value" id="stArrivals">-</div><div class="stat-label">Today's Arrivals</div></div>
+      <div class="stat-card"><div class="stat-value" id="stLowStock" style="color:#f59e0b">-</div><div class="stat-label">Low Stock</div></div>
+      <div class="stat-card"><div class="stat-value" id="stPending" style="color:#ef4444">-</div><div class="stat-label">Outstanding</div></div>
     </div>
   </div>
 
-  <h3 class="modules-title">📋 System Modules</h3>
+  <h3 class="modules-title">System Modules</h3>
   <div class="modules-grid" id="modulesGrid">
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'frontdesk.html')"><div class="module-icon">🏨</div><h3>Reception</h3><p>Check-in/out & front desk</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'pms.html')"><div class="module-icon">📅</div><h3>Reservations (PMS)</h3><p>Guests, rooms, bookings</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'pos.html')"><div class="module-icon">🍽️</div><h3>Restaurant POS</h3><p>Take & process orders</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'housekeeping.html')"><div class="module-icon">🧹</div><h3>Housekeeping</h3><p>Room cleaning & status</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'stock.html')"><div class="module-icon">📦</div><h3>Stock Management</h3><p>Inventory & supplies</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'tables.html')"><div class="module-icon">🪑</div><h3>Table Management</h3><p>Dining room tables</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'menu-management.html')"><div class="module-icon">📋</div><h3>Menu Management</h3><p>Food & beverage menu</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'reports.html')"><div class="module-icon">📊</div><h3>Reports & Analytics</h3><p>Sales, occupancy, stock</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'staff.html')"><div class="module-icon">👥</div><h3>Staff Management</h3><p>Team members & roles</p><span class="locked-badge">🔒 Login required</span></a>
-    <a class="module-card locked" href="#" onclick="checkAccess(event,'dashboard.html')"><div class="module-icon">📈</div><h3>Dashboard</h3><p>Live hotel overview</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'frontdesk.html')"><span class="module-icon">🏨</span><h3>Reception</h3><p>Guest check-in, check-out and front desk operations</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'pms.html')"><span class="module-icon">📅</span><h3>Reservations</h3><p>Manage guests, room availability and bookings</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'pos.html')"><span class="module-icon">🍽️</span><h3>Restaurant POS</h3><p>Process food and beverage orders efficiently</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'housekeeping.html')"><span class="module-icon">🧹</span><h3>Housekeeping</h3><p>Monitor room cleaning status and assignments</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'stock.html')"><span class="module-icon">📦</span><h3>Stock Management</h3><p>Track inventory levels and supply reorders</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'tables.html')"><span class="module-icon">🪑</span><h3>Table Management</h3><p>Dining room layout and table status</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'menu-management.html')"><span class="module-icon">📋</span><h3>Menu Management</h3><p>Configure food and beverage offerings</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'reports.html')"><span class="module-icon">📊</span><h3>Reports & Analytics</h3><p>Analyze sales, occupancy and performance</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'staff.html')"><span class="module-icon">👥</span><h3>Staff Management</h3><p>Manage team members, roles and access</p><span class="locked-badge">🔒 Login required</span></a>
+    <a class="module-card locked" href="#" onclick="checkAccess(event,'dashboard.html')"><span class="module-icon">📈</span><h3>Dashboard</h3><p>Real-time high-level hotel overview</p><span class="locked-badge">🔒 Login required</span></a>
   </div>
 
-  <div class="footer"><p>RuviaOS – Hotel Management System &nbsp;|&nbsp; Ruvia Hotel &nbsp;|&nbsp; © 2026</p></div>
+  <div class="footer"><p>RuviaOS – Advanced Hotel Management System &nbsp;|&nbsp; © 2026 Ruvia Hotel Group</p></div>
 </div>
 
 <script>

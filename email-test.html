@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Currency Formatter -->
+    <script src="currency.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuviaOS - Email Test</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1 { color: #2c5f4a; }
+        .demo-notice { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: #2c5f4a; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 5px; }
+        .status { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+        .success { background: #d4edda; color: #155724; display: block; }
+        .error { background: #f8d7da; color: #721c24; display: block; }
+        .info { background: #d1ecf1; color: #0c5460; display: block; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        hr { margin: 20px 0; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+<div id="navbar-placeholder"></div>
+
+<script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+        });
+</script>
+<div class="container">
+    <h1>📧 RuviaOS Email Notification Test</h1>
+    
+    <div class="demo-notice">
+        <strong>ℹ️ Demo Mode Active</strong><br>
+        No real emails are being sent. All emails are logged to your terminal.
+        To send real emails, configure SMTP in the .env file.
+    </div>
+    
+    <div class="form-group">
+        <label>Recipient Email (for demo, any email works)</label>
+        <input type="email" id="recipientEmail" placeholder="test@example.com">
+    </div>
+    
+    <div class="btn-group">
+        <button onclick="testEmailConfig()">🔧 Test Configuration</button>
+        <button onclick="sendBookingConfirmation()">📅 Booking Confirmation</button>
+        <button onclick="sendCheckinReminder()">⏰ Check-in Reminder</button>
+        <button onclick="sendThankYou()">🙏 Thank You Email</button>
+        <button onclick="sendLowStockAlert()">⚠️ Low Stock Alert</button>
+        <button onclick="sendDailyReport()">📊 Daily Report</button>
+    </div>
+    
+    <hr>
+    
+    <h3>📋 Email Log</h3>
+    <div id="status" class="status"></div>
+    <pre id="log"></pre>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:3000';
+    const logDiv = document.getElementById('log');
+    const statusDiv = document.getElementById('status');
+    
+    function addLog(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `[RuviaCurrency.format(timestamp)] RuviaCurrency.format(message)\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        
+        statusDiv.className = `status RuviaCurrency.format(type)`;
+        statusDiv.innerHTML = message;
+        setTimeout(() => {
+            statusDiv.className = 'status';
+        }, 3000);
+    }
+    
+    function getRecipientEmail() {
+        const email = document.getElementById('recipientEmail').value;
+        if (!email) {
+            addLog('⚠️ Please enter a recipient email address', 'error');
+            return null;
+        }
+        return email;
+    }
+    
+    async function testEmailConfig() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Testing email configuration...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/test`);
+            const result = await response.json();
+            if (result.success) {
+                addLog(`✅ Test completed! Check your terminal for email content`, 'success');
+            } else {
+                addLog(`⚠️ Demo mode active - email logged to console`, 'info');
+            }
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    async function sendBookingConfirmation() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Sending booking confirmation...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/send-booking-confirmation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    guest_email: email,
+                    guest_name: 'Test Guest',
+                    reservation_id: 'RES-DEMO-001',
+                    room_number: '205',
+                    check_in: new Date(),
+                    check_out: new Date(Date.now() + 3 * 86400000),
+                    total_amount: 450
+                })
+            });
+            const result = await response.json();
+            addLog(`✅ Booking confirmation logged. Check your terminal for details.`, 'success');
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    async function sendCheckinReminder() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Sending check-in reminder...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/send-checkin-reminder`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    guest_email: email,
+                    guest_name: 'Test Guest',
+                    room_number: '205',
+                    check_in: new Date(Date.now() + 86400000)
+                })
+            });
+            addLog(`✅ Check-in reminder logged. Check your terminal.`, 'success');
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    async function sendThankYou() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Sending thank you email...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/send-thank-you`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    guest_email: email,
+                    guest_name: 'Test Guest',
+                    room_number: '205',
+                    check_out: new Date()
+                })
+            });
+            addLog(`✅ Thank you email logged. Check your terminal.`, 'success');
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    async function sendLowStockAlert() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Sending low stock alert...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/send-low-stock-alert`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    manager_email: email,
+                    low_stock_items: [
+                        { name: 'Fresh Coffee', current_stock: 15, reorder_level: 40, location: 'Kitchen' },
+                        { name: 'Grilled Steak', current_stock: 8, reorder_level: 10, location: 'Freezer' }
+                    ]
+                })
+            });
+            addLog(`✅ Low stock alert logged. Check your terminal.`, 'success');
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    async function sendDailyReport() {
+        const email = getRecipientEmail();
+        if (!email) return;
+        
+        addLog('📧 Sending daily report...', 'info');
+        try {
+            const response = await fetch(`RuviaCurrency.format(API_BASE)/api/email/send-daily-report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    manager_email: email,
+                    date: new Date().toLocaleDateString(),
+                    total_revenue: 12450,
+                    total_transactions: 145,
+                    occupancy_rate: 78,
+                    top_items: [
+                        { name: 'Local Beer', quantity_sold: 45, revenue: 180 },
+                        { name: 'Grilled Steak', quantity_sold: 32, revenue: 800 }
+                    ]
+                })
+            });
+            addLog(`✅ Daily report logged. Check your terminal.`, 'success');
+        } catch (error) {
+            addLog(`❌ Error: RuviaCurrency.format(error.message)`, 'error');
+        }
+    }
+    
+    // Initial log
+    addLog('Ready to test emails. All emails will be logged to your terminal.', 'info');
+</script>
+</body>
+</html>

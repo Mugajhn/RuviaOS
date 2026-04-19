@@ -1,2 +1,225 @@
-<!-- navbar.html — loads navbar.js which works on both file:// and http:// -->
-<script src="navbar.js"></script>
+<!-- navbar.html - Complete Navigation Bar -->
+<style>
+    .ruvia-navbar {
+        background: linear-gradient(135deg, #1a3c34, #2c5f4a);
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .navbar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .navbar-logo span { font-size: 28px; }
+    .navbar-menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.15); }
+    
+    .login-nav-btn {
+        background: #ffc107;
+        color: #333;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    .login-nav-btn:hover { background: #e0a800; }
+    
+    .logout-nav-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .logout-nav-btn:hover { background: #c82333; }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,0.15);
+        padding: 5px 15px;
+        border-radius: 30px;
+    }
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        background: #ffc107;
+        color: #333;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .darkmode-nav-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .darkmode-nav-btn:hover { background: rgba(255,255,255,0.3); }
+    
+    @media (max-width: 700px) {
+        .ruvia-navbar { flex-direction: column; }
+        .navbar-menu { justify-content: center; }
+    }
+</style>
+
+<div class="ruvia-navbar">
+    <div class="navbar-logo">
+        <span>🏨</span>
+        RuviaOS
+    </div>
+    
+    <div class="navbar-menu" id="navbarMenu">
+        <!-- Home link - always visible -->
+        <a href="/index.html" class="nav-link">🏠 Home</a>
+        
+        <!-- These links appear only after login -->
+        <div id="navLinks">
+            <a href="/frontdesk.html" class="nav-link">🏨 Reception</a>
+            <a href="/pos.html" class="nav-link">🍽️ Restaurant</a>
+            <a href="/dashboard.html" class="nav-link">📊 Dashboard</a>
+            <a href="/stock.html" class="nav-link">📦 Stock</a>
+            <a href="/housekeeping.html" class="nav-link">🧹 Cleaning</a>
+            <a href="/tables.html" class="nav-link">🍽️ Tables</a>
+            <a href="/menu-management.html" class="nav-link">📋 Menu</a>
+            <a href="/reports.html" class="nav-link">📄 Reports</a>
+            <a href="/backup-dashboard.html" class="nav-link">💾 Backup</a>
+            <a href="/pms.html" class="nav-link">🏨 PMS</a>
+            <a href="/staff.html" class="nav-link">👥 Staff</a>
+            
+        </div>
+        
+        <!-- Dark Mode Toggle -->
+        <button class="darkmode-nav-btn" id="darkModeToggleBtn">🌙 Dark</button>
+        
+        <!-- Login/User Section -->
+        <div id="authSection">
+            <a href="/login.html" class="login-nav-btn">🔐 Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateNavigationBar() {
+        const isLoggedIn = localStorage.getItem('ruviaos_logged_in') === 'true';
+        const username = localStorage.getItem('ruviaos_user') || '';
+        const navLinks = document.getElementById('navLinks');
+        const authSection = document.getElementById('authSection');
+        
+        if (isLoggedIn && username) {
+            // Show all navigation links
+            if (navLinks) navLinks.style.display = 'flex';
+            
+            // Show user profile and logout button
+            if (authSection) {
+                authSection.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${username.charAt(0).toUpperCase()}</div>
+                        <span>${username}</span>
+                    </div>
+                    <button class="logout-nav-btn" onclick="logoutUser()">🚪 Logout</button>
+                `;
+            }
+        } else {
+            // Hide navigation links
+            if (navLinks) navLinks.style.display = 'none';
+            
+            // Show login button
+            if (authSection) {
+                authSection.innerHTML = `<a href="/login.html" class="login-nav-btn">🔐 Login</a>`;
+            }
+        }
+    }
+    
+    function logoutUser() {
+        localStorage.removeItem('ruviaos_logged_in');
+        localStorage.removeItem('ruviaos_user');
+        localStorage.removeItem('ruviaos_role');
+        window.location.href = '/index.html';
+    }
+    
+    // Dark mode functions
+    function applyDarkMode(isDark) {
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('ruviaos-dark-mode', 'enabled');
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('ruviaos-dark-mode', 'disabled');
+        }
+        updateDarkButton(isDark);
+    }
+    
+    function toggleDarkMode() {
+        const isDark = !document.body.classList.contains('dark-mode');
+        applyDarkMode(isDark);
+    }
+    
+    function updateDarkButton(isDark) {
+        const btn = document.getElementById('darkModeToggleBtn');
+        if (btn) {
+            btn.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+        }
+    }
+    
+    function initDarkMode() {
+        const saved = localStorage.getItem('ruviaos-dark-mode');
+        const isDark = saved === 'enabled';
+        if (isDark) document.body.classList.add('dark-mode');
+        updateDarkButton(isDark);
+    }
+    
+    // Set up dark mode toggle
+    const darkBtn = document.getElementById('darkModeToggleBtn');
+    if (darkBtn) {
+        darkBtn.addEventListener('click', toggleDarkMode);
+    }
+    
+    // Initialize
+    initDarkMode();
+    updateNavigationBar();
+</script>

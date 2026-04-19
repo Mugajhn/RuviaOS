@@ -1,6 +1,5 @@
-node_modules/
-backups/
-.env
-.DS_Store
-*.log
-.vscode/
+node_modules/  
+.env  
+backups/  
+*.zip  
+.DS_Store  

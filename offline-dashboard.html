@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuviaOS - Offline Mode Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; transition: all 0.3s ease; }
+        body.dark-mode { background: #1a1a2e; color: #e0e0e0; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #1a3c34, #2c5f4a); color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        
+        .status-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        body.dark-mode .status-card { background: #252540; }
+        .status-online { color: #28a745; }
+        .status-offline { color: #dc3545; }
+        .status-icon { font-size: 48px; }
+        .status-info { flex: 1; }
+        .status-title { font-size: 18px; font-weight: bold; }
+        .status-message { color: #666; margin-top: 5px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; text-align: center; }
+        body.dark-mode .stat-card { background: #252540; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #2c5f4a; }
+        body.dark-mode .stat-value { color: #ffc107; }
+        .stat-label { color: #666; margin-top: 5px; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn-primary { background: #2c5f4a; color: white; }
+        .btn-primary:hover { background: #1a3c34; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        
+        .sync-log { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-top: 20px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        body.dark-mode .sync-log { background: #1a1a2e; }
+        .sync-entry { padding: 8px; border-bottom: 1px solid #ddd; }
+        .sync-success { color: #28a745; }
+        .sync-pending { color: #ffc107; }
+        .sync-error { color: #dc3545; }
+        
+        .battery-indicator { display: flex; align-items: center; gap: 8px; background: #e9ecef; padding: 8px 15px; border-radius: 20px; }
+        body.dark-mode .battery-indicator { background: #1a1a2e; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+    <link rel="stylesheet" href="darkmode.css">
+    <script src="darkmode.js">
+    // AI offline fallback
+    if (!navigator.onLine) {
+        const aiGrid = document.getElementById('aiGrid');
+        if (aiGrid) {
+            aiGrid.innerHTML = '<div class="ai-card"><h3>📡 Offline Mode</h3><p>AI predictions require internet connection. Will update automatically when connection is restored.</p></div>';
+        }
+    }
+    
+    // Listen for online event to reload AI
+    window.addEventListener('online', () => {
+        if (typeof loadAIPredictions === 'function') {
+            loadAIPredictions();
+        }
+    });
+</script>
+    <script src="offline-storage.js"></script>
+
+    <!-- Offline-First Support -->
+    <script src="offline-core.js"></script>
+    <script src="offline-api.js"></script>
+</head>
+<body>
+
+    <!-- Offline Status Bar -->
+    <div id="offlineStatusContainer"></div>
+    <script>
+        fetch('offline-status.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('offlineStatusContainer').innerHTML = data;
+            });
+    </script>
+
+<div id="navbar-placeholder"></div>
+<script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+        });
+</script>
+
+<div class="container">
+    <div class="header">
+        <h1>📡 Offline Mode Control Center</h1>
+        <button class="btn btn-primary" onclick="manualSync()">🔄 Sync Now</button>
+    </div>
+
+    <!-- Connection Status Card -->
+    <div class="status-card" id="connectionStatus">
+        <div class="status-icon" id="statusIcon">🌐</div>
+        <div class="status-info">
+            <div class="status-title" id="statusTitle">Checking connection...</div>
+            <div class="status-message" id="statusMessage">Please wait...</div>
+        </div>
+        <div class="battery-indicator" id="batteryIndicator">
+            <span>🔋</span>
+            <span id="batteryLevel">--%</span>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="pendingSyncCount">0</div>
+            <div class="stat-label">📤 Pending Sync Items</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="localRooms">0</div>
+            <div class="stat-label">🏨 Local Rooms</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="localGuests">0</div>
+            <div class="stat-label">👥 Local Guests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="localTransactions">0</div>
+            <div class="stat-label">💰 Local Transactions</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <button class="btn btn-primary" onclick="backupLocalData()">💾 Backup Local Data</button>
+        <button class="btn btn-success" onclick="exportLocalData()">📁 Export Local Data</button>
+        <button class="btn btn-danger" onclick="clearLocalData()">🗑️ Clear Local Data</button>
+    </div>
+
+    <!-- Auto-save Settings -->
+    <div class="status-card">
+        <h3>⚡ Auto-Save Settings</h3>
+        <div style="display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
+            <label><input type="checkbox" id="autoSaveCheckbox" checked> Enable Auto-Save (every 30 seconds)</label>
+            <label><input type="checkbox" id="autoSyncCheckbox" checked> Enable Auto-Sync (when online)</label>
+        </div>
+        <div style="margin-top: 10px;">
+            <span>💾 Last saved: <span id="lastSaveTime">Never</span></span>
+        </div>
+    </div>
+
+    <!-- Sync Log -->
+    <div class="status-card">
+        <h3>📋 Sync Activity Log</h3>
+        <div class="sync-log" id="syncLog">
+            <div class="sync-entry">Waiting for sync activity...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let syncLog = [];
+    let autoSaveInterval = null;
+    let autoSyncInterval = null;
+
+    // Update connection status
+    async function updateConnectionStatus() {
+        const isOnline = navigator.onLine;
+        const syncStatus = await offlineStorage.getSyncStatus();
+        
+        const icon = document.getElementById('statusIcon');
+        const title = document.getElementById('statusTitle');
+        const message = document.getElementById('statusMessage');
+        
+        if (isOnline) {
+            icon.innerHTML = '🌐';
+            title.innerHTML = '🟢 Online Mode';
+            message.innerHTML = 'Connected to internet. Data will sync automatically.';
+            title.style.color = '#28a745';
+        } else {
+            icon.innerHTML = '📡';
+            title.innerHTML = '🔴 Offline Mode';
+            message.innerHTML = 'No internet connection. Data is saved locally and will sync when connection returns.';
+            title.style.color = '#dc3545';
+        }
+        
+        document.getElementById('pendingSyncCount').innerHTML = syncStatus.pendingSyncCount;
+    }
+
+    // Update local storage stats
+    async function updateLocalStats() {
+        try {
+            const rooms = await offlineStorage.getAll('rooms');
+            const guests = await offlineStorage.getAll('guests');
+            const transactions = await offlineStorage.getAll('transactions');
+            const pending = await offlineStorage.getPendingSync();
+            
+            document.getElementById('localRooms').innerHTML = rooms.length;
+            document.getElementById('localGuests').innerHTML = guests.length;
+            document.getElementById('localTransactions').innerHTML = transactions.length;
+            document.getElementById('pendingSyncCount').innerHTML = pending.length;
+        } catch(e) { console.error(e); }
+    }
+
+    // Manual sync
+    async function manualSync() {
+        addToSyncLog('🔄 Manual sync started...', 'pending');
+        const result = await offlineStorage.syncToServer();
+        addToSyncLog(`✅ Sync complete: ${result.synced} items synced`, 'success');
+        await updateLocalStats();
+        await updateConnectionStatus();
+    }
+
+    // Backup local data
+    async function backupLocalData() {
+        addToSyncLog('💾 Creating local backup...', 'pending');
+        try {
+            const backup = {
+                timestamp: new Date().toISOString(),
+                rooms: await offlineStorage.getAll('rooms'),
+                guests: await offlineStorage.getAll('guests'),
+                reservations: await offlineStorage.getAll('reservations'),
+                products: await offlineStorage.getAll('products'),
+                transactions: await offlineStorage.getAll('transactions')
+            };
+            
+            const backupBlob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(backupBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ruviaos_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            addToSyncLog(`✅ Backup created with ${backup.rooms.length} rooms, ${backup.guests.length} guests`, 'success');
+        } catch(e) {
+            addToSyncLog(`❌ Backup failed: ${e.message}`, 'error');
+        }
+    }
+
+    // Export local data
+    async function exportLocalData() {
+        await backupLocalData();
+    }
+
+    // Clear local data
+    async function clearLocalData() {
+        if (confirm('⚠️ WARNING: This will delete all local data. Are you sure?')) {
+            try {
+                await offlineStorage.clear('rooms');
+                await offlineStorage.clear('guests');
+                await offlineStorage.clear('reservations');
+                await offlineStorage.clear('products');
+                await offlineStorage.clear('transactions');
+                await offlineStorage.clear('pending_sync');
+                addToSyncLog('🗑️ Local data cleared', 'success');
+                await updateLocalStats();
+            } catch(e) {
+                addToSyncLog(`❌ Failed to clear data: ${e.message}`, 'error');
+            }
+        }
+    }
+
+    // Add to sync log
+    function addToSyncLog(message, type) {
+        const logDiv = document.getElementById('syncLog');
+        const entry = document.createElement('div');
+        entry.className = `sync-entry sync-${type}`;
+        entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logDiv.insertBefore(entry, logDiv.firstChild);
+        
+        // Keep only last 50 entries
+        while (logDiv.children.length > 50) {
+            logDiv.removeChild(logDiv.lastChild);
+        }
+        
+        syncLog.unshift({ time: new Date(), message, type });
+    }
+
+    // Get battery status
+    async function getBatteryStatus() {
+        if ('getBattery' in navigator) {
+            try {
+                const battery = await navigator.getBattery();
+                const level = Math.round(battery.level * 100);
+                document.getElementById('batteryLevel').innerHTML = `${level}%`;
+                
+                battery.addEventListener('levelchange', () => {
+                    const newLevel = Math.round(battery.level * 100);
+                    document.getElementById('batteryLevel').innerHTML = `${newLevel}%`;
+                    if (newLevel < 20) {
+                        addToSyncLog('⚠️ Battery low! Consider connecting to power.', 'warning');
+                    }
+                });
+            } catch(e) {
+                document.getElementById('batteryLevel').innerHTML = 'N/A';
+            }
+        } else {
+            document.getElementById('batteryLevel').innerHTML = 'N/A';
+        }
+    }
+
+    // Auto-save function
+    function setupAutoSave() {
+        const autoSaveCheckbox = document.getElementById('autoSaveCheckbox');
+        const lastSaveSpan = document.getElementById('lastSaveTime');
+        
+        function performAutoSave() {
+            if (autoSaveCheckbox.checked) {
+                lastSaveSpan.innerHTML = new Date().toLocaleTimeString();
+                addToSyncLog('💾 Auto-save performed', 'info');
+            }
+        }
+        
+        if (autoSaveInterval) clearInterval(autoSaveInterval);
+        autoSaveInterval = setInterval(performAutoSave, 30000);
+        
+        autoSaveCheckbox.addEventListener('change', () => {
+            if (autoSaveCheckbox.checked) {
+                addToSyncLog('✅ Auto-save enabled', 'success');
+            } else {
+                addToSyncLog('⏸️ Auto-save disabled', 'info');
+            }
+        });
+    }
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+        addToSyncLog('🌐 Internet connection restored', 'success');
+        updateConnectionStatus();
+        manualSync();
+    });
+    
+    window.addEventListener('offline', () => {
+        addToSyncLog('📡 Internet connection lost - entering offline mode', 'warning');
+        updateConnectionStatus();
+    });
+
+    // Listen for battery status
+    getBatteryStatus();
+    
+    // Initialize
+    updateConnectionStatus();
+    updateLocalStats();
+    setupAutoSave();
+    
+    // Refresh stats every 10 seconds
+    setInterval(updateLocalStats, 10000);
+</script>
+</body>
+</html>

@@ -3,3 +3,4 @@ node_modules/
 backups/  
 *.zip  
 .DS_Store  
+".env" 

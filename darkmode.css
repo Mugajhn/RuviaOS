@@ -1,9 +1,6 @@
-/* RuviaOS — darkmode.css v3 — Zero-flicker, professional dark mode */
+/* RuviaOS darkmode.css v3 — Professional design system */
 
-/* Early dark flash prevention — applied by ruvia-core.js before paint */
-html.dark-mode-early body { background: #111318 !important; color: #e2e4ea !important; }
-
-/* ─── CSS Custom Properties ─────────────────────────────────────────── */
+/* ── Variables ──────────────────────────────────────────────────────── */
 :root {
   --bg: #f0f2f5;
   --card: #ffffff;
@@ -17,10 +14,11 @@ html.dark-mode-early body { background: #111318 !important; color: #e2e4ea !impo
   --accent: #2c5f4a;
   --accent2: #1a3c34;
   --accent-light: #e8f5e9;
-  --shadow: 0 1px 4px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 14px rgba(0,0,0,.1);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.14);
   --radius: 12px;
-  --navbar-bg: #1a3c34;
+  --radius-lg: 16px;
 }
 
 body.dark-mode {
@@ -30,127 +28,119 @@ body.dark-mode {
   --text2: #8b8fa8;
   --border: rgba(255,255,255,.09);
   --input-bg: #252535;
-  --input-border: rgba(255,255,255,.14);
+  --input-border: rgba(255,255,255,.13);
   --th-bg: #1e2230;
   --row-hover: #222638;
   --accent: #4caf87;
   --accent2: #2c5f4a;
   --accent-light: rgba(76,175,135,.12);
-  --shadow: 0 1px 4px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+  --shadow: 0 1px 4px rgba(0,0,0,.4);
   --shadow-md: 0 4px 16px rgba(0,0,0,.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.6);
 }
 
-/* ─── Base ──────────────────────────────────────────────────────────── */
-body {
-  background: var(--bg);
-  color: var(--text);
-  transition: background .25s ease, color .25s ease;
-}
+/* ── Base ─────────────────────────────────────────────────────────────── */
+body { background: var(--bg); color: var(--text); transition: background .3s, color .3s; }
 
-/* ─── Cards & surfaces ──────────────────────────────────────────────── */
+/* ── Cards ──────────────────────────────────────────────────────────── */
 .stat-card, .chart-card, .table-container, .form-container,
 .card, .section, .action-card, .backup-list, .modal-content,
-.filter-section, .receipt, .form-wrap, .kpi,
-[class*="-card"], [class*="-panel"] {
+.filter-section, .form-wrap, .kpi, .tile-inner > div,
+[class*="-card"]:not(.mod-card):not(.qa-card):not(.hero-btn) {
   background: var(--card) !important;
   color: var(--text) !important;
   box-shadow: var(--shadow) !important;
-  transition: background .25s, box-shadow .25s;
 }
 
-/* ─── Tables ────────────────────────────────────────────────────────── */
-th {
-  background: var(--th-bg) !important;
-  color: var(--text) !important;
-  border-bottom-color: var(--border) !important;
-}
-td {
-  border-bottom-color: var(--border) !important;
-  color: var(--text) !important;
-}
+/* ── Tables ─────────────────────────────────────────────────────────── */
+th { background: var(--th-bg) !important; color: var(--text) !important; border-bottom-color: var(--border) !important; }
+td { border-bottom-color: var(--border) !important; color: var(--text) !important; }
 tr:hover { background: var(--row-hover) !important; }
+table { border-collapse: collapse; }
 
-/* ─── Inputs ────────────────────────────────────────────────────────── */
-input, select, textarea {
+/* ── Inputs ─────────────────────────────────────────────────────────── */
+input:not(.otp-input):not(.otp-box), select, textarea {
   background: var(--input-bg) !important;
   border-color: var(--input-border) !important;
   color: var(--text) !important;
-  transition: background .2s, border-color .2s;
 }
 input::placeholder, textarea::placeholder { color: var(--text2) !important; }
 input:focus, select:focus, textarea:focus { border-color: var(--accent) !important; }
 
-/* ─── Labels & secondary text ───────────────────────────────────────── */
-.stat-label, .stat-title, .form-group label,
-.kpi-label, label, .tile-title, .tile-unit { color: var(--text2) !important; }
+/* ── Labels ─────────────────────────────────────────────────────────── */
+.stat-label, .kpi-lbl, .kpi-sub, .stat-title, label,
+.form-group label, .tile-title, .tile-unit { color: var(--text2) !important; }
 
-/* ─── Accent values ─────────────────────────────────────────────────── */
+/* ── Accent values ──────────────────────────────────────────────────── */
 .stat-value, .stat-number, .kpi-val { color: var(--accent) !important; }
 
-/* ─── Section titles & dividers ─────────────────────────────────────── */
-.section-title, h3.section-header { border-bottom-color: var(--accent) !important; color: var(--text) !important; }
-hr { border-color: var(--border) !important; }
+/* ── Modals ─────────────────────────────────────────────────────────── */
+.modal { background: rgba(0,0,0,.65) !important; }
+.modal-content { background: var(--card) !important; color: var(--text) !important; }
 
-/* ─── Modals ─────────────────────────────────────────────────────────── */
-body.dark-mode .modal,
-body.dark-mode .payment-modal,
-body.dark-mode .rcpt-overlay { background: rgba(0,0,0,.7) !important; }
-body.dark-mode .modal-content,
-body.dark-mode .rcpt-modal,
-body.dark-mode .rcpt-paper { background: var(--card) !important; color: var(--text) !important; }
-body.dark-mode .rcpt-paper { background: #252535 !important; color: var(--text) !important; }
+/* ── Room status cards ──────────────────────────────────────────────── */
+body.dark-mode .room-card.ready    { background: #0d2018 !important; border-left-color: #4caf87 !important; }
+body.dark-mode .room-card.dirty    { background: #1f0f0f !important; border-left-color: #e05c5c !important; }
+body.dark-mode .room-card.occupied { background: #1e1a08 !important; border-left-color: #e0a84c !important; }
+body.dark-mode .room-card.cleaning { background: #0a1c2c !important; border-left-color: #4cafd6 !important; }
 
-/* ─── Room cards (housekeeping) ─────────────────────────────────────── */
-body.dark-mode .room-card.ready  { background: #0d2018 !important; border-left-color: #4caf87; }
-body.dark-mode .room-card.dirty  { background: #1f0f0f !important; border-left-color: #e05c5c; }
-body.dark-mode .room-card.occupied { background: #1e1a08 !important; border-left-color: #e0a84c; }
-body.dark-mode .room-card.cleaning { background: #0a1c2c !important; border-left-color: #4cafd6; }
+/* ── Filter / Tab buttons ───────────────────────────────────────────── */
+.filter-btn:not(.active), .tab:not(.active), .cat-btn:not(.active) {
+  background: var(--card) !important; color: var(--text) !important; border-color: var(--border) !important;
+}
+.filter-btn.active, .tab.active, .cat-btn.active { background: var(--accent) !important; color: #fff !important; }
 
-/* ─── POS ────────────────────────────────────────────────────────────── */
-body.dark-mode .products-panel { background: var(--bg) !important; }
+/* ── Status badges ──────────────────────────────────────────────────── */
+body:not(.dark-mode) .badge-ready,  body:not(.dark-mode) .b-ready     { background:#d4edda;color:#155724 }
+body:not(.dark-mode) .badge-occupied,body:not(.dark-mode) .b-occupied  { background:#fff3cd;color:#856404 }
+body:not(.dark-mode) .badge-dirty,  body:not(.dark-mode) .b-dirty      { background:#f8d7da;color:#721c24 }
+body:not(.dark-mode) .badge-cleaning,body:not(.dark-mode) .b-cleaning  { background:#d1ecf1;color:#0c5460 }
+body.dark-mode .badge-ready,  body.dark-mode .b-ready     { background:#0d2018!important;color:#4caf87!important }
+body.dark-mode .badge-occupied,body.dark-mode .b-occupied  { background:#1e1a08!important;color:#ffc107!important }
+body.dark-mode .badge-dirty,  body.dark-mode .b-dirty      { background:#1f0f0f!important;color:#e05c5c!important }
+body.dark-mode .badge-cleaning,body.dark-mode .b-cleaning  { background:#0a1c2c!important;color:#4cafd6!important }
+
+/* ── POS ──────────────────────────────────────────────────────────── */
+body.dark-mode .products-panel, body.dark-mode .search-bar { background: var(--bg) !important; }
 body.dark-mode .product-tile, body.dark-mode .tile { background: var(--card) !important; }
 body.dark-mode .tile-name, body.dark-mode .product-name { color: var(--text) !important; }
 body.dark-mode .cart-panel { background: var(--card) !important; }
 body.dark-mode .cart-footer { background: var(--th-bg) !important; }
 body.dark-mode .cart-item { border-bottom-color: var(--border) !important; }
 body.dark-mode .ci-name, body.dark-mode .ci-total { color: var(--text) !important; }
+body.dark-mode .assigned-info { background: var(--th-bg) !important; color: var(--text2) !important; }
+body.dark-mode .cart-summary { background: var(--th-bg) !important; }
 
-/* ─── Filter buttons ─────────────────────────────────────────────────── */
-.filter-btn:not(.active), .tab:not(.active), .cat-btn:not(.active), .main-cat-btn:not(.active) {
-  background: var(--card) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
-}
-.filter-btn.active, .tab.active, .cat-btn.active { background: var(--accent) !important; color: #fff !important; }
+/* ── Headers stay green ─────────────────────────────────────────────── */
+.header, .rnav { background: linear-gradient(135deg,#1a3c34,#2c5f4a) !important; }
 
-/* ─── Badges ─────────────────────────────────────────────────────────── */
-.badge-ready, .b-ready     { background: #0d2018 !important; color: #4caf87 !important; }
-.badge-occupied, .b-occupied { background: #1e1a08 !important; color: #ffc107 !important; }
-.badge-dirty, .b-dirty     { background: #1f0f0f !important; color: #e05c5c !important; }
-.badge-cleaning, .b-cleaning { background: #0a1c2c !important; color: #4cafd6 !important; }
+/* ── Section titles ─────────────────────────────────────────────────── */
+.section-title { border-bottom-color: var(--accent) !important; color: var(--text) !important; }
+hr { border-color: var(--border) !important; }
 
-body:not(.dark-mode) .badge-ready   { background: #d4edda; color: #155724; }
-body:not(.dark-mode) .badge-occupied{ background: #fff3cd; color: #856404; }
-body:not(.dark-mode) .badge-dirty   { background: #f8d7da; color: #721c24; }
-body:not(.dark-mode) .badge-cleaning{ background: #d1ecf1; color: #0c5460; }
-body:not(.dark-mode) .b-ready       { background: #d4edda; color: #155724; }
-body:not(.dark-mode) .b-occupied    { background: #fff3cd; color: #856404; }
-body:not(.dark-mode) .b-dirty       { background: #f8d7da; color: #721c24; }
-
-/* ─── Dark mode toggle button state ─────────────────────────────────── */
-body.dark-mode .rnav-dark-btn::after { content: '' }
-
-/* ─── Scrollbars (dark) ──────────────────────────────────────────────── */
-body.dark-mode ::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ── Scrollbar (dark) ───────────────────────────────────────────────── */
+body.dark-mode ::-webkit-scrollbar { width: 5px; height: 5px; }
 body.dark-mode ::-webkit-scrollbar-track { background: var(--bg); }
 body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
 body.dark-mode ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); }
 
-/* ─── Headers / banners ──────────────────────────────────────────────── */
-body.dark-mode .header, .header { background: linear-gradient(135deg,#1a3c34,#2c5f4a); }
+/* ── Navbar dropdown (dark) ─────────────────────────────────────────── */
+body.dark-mode .rn-dropdown, body.dark-mode .rn-notif-panel {
+  background: #1c2030 !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+body.dark-mode .rn-dd-head, body.dark-mode .rn-notif-head { background: #252535 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark-mode .rn-dd-name, body.dark-mode .rn-notif-head, body.dark-mode .rn-title { color: #e2e4ea !important; }
+body.dark-mode .rn-dd-role, body.dark-mode .rn-dd-login, body.dark-mode .rn-body, body.dark-mode .rn-ts { color: #8b8fa8 !important; }
+body.dark-mode .rn-dd-item { color: #e2e4ea !important; border-color: rgba(255,255,255,.06) !important; }
+body.dark-mode .rn-dd-item:hover { background: #252535 !important; }
+body.dark-mode .rn-item { border-color: rgba(255,255,255,.06) !important; }
+body.dark-mode .rn-item:hover { background: #252535 !important; }
+body.dark-mode .rn-item.unread { background: #162318 !important; }
 
-/* ─── Print — always light ──────────────────────────────────────────── */
+/* ── Print (always light) ───────────────────────────────────────────── */
 @media print {
   :root { --bg:#fff; --card:#fff; --text:#000; --text2:#555; --border:#ccc; }
   body.dark-mode { background: #fff !important; color: #000 !important; }
+  .rn { display: none !important; }
 }

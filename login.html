@@ -1,27 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RuviaOS — Sign In</title>
-<script>(function(){var s=localStorage.getItem('ruvia-dark');if(s==='1'){document.documentElement.style.background='#0f1117';}})()</script>
+
+<!--
+  DARK MODE FLICKER FIX
+  Apply the class to <html> immediately, before any CSS loads.
+  Using a class (not just style.background) means darkmode.css
+  picks it up instantly with zero flash.
+-->
+<script>(function(){
+  var s = localStorage.getItem('ruvia-dark');
+  var p = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if (s === '1' || (s === null && p)) {
+    document.documentElement.classList.add('dark-mode');
+    document.documentElement.style.background = '#0f1117';
+    document.documentElement.style.color = '#e2e4ea';
+  }
+})()</script>
+
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{min-height:100vh}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a1a10,#1a3c34,#0a1a10);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
-body::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:rgba(44,95,74,.12);pointer-events:none}
-body::after{content:'';position:absolute;bottom:-200px;left:-200px;width:500px;height:500px;border-radius:50%;background:rgba(44,95,74,.08);pointer-events:none}
-.card{background:#fff;border-radius:20px;overflow:hidden;max-width:860px;width:100%;display:flex;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;z-index:1}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(135deg,#0a1a10,#1a3c34,#0a1a10);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;position:relative;overflow:hidden
+}
+body::before{
+  content:'';position:absolute;top:-200px;right:-200px;
+  width:600px;height:600px;border-radius:50%;
+  background:rgba(44,95,74,.12);pointer-events:none
+}
+body::after{
+  content:'';position:absolute;bottom:-200px;left:-200px;
+  width:500px;height:500px;border-radius:50%;
+  background:rgba(44,95,74,.08);pointer-events:none
+}
+.card{
+  background:#fff;border-radius:20px;overflow:hidden;
+  max-width:860px;width:100%;display:flex;
+  box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;z-index:1
+}
 body.dark-mode .card{background:#1c2030}
-.brand{background:linear-gradient(160deg,#2c5f4a,#1a3c34,#0d2318);min-width:300px;padding:48px 36px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.brand::before{content:'';position:absolute;top:-80px;right:-80px;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.05)}
-.brand-icon{width:56px;height:56px;background:rgba(255,255,255,.12);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;border:1px solid rgba(255,255,255,.15)}
+
+/* Brand panel */
+.brand{
+  background:linear-gradient(160deg,#2c5f4a,#1a3c34,#0d2318);
+  min-width:300px;padding:48px 36px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden
+}
+.brand::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.05)
+}
+.brand-icon{
+  width:56px;height:56px;background:rgba(255,255,255,.12);
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin-bottom:14px;border:1px solid rgba(255,255,255,.15)
+}
 .brand-name{font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
 .brand-tag{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5}
 .feat{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .feat-dot{width:7px;height:7px;border-radius:50%;background:#4caf87;flex-shrink:0}
 .feat-txt{font-size:12px;color:rgba(255,255,255,.6)}
 .brand-ft{font-size:11px;color:rgba(255,255,255,.3)}
+
+/* Form area */
 .form-area{flex:1;padding:48px 44px}
 body.dark-mode .form-area{background:#1c2030}
 .step{display:none}
@@ -31,26 +82,50 @@ body.dark-mode .form-title{color:#e2e4ea}
 .form-sub{font-size:13px;color:#6b7280;margin-bottom:32px}
 body.dark-mode .form-sub{color:#8b8fa8}
 .fg{margin-bottom:20px}
-.fg label{display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.fg label{
+  display:block;font-size:11px;font-weight:600;color:#6b7280;
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px
+}
 body.dark-mode .fg label{color:#8b8fa8}
-.fg input{width:100%;padding:13px 16px;border:1.5px solid #e5e7eb;border-radius:11px;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;color:#1a1a2e}
+.fg input{
+  width:100%;padding:13px 16px;border:1.5px solid #e5e7eb;border-radius:11px;
+  font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;
+  background:#fff;color:#1a1a2e
+}
 body.dark-mode .fg input{background:#252535;border-color:rgba(255,255,255,.12);color:#e2e4ea}
 .fg input:focus{border-color:#2c5f4a;box-shadow:0 0 0 3px rgba(44,95,74,.12)}
-.btn-main{width:100%;padding:14px;background:linear-gradient(135deg,#2c5f4a,#1a3c34);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.btn-main{
+  width:100%;padding:14px;background:linear-gradient(135deg,#2c5f4a,#1a3c34);
+  color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .2s;margin-top:4px
+}
 .btn-main:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(44,95,74,.35)}
 .btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.err-box{background:#fdecea;border:1px solid #fca5a5;border-radius:9px;padding:11px 14px;font-size:13px;color:#dc2626;margin-bottom:18px;display:none;align-items:center;gap:8px}
+.err-box{
+  background:#fdecea;border:1px solid #fca5a5;border-radius:9px;
+  padding:11px 14px;font-size:13px;color:#dc2626;margin-bottom:18px;
+  display:none;align-items:center;gap:8px
+}
 body.dark-mode .err-box{background:#3a1818;border-color:#7f2e2e;color:#f87171}
 .err-box.show{display:flex}
-.demo-sec{margin-top:24px;padding-top:20px;border-top:1px solid #f3f4f6}
+
+/* Demo accounts */
+.demo-sec{
+  margin-top:24px;padding-top:20px;border-top:1px solid #f3f4f6
+}
 body.dark-mode .demo-sec{border-color:rgba(255,255,255,.08)}
 .demo-lbl{font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
 .demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.demo-btn{padding:9px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;cursor:pointer;font-size:12px;text-align:left;transition:all .15s;color:#374151}
+.demo-btn{
+  padding:9px 12px;background:#f9fafb;border:1px solid #e5e7eb;
+  border-radius:9px;cursor:pointer;font-size:12px;text-align:left;
+  transition:all .15s;color:#374151
+}
 body.dark-mode .demo-btn{background:#252535;border-color:rgba(255,255,255,.1);color:#e2e4ea}
 .demo-btn:hover{border-color:#2c5f4a;background:#f0fdf4;color:#2c5f4a}
 .demo-btn strong{display:block;font-size:12px;margin-bottom:1px}
 .demo-role{font-size:10px;color:#9ca3af}
+
 /* 2FA */
 .twofa-center{text-align:center;padding:8px 0}
 .twofa-icon{font-size:50px;margin-bottom:16px}
@@ -58,22 +133,44 @@ body.dark-mode .demo-btn{background:#252535;border-color:rgba(255,255,255,.1);co
 body.dark-mode .twofa-title{color:#e2e4ea}
 .twofa-sub{font-size:13px;color:#6b7280;margin-bottom:20px;line-height:1.5}
 body.dark-mode .twofa-sub{color:#8b8fa8}
-.hint-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:12px 16px;font-size:12px;color:#166534;margin-bottom:20px;text-align:left}
+.hint-box{
+  background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;
+  padding:12px 16px;font-size:12px;color:#166534;margin-bottom:20px;text-align:left
+}
 body.dark-mode .hint-box{background:#0d2018;border-color:#166534;color:#4caf87}
 .otp-row{display:flex;gap:10px;justify-content:center;margin-bottom:24px}
-.otp-box{width:52px;height:60px;border:2px solid #e5e7eb;border-radius:11px;font-size:24px;font-weight:700;text-align:center;outline:none;transition:all .2s;background:#fff;color:#1a1a2e}
+.otp-box{
+  width:52px;height:60px;border:2px solid #e5e7eb;border-radius:11px;
+  font-size:24px;font-weight:700;text-align:center;outline:none;
+  transition:all .2s;background:#fff;color:#1a1a2e
+}
 body.dark-mode .otp-box{background:#252535;border-color:rgba(255,255,255,.12);color:#e2e4ea}
 .otp-box:focus{border-color:#2c5f4a;box-shadow:0 0 0 3px rgba(44,95,74,.12)}
-.btn-back{background:none;border:1px solid #e5e7eb;color:#6b7280;padding:11px;border-radius:9px;cursor:pointer;font-size:13px;width:100%;margin-top:10px;transition:all .15s}
+.btn-back{
+  background:none;border:1px solid #e5e7eb;color:#6b7280;
+  padding:11px;border-radius:9px;cursor:pointer;font-size:13px;
+  width:100%;margin-top:10px;transition:all .15s
+}
 body.dark-mode .btn-back{border-color:rgba(255,255,255,.12);color:#8b8fa8}
 .btn-back:hover{border-color:#2c5f4a;color:#2c5f4a}
-.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:6px}
+.spin{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:sp .7s linear infinite;
+  vertical-align:middle;margin-right:6px
+}
 @keyframes sp{to{transform:rotate(360deg)}}
-@media(max-width:640px){.card{flex-direction:column}.brand{min-width:auto;padding:28px 24px}.form-area{padding:28px 24px}.demo-grid{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .card{flex-direction:column}
+  .brand{min-width:auto;padding:28px 24px}
+  .form-area{padding:28px 24px}
+  .demo-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <div class="card">
+  <!-- Brand panel -->
   <div class="brand">
     <div>
       <div class="brand-icon">🏨</div>
@@ -85,30 +182,48 @@ body.dark-mode .btn-back{border-color:rgba(255,255,255,.12);color:#8b8fa8}
       <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Restaurant POS & Menu Management</span></div>
       <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Stock & Inventory Control</span></div>
       <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Housekeeping Management</span></div>
-      <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Staff Tracking & Attendance</span></div>
+      <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Role-Based Access Control</span></div>
       <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Reports & Analytics</span></div>
       <div class="feat"><span class="feat-dot"></span><span class="feat-txt">Admin 2FA Security</span></div>
     </div>
-    <div class="brand-ft" style="position:relative;z-index:1">© 2026 Ruvia Hotel · RuviaOS v2.0</div>
+    <div class="brand-ft" style="position:relative;z-index:1">© 2026 Ruvia Hotel · RuviaOS v2.1</div>
   </div>
 
+  <!-- Form area -->
   <div class="form-area">
+
     <!-- Step 1: Credentials -->
     <div class="step active" id="s1">
       <h1 class="form-title">Welcome back</h1>
       <p class="form-sub">Sign in to your employee account</p>
       <div class="err-box" id="err1"><span>❌</span><span id="errTxt">Invalid credentials</span></div>
-      <div class="fg"><label>Username</label><input id="uname" placeholder="Enter username" autocomplete="username" autofocus></div>
-      <div class="fg"><label>Password</label><input type="password" id="pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fg">
+        <label>Username</label>
+        <input id="uname" placeholder="Enter username" autocomplete="username" autofocus>
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
       <button class="btn-main" id="loginBtn" onclick="doLogin()">🔐 Sign In</button>
       <div class="demo-sec">
         <div class="demo-lbl">Demo Accounts — click to fill</div>
         <div class="demo-grid">
-          <button class="demo-btn" onclick="fill('admin','admin123')"><strong>admin</strong><span class="demo-role">Administrator (2FA required)</span></button>
-          <button class="demo-btn" onclick="fill('manager','admin123')"><strong>manager</strong><span class="demo-role">Manager</span></button>
-          <button class="demo-btn" onclick="fill('reception','admin123')"><strong>reception</strong><span class="demo-role">Receptionist</span></button>
-          <button class="demo-btn" onclick="fill('kitchen','admin123')"><strong>kitchen</strong><span class="demo-role">Kitchen Staff</span></button>
-          <button class="demo-btn" onclick="fill('housekeeping','admin123')"><strong>housekeeping</strong><span class="demo-role">Housekeeping</span></button>
+          <button class="demo-btn" onclick="fill('admin','admin123')">
+            <strong>admin</strong><span class="demo-role">Administrator (2FA required)</span>
+          </button>
+          <button class="demo-btn" onclick="fill('manager','admin123')">
+            <strong>manager</strong><span class="demo-role">Manager</span>
+          </button>
+          <button class="demo-btn" onclick="fill('reception','admin123')">
+            <strong>reception</strong><span class="demo-role">Receptionist</span>
+          </button>
+          <button class="demo-btn" onclick="fill('kitchen','admin123')">
+            <strong>kitchen</strong><span class="demo-role">Kitchen Staff</span>
+          </button>
+          <button class="demo-btn" onclick="fill('housekeeping','admin123')">
+            <strong>housekeeping</strong><span class="demo-role">Housekeeping</span>
+          </button>
         </div>
       </div>
     </div>
@@ -118,13 +233,18 @@ body.dark-mode .btn-back{border-color:rgba(255,255,255,.12);color:#8b8fa8}
       <div class="twofa-center">
         <div class="twofa-icon">🛡️</div>
         <div class="twofa-title">Two-Factor Authentication</div>
-        <div class="twofa-sub">Your <strong>admin account</strong> requires 2FA.<br>Enter the 6-digit verification code below.</div>
+        <div class="twofa-sub">
+          Your <strong>admin account</strong> requires 2FA.<br>
+          Enter the 6-digit verification code below.
+        </div>
         <div class="hint-box">
           <strong>Demo mode — your code:</strong><br>
           <span id="otpDisplay" style="font-size:22px;font-weight:700;letter-spacing:4px;font-family:monospace">------</span><br>
           <span id="otpTimer" style="font-size:11px;opacity:.8">Refreshes in 30s</span>
         </div>
-        <div class="err-box" id="err2" style="text-align:left"><span>❌</span><span id="err2Txt">Invalid code</span></div>
+        <div class="err-box" id="err2" style="text-align:left">
+          <span>❌</span><span id="err2Txt">Invalid code</span>
+        </div>
         <div class="otp-row" id="otpRow">
           <input class="otp-box" id="d0" maxlength="1" inputmode="numeric">
           <input class="otp-box" id="d1" maxlength="1" inputmode="numeric">
@@ -137,90 +257,204 @@ body.dark-mode .btn-back{border-color:rgba(255,255,255,.12);color:#8b8fa8}
         <button class="btn-back" onclick="goBack()">← Back to login</button>
       </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- /form-area -->
+</div><!-- /card -->
 
 <script>
-const USERS={admin:{pw:'admin123',role:'admin',twofa:true},manager:{pw:'admin123',role:'manager',twofa:false},reception:{pw:'admin123',role:'reception',twofa:false},kitchen:{pw:'admin123',role:'kitchen',twofa:false},housekeeping:{pw:'admin123',role:'housekeeping',twofa:false}};
-let pendingUser=null,pendingRole=null,activeOTP='',otpInterval=null,timerInterval=null;
+// ── User database (in production this lives server-side) ─────────────────────
+const USERS = {
+  admin:        { pw:'admin123', role:'admin',        twofa:true  },
+  manager:      { pw:'admin123', role:'manager',      twofa:false },
+  reception:    { pw:'admin123', role:'reception',    twofa:false },
+  kitchen:      { pw:'admin123', role:'kitchen',      twofa:false },
+  housekeeping: { pw:'admin123', role:'housekeeping', twofa:false },
+};
 
-function genOTP(){const s=Math.floor(Date.now()/30000);let h=s^0xDEADBEEF;h=((h>>>16)^h)*0x45d9f3b;h=((h>>>16)^h)*0x45d9f3b;h=(h>>>16)^h;return String(Math.abs(h)%1000000).padStart(6,'0');}
+let pendingUser = null, pendingRole = null;
+let activeOTP = '', otpInterval = null, timerInterval = null;
 
-function startOTP(){
-  clearInterval(otpInterval);clearInterval(timerInterval);
-  function refresh(){activeOTP=genOTP();document.getElementById('otpDisplay').textContent=activeOTP;}
-  refresh();
-  const now=Math.floor(Date.now()/1000);
-  let rem=30-(now%30);
-  document.getElementById('otpTimer').textContent='Refreshes in '+rem+'s';
-  timerInterval=setInterval(()=>{rem--;document.getElementById('otpTimer').textContent='Refreshes in '+Math.max(0,rem)+'s';if(rem<=0){rem=30;refresh();}},1000);
+// ── TOTP-style OTP ────────────────────────────────────────────────────────────
+function genOTP() {
+  const s = Math.floor(Date.now() / 30000);
+  let h = s ^ 0xDEADBEEF;
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = ((h >>> 16) ^ h) * 0x45d9f3b;
+  h = (h >>> 16) ^ h;
+  return String(Math.abs(h) % 1000000).padStart(6, '0');
 }
 
-function initOTP(){
-  const boxes=Array.from({length:6},(_,i)=>document.getElementById('d'+i));
-  boxes.forEach((b,i)=>{
-    b.addEventListener('input',()=>{b.value=b.value.replace(/\D/g,'');if(b.value&&i<5)boxes[i+1].focus();if(getOTP().length===6)setTimeout(doVerify,80);});
-    b.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!b.value&&i>0)boxes[i-1].focus();if(e.key==='Enter')doVerify();});
-    b.addEventListener('paste',e=>{e.preventDefault();const p=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);p.split('').forEach((c,j)=>{if(boxes[j])boxes[j].value=c;});setTimeout(()=>{if(p.length===6)doVerify();else if(boxes[p.length])boxes[p.length].focus();},50);});
+function startOTP() {
+  clearInterval(otpInterval);
+  clearInterval(timerInterval);
+  function refresh() {
+    activeOTP = genOTP();
+    document.getElementById('otpDisplay').textContent = activeOTP;
+  }
+  refresh();
+  const now = Math.floor(Date.now() / 1000);
+  let rem = 30 - (now % 30);
+  document.getElementById('otpTimer').textContent = 'Refreshes in ' + rem + 's';
+  timerInterval = setInterval(() => {
+    rem--;
+    document.getElementById('otpTimer').textContent = 'Refreshes in ' + Math.max(0, rem) + 's';
+    if (rem <= 0) { rem = 30; refresh(); }
+  }, 1000);
+}
+
+// ── OTP input box wiring ──────────────────────────────────────────────────────
+function initOTP() {
+  const boxes = Array.from({length:6}, (_,i) => document.getElementById('d'+i));
+  boxes.forEach((b, i) => {
+    b.addEventListener('input', () => {
+      b.value = b.value.replace(/\D/g, '');
+      if (b.value && i < 5) boxes[i+1].focus();
+      if (getOTP().length === 6) setTimeout(doVerify, 80);
+    });
+    b.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !b.value && i > 0) boxes[i-1].focus();
+      if (e.key === 'Enter') doVerify();
+    });
+    b.addEventListener('paste', e => {
+      e.preventDefault();
+      const p = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+      p.split('').forEach((c, j) => { if (boxes[j]) boxes[j].value = c; });
+      setTimeout(() => {
+        if (p.length === 6) doVerify();
+        else if (boxes[p.length]) boxes[p.length].focus();
+      }, 50);
+    });
   });
 }
 
-function getOTP(){return Array.from({length:6},(_,i)=>document.getElementById('d'+i).value).join('');}
-function clearOTPBoxes(){Array.from({length:6},(_,i)=>document.getElementById('d'+i).value='');document.getElementById('d0').focus();}
-
-function fill(u,p){document.getElementById('uname').value=u;document.getElementById('pw').value=p;document.getElementById('err1').classList.remove('show');}
-
-function showErr(id,msg){const el=document.getElementById(id);el.querySelector('span:last-child').textContent=msg;el.classList.add('show');}
-function hideErr(id){document.getElementById(id).classList.remove('show');}
-
-function doLogin(){
-  const u=document.getElementById('uname').value.trim().toLowerCase();
-  const p=document.getElementById('pw').value;
-  hideErr('err1');
-  if(!u||!p){showErr('err1','Please enter both username and password.');return;}
-  const acc=USERS[u];
-  if(!acc||acc.pw!==p){showErr('err1','Invalid username or password. Please try again.');document.getElementById('pw').value='';return;}
-  const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Signing in...';
-  setTimeout(()=>{
-    btn.disabled=false;btn.innerHTML='🔐 Sign In';
-    if(acc.twofa){
-      pendingUser=u;pendingRole=acc.role;
-      document.getElementById('s1').classList.remove('active');document.getElementById('s2').classList.add('active');
-      startOTP();initOTP();setTimeout(()=>document.getElementById('d0').focus(),100);
-    } else {completeLogin(u,acc.role);}
-  },500);
+function getOTP() {
+  return Array.from({length:6}, (_,i) => document.getElementById('d'+i).value).join('');
+}
+function clearOTPBoxes() {
+  Array.from({length:6}, (_,i) => document.getElementById('d'+i).value = '');
+  document.getElementById('d0').focus();
 }
 
-function doVerify(){
-  const entered=getOTP();
-  hideErr('err2');
-  if(entered.length!==6){showErr('err2','Please enter all 6 digits.');return;}
-  if(entered!==activeOTP){
-    showErr('err2','Incorrect code. Check the code shown above and try again.');
-    clearOTPBoxes();
-    Array.from({length:6},(_,i)=>document.getElementById('d'+i)).forEach(b=>{b.style.borderColor='#dc3545';setTimeout(()=>b.style.borderColor='',1000);});
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function fill(u, p) {
+  document.getElementById('uname').value = u;
+  document.getElementById('pw').value = p;
+  document.getElementById('err1').classList.remove('show');
+}
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.querySelector('span:last-child').textContent = msg;
+  el.classList.add('show');
+}
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+
+// ── Login flow ─────────────────────────────────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('uname').value.trim().toLowerCase();
+  const p = document.getElementById('pw').value;
+  hideErr('err1');
+  if (!u || !p) { showErr('err1', 'Please enter both username and password.'); return; }
+  const acc = USERS[u];
+  if (!acc || acc.pw !== p) {
+    showErr('err1', 'Invalid username or password. Please try again.');
+    document.getElementById('pw').value = '';
     return;
   }
-  const btn=document.getElementById('verifyBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Verifying...';
-  setTimeout(()=>completeLogin(pendingUser,pendingRole),400);
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Signing in...';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '🔐 Sign In';
+    if (acc.twofa) {
+      pendingUser = u; pendingRole = acc.role;
+      document.getElementById('s1').classList.remove('active');
+      document.getElementById('s2').classList.add('active');
+      startOTP();
+      initOTP();
+      setTimeout(() => document.getElementById('d0').focus(), 100);
+    } else {
+      completeLogin(u, acc.role);
+    }
+  }, 500);
 }
 
-function goBack(){
-  clearInterval(otpInterval);clearInterval(timerInterval);clearOTPBoxes();pendingUser=null;
-  document.getElementById('s2').classList.remove('active');document.getElementById('s1').classList.add('active');
+function doVerify() {
+  const entered = getOTP();
+  hideErr('err2');
+  if (entered.length !== 6) { showErr('err2', 'Please enter all 6 digits.'); return; }
+  if (entered !== activeOTP) {
+    showErr('err2', 'Incorrect code. Check the code shown above and try again.');
+    clearOTPBoxes();
+    Array.from({length:6}, (_,i) => document.getElementById('d'+i)).forEach(b => {
+      b.style.borderColor = '#dc3545';
+      setTimeout(() => b.style.borderColor = '', 1000);
+    });
+    return;
+  }
+  const btn = document.getElementById('verifyBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Verifying...';
+  setTimeout(() => completeLogin(pendingUser, pendingRole), 400);
+}
+
+function goBack() {
+  clearInterval(otpInterval);
+  clearInterval(timerInterval);
+  clearOTPBoxes();
+  pendingUser = null;
+  document.getElementById('s2').classList.remove('active');
+  document.getElementById('s1').classList.add('active');
   hideErr('err2');
 }
 
-function completeLogin(u,role){
-  localStorage.setItem('ruviaos_logged_in','true');localStorage.setItem('ruviaos_user',u);localStorage.setItem('ruviaos_role',role);
-  // Record attendance
-  try{const log=JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');log.push({username:u,role,event:'login',time:new Date().toISOString(),date:new Date().toISOString().slice(0,10)});localStorage.setItem('ruvia_attendance',JSON.stringify(log));}catch(e){}
+// ── Complete login ─────────────────────────────────────────────────────────────
+function completeLogin(u, role) {
+  const now = new Date().toISOString();
+
+  // Core session
+  localStorage.setItem('ruviaos_logged_in', 'true');
+  localStorage.setItem('ruviaos_user', u);
+  localStorage.setItem('ruviaos_role', role);
+  localStorage.setItem('ruviaos_login_time', now);
+
+  // Attendance record
+  try {
+    const log = JSON.parse(localStorage.getItem('ruvia_attendance') || '[]');
+    log.push({
+      username: u, role, event: 'login',
+      time: now, date: now.slice(0, 10),
+    });
+    localStorage.setItem('ruvia_attendance', JSON.stringify(log));
+  } catch (e) {}
+
   // Activity log
-  try{const al=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');al.unshift({id:Date.now(),type:'login',message:u+' signed in',username:u,category:'auth',time:new Date().toISOString()});localStorage.setItem('ruvia_activity_log',JSON.stringify(al.slice(0,500)));}catch(e){}
-  window.location.href='index.html';
+  try {
+    const al = JSON.parse(localStorage.getItem('ruvia_activity_log') || '[]');
+    al.unshift({
+      id: Date.now(), type: 'login',
+      message: u + ' signed in',
+      username: u, category: 'auth', time: now,
+    });
+    localStorage.setItem('ruvia_activity_log', JSON.stringify(al.slice(0, 500)));
+  } catch (e) {}
+
+  // Redirect to intended page or dashboard
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get('redirect');
+  if (redirect && redirect.startsWith(location.origin)) {
+    window.location.href = redirect;
+  } else {
+    window.location.href = 'index.html';
+  }
 }
 
-if(localStorage.getItem('ruviaos_logged_in')==='true')window.location.href='index.html';
+// ── Already logged in? Skip login page ────────────────────────────────────────
+if (localStorage.getItem('ruviaos_logged_in') === 'true') {
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get('redirect');
+  window.location.href = (redirect && redirect.startsWith(location.origin)) ? redirect : 'index.html';
+}
 </script>
 </body>
 </html>

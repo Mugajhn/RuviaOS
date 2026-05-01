@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>(function(){
+  var s=localStorage.getItem('ruvia-dark');
+  if(s==='1'||(!s&&window.matchMedia('(prefers-color-scheme:dark)').matches))
+    document.documentElement.classList.add('dark-mode'),document.documentElement.style.background='#0f1117';
+})()</script>
+<script src="ruvia-auth-guard.js"></script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RuviaOS — POS</title>
 <script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>

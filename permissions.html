@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS — Permission Manager</title>
+
+<!-- Dark mode flicker prevention (apply class before CSS loads) -->
+<script>(function(){
+  var s = localStorage.getItem('ruvia-dark');
+  var p = window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if (s === '1' || (s === null && p)) {
+    document.documentElement.classList.add('dark-mode');
+    document.documentElement.style.background = '#0f1117';
+  }
+})()</script>
+
+<!-- AUTH GUARD — must be first script; admin + manager only -->
+<script src="ruvia-auth-guard.js"></script>
+
+<link rel="stylesheet" href="darkmode.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.page{max-width:1200px;margin:0 auto;padding:24px}
+
+/* Header */
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.phdr h1{font-size:22px;font-weight:700;color:var(--text)}
+.phdr p{font-size:13px;color:var(--text2);margin-top:4px}
+
+/* Staff selector */
+.staff-selector{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.staff-chip{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--card);border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--text)}
+.staff-chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.staff-chip.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.staff-chip-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.staff-chip-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* Permission grid */
+.perm-section{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
+.perm-section-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.perm-section-hdr h2{font-size:15px;font-weight:700;color:var(--text)}
+.perm-section-hdr span{font-size:12px;color:var(--text2)}
+
+.perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;border-top:1px solid var(--border)}
+.perm-item{padding:16px 20px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .15s}
+.perm-item:hover{background:var(--row-hover)}
+.perm-item-info{display:flex;align-items:center;gap:10px}
+.perm-icon{font-size:20px}
+.perm-name{font-size:13px;font-weight:600;color:var(--text)}
+.perm-desc{font-size:11px;color:var(--text2);margin-top:1px}
+.perm-source{font-size:10px;font-weight:700;margin-top:2px;padding:1px 6px;border-radius:10px}
+.src-base{background:#e8f5f0;color:#2c5f4a}
+.src-granted{background:#fff3cd;color:#856404}
+.src-denied{background:#f8d7da;color:#721c24}
+body.dark-mode .src-base{background:#0d2018;color:#4caf87}
+body.dark-mode .src-granted{background:#2a2210;color:#ffc107}
+body.dark-mode .src-denied{background:#1f0f0f;color:#e05c5c}
+
+/* Toggle switch */
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:#d1d5db;border-radius:99px;cursor:pointer;transition:background .2s}
+.toggle input:checked + .toggle-track{background:var(--accent)}
+.toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked + .toggle-track::after{transform:translateX(20px)}
+.toggle input:disabled + .toggle-track{opacity:.5;cursor:not-allowed}
+
+/* Current user info bar */
+.user-info-bar{background:var(--accent-light);border:1px solid var(--accent);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.user-info-bar .uib-avatar{width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.user-info-bar .uib-avatar img{width:100%;height:100%;object-fit:cover}
+.uib-name{font-size:14px;font-weight:700;color:var(--text)}
+.uib-role{font-size:12px;color:var(--text2);margin-top:2px}
+.uib-perms{margin-left:auto;font-size:12px;color:var(--accent);font-weight:600}
+
+/* Save banner */
+.save-banner{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;padding:14px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(44,95,74,.4);display:none;align-items:center;gap:10px;z-index:9999;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.empty-state{text-align:center;padding:60px 24px;color:var(--text2)}
+.empty-state .es-icon{font-size:48px;display:block;margin-bottom:12px}
+.empty-state p{font-size:14px}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
+
+<div class="page">
+  <div class="phdr">
+    <div>
+      <h1>🔐 Permission Manager</h1>
+      <p>Control which pages each staff member can access beyond their default role.</p>
+    </div>
+    <a href="staff.html" style="background:var(--card);border:1.5px solid var(--border);color:var(--text2);padding:9px 16px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600">← Back to Staff</a>
+  </div>
+
+  <!-- Staff selector -->
+  <div id="staffSelector" class="staff-selector"></div>
+
+  <!-- Selected user info -->
+  <div id="userInfoBar" class="user-info-bar" style="display:none">
+    <div class="uib-avatar" id="uibAvatar">?</div>
+    <div>
+      <div class="uib-name" id="uibName">—</div>
+      <div class="uib-role" id="uibRole">—</div>
+    </div>
+    <div class="uib-perms" id="uibPerms"></div>
+  </div>
+
+  <!-- Permissions -->
+  <div id="permContent">
+    <div class="empty-state">
+      <span class="es-icon">👆</span>
+      <p>Select a staff member above to manage their page access.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Save confirmation banner -->
+<div class="save-banner" id="saveBanner">
+  ✅ Permissions saved for <span id="saveName"></span>
+</div>
+
+<script src="ruvia-store.js"></script>
+<script>
+// ── Guard: only admin and manager can open this page ─────────────────────────
+(function(){
+  const role = localStorage.getItem('ruviaos_role');
+  if (role !== 'admin' && role !== 'manager') {
+    document.body.innerHTML = '<p style="padding:40px;text-align:center;font-size:18px;color:#dc3545">⛔ Access denied. Only administrators and managers can manage permissions.</p>';
+    throw new Error('Permission denied');
+  }
+})();
+
+// ── Constants ──────────────────────────────────────────────────────────────
+const ROLE_COLORS = {
+  admin:'#dc3545', manager:'#e0a800', reception:'#17a2b8',
+  kitchen:'#28a745', housekeeping:'#6c757d'
+};
+const ROLE_LABELS = {
+  admin:'Administrator', manager:'Manager', reception:'Receptionist',
+  kitchen:'Kitchen Staff', housekeeping:'Housekeeping'
+};
+
+// All pages with their display info
+const ALL_PAGES = [
+  { key:'index',            icon:'🏠', name:'Dashboard',       desc:'Main home screen',          alwaysAllowed:true },
+  { key:'frontdesk',        icon:'🏨', name:'Front Desk',      desc:'Check-in & check-out' },
+  { key:'pms',              icon:'📅', name:'Reservations',    desc:'Bookings & PMS' },
+  { key:'pos',              icon:'🍽', name:'Restaurant POS',  desc:'Orders & billing' },
+  { key:'tables',           icon:'🪑', name:'Tables',          desc:'Dining room management' },
+  { key:'housekeeping',     icon:'🧹', name:'Housekeeping',    desc:'Room cleaning status' },
+  { key:'menu-management',  icon:'📋', name:'Menu',            desc:'Food & drinks menu' },
+  { key:'stock',            icon:'📦', name:'Stock',           desc:'Inventory management',       sensitive:true },
+  { key:'reports',          icon:'📈', name:'Reports',         desc:'Revenue & analytics',        sensitive:true },
+  { key:'staff',            icon:'👥', name:'Staff',           desc:'HR & staff profiles',        sensitive:true },
+  { key:'dashboard',        icon:'📊', name:'Analytics',       desc:'Live overview charts',       sensitive:true },
+  { key:'backup-dashboard', icon:'💾', name:'Backup',          desc:'Data backup & restore',      sensitive:true },
+  { key:'permissions',      icon:'🔐', name:'Permissions',     desc:'Manage staff access',        sensitive:true },
+];
+
+// Base role → pages they already have by default
+const BASE_PERMISSIONS = window.RuviaAuth ? window.RuviaAuth.PAGE_PERMISSIONS : {
+  'index':            ['*'],
+  'dashboard':        ['admin','manager'],
+  'frontdesk':        ['admin','manager','reception'],
+  'pms':              ['admin','manager','reception'],
+  'pos':              ['admin','manager','kitchen','reception'],
+  'tables':           ['admin','manager','kitchen','reception'],
+  'housekeeping':     ['admin','manager','housekeeping'],
+  'menu-management':  ['admin','manager','kitchen'],
+  'stock':            ['admin','manager','kitchen'],
+  'reports':          ['admin','manager'],
+  'staff':            ['admin','manager'],
+  'backup-dashboard': ['admin'],
+  'permissions':      ['admin','manager'],
+};
+
+let selectedUser = null;
+let staffList = [];
+
+// ── Load staff ──────────────────────────────────────────────────────────────
+function loadStaff() {
+  try { staffList = JSON.parse(localStorage.getItem('ruvia_staff') || '[]'); } catch(e) { staffList = []; }
+  if (!staffList.length) {
+    staffList = [
+      { id:'s1', name:'John Admin',       username:'admin',       role:'admin' },
+      { id:'s2', name:'Sarah Manager',    username:'manager',     role:'manager' },
+      { id:'s3', name:'Alice Reception',  username:'reception',   role:'reception' },
+      { id:'s4', name:'Bob Kitchen',      username:'kitchen',     role:'kitchen' },
+      { id:'s5', name:'Grace Housekeeping', username:'housekeeping', role:'housekeeping' },
+    ];
+  }
+}
+
+// ── Get extra permissions for a user ──────────────────────────────────────────
+function getExtras(username) {
+  try { return JSON.parse(localStorage.getItem('ruvia_extra_permissions') || '{}')[username] || []; }
+  catch(e) { return []; }
+}
+
+function setExtras(username, pages) {
+  try {
+    const map = JSON.parse(localStorage.getItem('ruvia_extra_permissions') || '{}');
+    map[username] = pages;
+    localStorage.setItem('ruvia_extra_permissions', JSON.stringify(map));
+  } catch(e) {}
+}
+
+// ── Render staff chips ──────────────────────────────────────────────────────
+function renderSelector() {
+  const el = document.getElementById('staffSelector');
+  el.innerHTML = staffList.map(s => {
+    const avatarHtml = s.avatar
+      ? `<div class="staff-chip-avatar"><img src="${s.avatar}" alt="${s.name}"></div>`
+      : `<div class="staff-chip-avatar" style="background:${ROLE_COLORS[s.role]||'#2c5f4a'}">${initials(s.name)}</div>`;
+    return `
+      <div class="staff-chip ${selectedUser?.id === s.id ? 'active' : ''}" onclick="selectUser('${s.id}')">
+        ${avatarHtml}
+        <div>
+          <div>${s.name}</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:400">${ROLE_LABELS[s.role]||s.role}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function initials(name) {
+  return (name||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+// ── Select a user and render their permissions ──────────────────────────────
+function selectUser(id) {
+  selectedUser = staffList.find(s => s.id === id);
+  if (!selectedUser) return;
+  renderSelector();
+  renderUserInfo();
+  renderPermissions();
+}
+
+function renderUserInfo() {
+  const s = selectedUser;
+  document.getElementById('userInfoBar').style.display = 'flex';
+  const av = document.getElementById('uibAvatar');
+  av.innerHTML = s.avatar
+    ? `<img src="${s.avatar}" alt="${s.name}">`
+    : initials(s.name);
+  av.style.background = ROLE_COLORS[s.role] || '#2c5f4a';
+  document.getElementById('uibName').textContent = s.name;
+  document.getElementById('uibRole').textContent = (ROLE_LABELS[s.role]||s.role) + ' · @' + s.username;
+  const extras = getExtras(s.username);
+  const total = getUserPageCount(s);
+  document.getElementById('uibPerms').textContent = `${total} page${total!==1?'s':''} accessible${extras.length ? ` · ${extras.length} extra grant${extras.length!==1?'s':''}` : ''}`;
+}
+
+function getUserPageCount(s) {
+  const base = ALL_PAGES.filter(p => {
+    const allowed = BASE_PERMISSIONS[p.key];
+    return !allowed || allowed.includes('*') || allowed.includes(s.role);
+  }).length;
+  const extras = getExtras(s.username);
+  return base + extras.filter(e => {
+    const allowed = BASE_PERMISSIONS[e];
+    return allowed && !allowed.includes('*') && !allowed.includes(s.role);
+  }).length;
+}
+
+// ── Render permission toggles ────────────────────────────────────────────────
+function renderPermissions() {
+  const s = selectedUser;
+  const extras = getExtras(s.username);
+
+  const currentUserRole = localStorage.getItem('ruviaos_role');
+
+  const content = document.getElementById('permContent');
+  content.innerHTML = `
+    <div class="perm-section">
+      <div class="perm-section-hdr">
+        <h2>📋 Page Access — ${s.name}</h2>
+        <span>Toggle to grant or restrict access to each module</span>
+      </div>
+      <div class="perm-grid" id="permGrid"></div>
+    </div>`;
+
+  const grid = document.getElementById('permGrid');
+  grid.innerHTML = ALL_PAGES.map(page => {
+    const baseAllowed = (() => {
+      const allowed = BASE_PERMISSIONS[page.key];
+      if (!allowed) return true;
+      if (allowed.includes('*')) return true;
+      return allowed.includes(s.role);
+    })();
+
+    const hasExtra = extras.includes(page.key);
+    const isEnabled = baseAllowed || hasExtra;
+
+    // Can't toggle pages that are always allowed (dashboard) or admin-only base
+    const canToggle = !baseAllowed && !page.alwaysAllowed;
+
+    // Managers can't grant admin-only pages
+    const adminOnly = BASE_PERMISSIONS[page.key]?.length === 1 && BASE_PERMISSIONS[page.key][0] === 'admin';
+    const disabledForManager = currentUserRole === 'manager' && adminOnly;
+
+    const sourceLabel = page.alwaysAllowed
+      ? `<span class="perm-source src-base">Always On</span>`
+      : baseAllowed
+        ? `<span class="perm-source src-base">Base Role</span>`
+        : hasExtra
+          ? `<span class="perm-source src-granted">Granted</span>`
+          : `<span class="perm-source src-denied">No Access</span>`;
+
+    const lockTitle = disabledForManager
+      ? 'Only the Administrator can grant this page'
+      : page.alwaysAllowed
+        ? 'This page is always accessible'
+        : baseAllowed
+          ? `Included in the ${ROLE_LABELS[s.role]} role by default`
+          : '';
+
+    return `
+      <div class="perm-item">
+        <div class="perm-item-info">
+          <span class="perm-icon">${page.icon}</span>
+          <div>
+            <div class="perm-name">${page.name}</div>
+            <div class="perm-desc">${page.desc}</div>
+            ${sourceLabel}
+          </div>
+        </div>
+        <label class="toggle" title="${lockTitle}">
+          <input type="checkbox"
+            id="perm_${page.key}"
+            ${isEnabled ? 'checked' : ''}
+            ${!canToggle || disabledForManager ? 'disabled' : ''}
+            onchange="togglePerm('${page.key}', this.checked)"
+          >
+          <span class="toggle-track"></span>
+        </label>
+      </div>`;
+  }).join('');
+}
+
+// ── Toggle a permission ──────────────────────────────────────────────────────
+function togglePerm(pageKey, enabled) {
+  if (!selectedUser) return;
+  const extras = getExtras(selectedUser.username);
+  let updated;
+  if (enabled) {
+    updated = [...new Set([...extras, pageKey])];
+  } else {
+    updated = extras.filter(p => p !== pageKey);
+  }
+  setExtras(selectedUser.username, updated);
+
+  // Log it
+  try {
+    const sender = localStorage.getItem('ruviaos_user') || 'manager';
+    const al = JSON.parse(localStorage.getItem('ruvia_activity_log') || '[]');
+    al.unshift({
+      id: Date.now(), type: 'permission',
+      message: `${sender} ${enabled ? 'granted' : 'revoked'} access to "${pageKey}" for @${selectedUser.username}`,
+      username: sender, category: 'auth', time: new Date().toISOString()
+    });
+    localStorage.setItem('ruvia_activity_log', JSON.stringify(al.slice(0, 500)));
+  } catch(e) {}
+
+  // Show save banner
+  document.getElementById('saveName').textContent = selectedUser.name;
+  const banner = document.getElementById('saveBanner');
+  banner.style.display = 'flex';
+  clearTimeout(banner._t);
+  banner._t = setTimeout(() => banner.style.display = 'none', 3000);
+
+  renderUserInfo();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+function init() {
+  loadStaff();
+  renderSelector();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

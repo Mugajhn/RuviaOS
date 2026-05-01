@@ -1,260 +1,585 @@
 /**
- * RuviaOS Navbar v3 — Full-width sticky, notification badges, RBAC, profile
- * MUST be placed as direct child of <body>, outside any max-width containers
+ * RuviaOS — Navbar
+ * ================
+ * Renders the top navigation bar on every page.
+ * Reads login state, role, and notifications from localStorage.
+ * Works with ruvia-auth-guard.js (uses RuviaAuth.logout() when available).
+ *
+ * Usage (already in every .html file):
+ *   <div id="navbar-placeholder"></div>
+ *   <script src="ruvia-core.js"></script>
+ *   <script src="navbar.js"></script>
  */
-(function(){
-'use strict';
 
-const PAGE_META = {
-  frontdesk:       { icon:'🏨', label:'Front Desk',   badge:'arrivals' },
-  pms:             { icon:'📅', label:'Reservations', badge:'res' },
-  pos:             { icon:'🍽', label:'POS',           badge:null },
-  dashboard:       { icon:'📊', label:'Dashboard',    badge:null },
-  housekeeping:    { icon:'🧹', label:'Housekeeping', badge:'dirty' },
-  tables:          { icon:'🪑', label:'Tables',        badge:null },
-  stock:           { icon:'📦', label:'Stock',         badge:'stock' },
-  'menu-management':{ icon:'📋', label:'Menu',          badge:null },
-  reports:         { icon:'📈', label:'Reports',       badge:null },
-  staff:           { icon:'👥', label:'Staff',         badge:null },
-};
+(function () {
+  'use strict';
 
-const ROLE_NAV = {
-  admin:       Object.keys(PAGE_META),
-  manager:     ['frontdesk','pms','pos','dashboard','housekeeping','tables','stock','menu-management','reports','staff'],
-  reception:   ['frontdesk','pms'],
-  kitchen:     ['pos','stock','menu-management','tables'],
-  housekeeping:['housekeeping'],
-};
+  // ── Role metadata ────────────────────────────────────────────────────────
+  const ROLE_META = {
+    admin:        { label: 'Administrator', color: '#dc3545', icon: '🔑' },
+    manager:      { label: 'Manager',       color: '#e0a800', icon: '📊' },
+    reception:    { label: 'Receptionist',  color: '#17a2b8', icon: '🏨' },
+    kitchen:      { label: 'Kitchen Staff', color: '#28a745', icon: '🍳' },
+    housekeeping: { label: 'Housekeeping',  color: '#6c757d', icon: '🧹' },
+  };
 
-const ROLE_LABELS = {
-  admin:'Administrator', manager:'Manager', reception:'Receptionist',
-  kitchen:'Kitchen Staff', housekeeping:'Housekeeping'
-};
+  // ── Nav links per role ───────────────────────────────────────────────────
+  // Each entry: { href, icon, label, roles ([] = all), badge (optional key) }
+  const NAV_LINKS = [
+    { href:'index.html',           icon:'🏠', label:'Dashboard',   roles:[] },
+    { href:'frontdesk.html',       icon:'🏨', label:'Front Desk',  roles:['admin','manager','reception'],     badge:'arrivals' },
+    { href:'pms.html',             icon:'📅', label:'Reservations',roles:['admin','manager','reception'] },
+    { href:'pos.html',             icon:'🍽', label:'POS',         roles:['admin','manager','kitchen','reception'] },
+    { href:'housekeeping.html',    icon:'🧹', label:'Housekeeping',roles:['admin','manager','housekeeping'],   badge:'dirty' },
+    { href:'tables.html',          icon:'🪑', label:'Tables',      roles:['admin','manager','kitchen','reception'] },
+    { href:'stock.html',           icon:'📦', label:'Stock',       roles:['admin','manager','kitchen'],        badge:'lowstock' },
+    { href:'menu-management.html', icon:'📋', label:'Menu',        roles:['admin','manager','kitchen'] },
+    { href:'reports.html',         icon:'📈', label:'Reports',     roles:['admin','manager'] },
+    { href:'staff.html',           icon:'👥', label:'Staff',       roles:['admin','manager'] },
+    { href:'backup-dashboard.html',icon:'💾', label:'Backup',      roles:['admin'] },
+  ];
 
-const ROLE_COLORS = {
-  admin:'#dc3545', manager:'#e0a800', reception:'#17a2b8',
-  kitchen:'#28a745', housekeeping:'#6c757d'
-};
+  // ── Badge value calculators ──────────────────────────────────────────────
+  function getBadge(key) {
+    try {
+      switch (key) {
+        case 'arrivals': {
+          const today = new Date().toISOString().slice(0, 10);
+          const res = JSON.parse(localStorage.getItem('ruvia_reservations') || '[]');
+          return res.filter(r => r.status === 'confirmed' && r.check_in <= today).length;
+        }
+        case 'dirty': {
+          const rooms = JSON.parse(localStorage.getItem('ruvia_rooms') || '[]');
+          return rooms.filter(r => r.status === 'dirty' || r.status === 'cleaning').length;
+        }
+        case 'lowstock': {
+          const products = JSON.parse(localStorage.getItem('ruvia_products') || '[]');
+          return products.filter(p => p.current_stock <= (p.reorder_level || 5)).length;
+        }
+        case 'notifications': {
+          const user = localStorage.getItem('ruviaos_user') || '';
+          const role = localStorage.getItem('ruviaos_role') || '';
+          const notes = JSON.parse(localStorage.getItem('ruvia_notifications') || '[]');
+          return notes.filter(n =>
+            !n.read && (n.targetUser === '*' || n.targetUser === user || n.targetUser === role)
+          ).length;
+        }
+        default: return 0;
+      }
+    } catch (e) { return 0; }
+  }
 
-function getBadge(type){
-  if(!window.RuviaStore) return 0;
-  try{
-    const today=new Date().toISOString().slice(0,10);
-    if(type==='arrivals') return RuviaStore.getReservations().filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
-    if(type==='dirty')    return RuviaStore.getRooms().filter(r=>r.status==='dirty'||r.status==='cleaning').length;
-    if(type==='stock')    return RuviaStore.getProducts().filter(p=>p.current_stock<=p.reorder_level).length;
-  }catch(e){}
-  return 0;
-}
+  // ── Current page detection ───────────────────────────────────────────────
+  function currentPage() {
+    return window.location.pathname.split('/').pop() || 'index.html';
+  }
 
-function initials(name){ return (name||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+  // ── Get staff profile for logged-in user ─────────────────────────────────
+  function getProfile(username) {
+    try {
+      const staff = JSON.parse(localStorage.getItem('ruvia_staff') || '[]');
+      return staff.find(s => s.username === username) || null;
+    } catch (e) { return null; }
+  }
 
-function timeAgo(iso){
-  const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);
-  if(m<1) return 'just now'; if(m<60) return m+'m ago';
-  const h=Math.floor(m/60); if(h<24) return h+'h ago';
-  return Math.floor(h/24)+'d ago';
-}
+  // ── Build and inject navbar ───────────────────────────────────────────────
+  function build() {
+    const placeholder = document.getElementById('navbar-placeholder');
+    if (!placeholder) return;
 
-function renderNotifs(user){
-  const list=document.getElementById('rn-list'); if(!list) return;
-  const notifs=window.RuviaNotifications?RuviaNotifications.getForUser(user).slice(0,20):[];
-  if(!notifs.length){list.innerHTML='<div style="padding:24px;text-align:center;font-size:12px;color:var(--text2,#9a9da8)">No notifications</div>';return;}
-  list.innerHTML=notifs.map(n=>{
-    const t=new Date(n.time),today=new Date().toDateString()===t.toDateString();
-    const ts=today?t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):t.toLocaleDateString();
-    return`<div class="rn-item${n.read?'':' unread'}" onclick="window._rnavReadNotif(${n.id},'${n.link||''}')">
-      <div class="rn-title">${n.title}</div>
-      <div class="rn-body">${n.body}</div>
-      <div class="rn-ts">${ts}</div>
-    </div>`;
-  }).join('');
-}
+    const loggedIn = localStorage.getItem('ruviaos_logged_in') === 'true';
+    const user     = localStorage.getItem('ruviaos_user') || '';
+    const role     = localStorage.getItem('ruviaos_role') || '';
+    const meta     = ROLE_META[role] || { label: role, color: '#6b7280', icon: '👤' };
+    const profile  = getProfile(user);
 
-function build(){
-  const li=localStorage.getItem('ruviaos_logged_in')==='true';
-  const user=localStorage.getItem('ruviaos_user')||'';
-  const role=localStorage.getItem('ruviaos_role')||'reception';
-  const navKeys=ROLE_NAV[role]||ROLE_NAV.reception;
-  const cur=location.pathname.split('/').pop().replace('.html','')||'index';
-  const isDark=document.body.classList.contains('dark-mode');
-  const notifCount=li&&window.RuviaNotifications?RuviaNotifications.getUnreadCount(user):0;
+    // Get extra permissions for this user
+    function canAccessPage(href) {
+      const pageKey = href.replace('.html', '');
+      if (window.RuviaAuth) return window.RuviaAuth.canAccess(pageKey);
+      return true; // fallback if guard not loaded
+    }
 
-  // Login time
-  let loginTime='';
-  try{
-    const att=JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');
-    const today=new Date().toISOString().slice(0,10);
-    const tl=att.filter(r=>r.username===user&&r.date===today&&r.event==='login');
-    if(tl.length) loginTime=new Date(tl[0].time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  }catch(e){}
+    const notifCount = getBadge('notifications');
 
-  const navLinks=li?navKeys.map(key=>{
-    const m=PAGE_META[key]; if(!m) return '';
-    const active=cur===key;
-    const b=m.badge?getBadge(m.badge):0;
-    return`<a href="${key}.html" class="rn-link${active?' active':''}" title="${m.label}">
-      <span class="rn-link-icon">${m.icon}</span>
-      <span class="rn-link-lbl">${m.label}</span>
-      ${b>0?`<span class="rn-badge">${b}</span>`:''}
-    </a>`;
-  }).join(''):'';
+    // Avatar HTML
+    const avatarHtml = profile?.avatar
+      ? `<img src="${profile.avatar}" alt="${profile.name||user}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      : `<span style="font-size:13px;font-weight:700;color:#fff">${(user[0]||'?').toUpperCase()}</span>`;
 
-  const html=`<style>
-.rn{background:#1a3c34;color:#fff;height:56px;display:flex;align-items:center;padding:0 20px;gap:0;position:sticky;top:0;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.3);width:100%;box-sizing:border-box}
-.rn-logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;margin-right:8px}
-.rn-logo-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;border:1px solid rgba(255,255,255,.2)}
-.rn-links{display:flex;align-items:center;gap:1px;flex:1;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.rn-links::-webkit-scrollbar{display:none}
-.rn-link{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.72);font-size:12px;white-space:nowrap;transition:all .15s;position:relative;flex-shrink:0;height:38px}
-.rn-link:hover,.rn-link.active{background:rgba(255,255,255,.16);color:#fff}
-.rn-link.active{background:rgba(255,255,255,.22)}
-.rn-link-icon{font-size:14px;line-height:1;width:16px;text-align:center}
-.rn-link-lbl{display:none}
-@media(min-width:1120px){.rn-link-lbl{display:inline}}
-.rn-badge{position:absolute;top:3px;right:2px;background:#e05c5c;color:#fff;border-radius:20px;font-size:9px;font-weight:700;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
-.rn-right{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px}
-.rn-icon-btn{width:36px;height:36px;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;transition:background .15s;flex-shrink:0}
-.rn-icon-btn:hover{background:rgba(255,255,255,.22)}
-.rn-notif-dot{position:absolute;top:-1px;right:-1px;background:#e05c5c;border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #1a3c34;line-height:1;color:#fff}
-.rn-dark-btn{background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:9px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;transition:background .15s;height:36px}
-.rn-dark-btn:hover{background:rgba(255,255,255,.22)}
-.rn-profile{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 10px;border-radius:9px;transition:background .15s;position:relative;height:44px}
-.rn-profile:hover{background:rgba(255,255,255,.12)}
-.rn-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid rgba(255,255,255,.3)}
-.rn-uinfo{display:none;line-height:1.25}
-@media(min-width:860px){.rn-uinfo{display:block}}
-.rn-uname{font-size:12px;font-weight:600;color:#fff}
-.rn-urole{font-size:10px;color:rgba(255,255,255,.6)}
-/* Dropdowns */
-.rn-dropdown,.rn-notif-panel{position:absolute;top:calc(100% + 6px);right:0;background:var(--card,#fff);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;z-index:10000;min-width:210px;border:1px solid var(--border,rgba(0,0,0,.1));overflow:hidden}
-.rn-dropdown.open,.rn-notif-panel.open{display:block}
-.rn-dd-head{padding:14px 16px;background:var(--th-bg,#f8f9fa);border-bottom:1px solid var(--border,#eee)}
-.rn-dd-name{font-size:13px;font-weight:600;color:var(--text,#222)}
-.rn-dd-role{font-size:11px;color:var(--text2,#666);margin-top:2px}
-.rn-dd-login{font-size:10px;color:var(--text2,#aaa);margin-top:3px}
-.rn-dd-item{padding:10px 16px;font-size:13px;color:var(--text,#333);cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border,#f0f0f0);transition:background .1s}
-.rn-dd-item:last-child{border-bottom:none}
-.rn-dd-item:hover{background:var(--row-hover,#f5f5f5)}
-.rn-dd-item.danger{color:#dc3545}
-.rn-notif-panel{min-width:300px;max-height:380px;display:none;flex-direction:column}
-.rn-notif-panel.open{display:flex}
-.rn-notif-head{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text,#222);border-bottom:1px solid var(--border,#eee);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--th-bg,#f8f9fa)}
-.rn-notif-clr{font-size:11px;color:var(--accent,#2c5f4a);cursor:pointer;font-weight:400}
-.rn-notif-body{overflow-y:auto;flex:1}
-.rn-item{padding:11px 16px;border-bottom:1px solid var(--border,#f0f0f0);cursor:pointer;transition:background .1s}
-.rn-item:last-child{border-bottom:none}
-.rn-item:hover{background:var(--row-hover,#f9f9f9)}
-.rn-item.unread{background:var(--accent-light,#e8f5e9)}
-.rn-title{font-size:12px;font-weight:600;color:var(--text,#222)}
-.rn-body{font-size:11px;color:var(--text2,#666);margin-top:2px}
-.rn-ts{font-size:10px;color:var(--text2,#aaa);margin-top:3px}
-</style>
+    // Visible nav links for this role
+    const visibleLinks = loggedIn
+      ? NAV_LINKS.filter(l => (l.roles.length === 0 || l.roles.includes(role)) && canAccessPage(l.href))
+      : [];
 
-<div class="rn" id="rn">
-  <a href="index.html" class="rn-logo">
-    <div class="rn-logo-icon">🏨</div>
-    <span>RuviaOS</span>
-  </a>
-  <div class="rn-links">${navLinks}</div>
-  <div class="rn-right">
-    <button class="rn-dark-btn" onclick="rn_toggleDark()" id="rnDarkBtn">${isDark?'☀ Light':'🌙 Dark'}</button>
-    ${li?`
-    <div style="position:relative">
-      <button class="rn-icon-btn" onclick="rn_toggleNotif()" title="Notifications">
-        🔔
-        ${notifCount>0?`<span class="rn-notif-dot">${notifCount}</span>`:''}
-      </button>
-      <div class="rn-notif-panel" id="rn-notif-panel">
-        <div class="rn-notif-head"><span>Notifications</span><span class="rn-notif-clr" onclick="rn_clearNotifs()">Mark all read</span></div>
-        <div class="rn-notif-body" id="rn-list"></div>
-      </div>
-    </div>
-    <div class="rn-profile" onclick="rn_toggleDD()" id="rn-profile-btn">
-      <div class="rn-avatar" style="background:${ROLE_COLORS[role]||'#2c5f4a'}">${initials(user)}</div>
-      <div class="rn-uinfo">
-        <div class="rn-uname">${user}</div>
-        <div class="rn-urole">${ROLE_LABELS[role]||role}</div>
-      </div>
-      <div class="rn-dropdown" id="rn-dd">
-        <div class="rn-dd-head">
-          <div class="rn-dd-name">${user}</div>
-          <div class="rn-dd-role">${ROLE_LABELS[role]||role}</div>
-          ${loginTime?`<div class="rn-dd-login">Today's login: ${loginTime}</div>`:''}
+    // Nav items HTML
+    const navItemsHtml = visibleLinks.map(l => {
+      const active  = currentPage() === l.href;
+      const badgeVal = l.badge ? getBadge(l.badge) : 0;
+      return `
+        <a href="${l.href}" class="nv-link${active ? ' active' : ''}" title="${l.label}">
+          <span class="nv-icon">${l.icon}</span>
+          <span class="nv-label">${l.label}</span>
+          ${badgeVal > 0 ? `<span class="nv-badge">${badgeVal > 99 ? '99+' : badgeVal}</span>` : ''}
+        </a>`;
+    }).join('');
+
+    placeholder.innerHTML = `
+      <style>
+        :root {
+          --nv-h: 58px;
+          --nv-bg: #ffffff;
+          --nv-border: #e5e7eb;
+          --nv-text: #374151;
+          --nv-text2: #9ca3af;
+          --nv-active-bg: #f0fdf4;
+          --nv-active-color: #2c5f4a;
+          --nv-hover-bg: #f9fafb;
+          --nv-badge-bg: #e05c5c;
+          --nv-shadow: 0 1px 0 var(--nv-border);
+        }
+        body.dark-mode {
+          --nv-bg: #1c2030;
+          --nv-border: rgba(255,255,255,.08);
+          --nv-text: #e2e4ea;
+          --nv-text2: #6b7280;
+          --nv-active-bg: rgba(44,95,74,.18);
+          --nv-active-color: #4caf87;
+          --nv-hover-bg: rgba(255,255,255,.04);
+          --nv-shadow: 0 1px 0 rgba(255,255,255,.05);
+        }
+
+        #ruvia-navbar {
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          background: var(--nv-bg);
+          border-bottom: 1px solid var(--nv-border);
+          box-shadow: var(--nv-shadow);
+          height: var(--nv-h);
+          display: flex;
+          align-items: center;
+          padding: 0 20px;
+          gap: 4px;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Logo */
+        .nv-logo {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          text-decoration: none;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+        .nv-logo-icon {
+          width: 34px;
+          height: 34px;
+          background: linear-gradient(135deg, #2c5f4a, #1a3c34);
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 17px;
+        }
+        .nv-logo-text {
+          font-size: 16px;
+          font-weight: 800;
+          color: var(--nv-text);
+          letter-spacing: -.3px;
+        }
+        .nv-logo-sub {
+          font-size: 10px;
+          color: var(--nv-text2);
+          font-weight: 500;
+          display: none;
+        }
+        @media(min-width:900px){ .nv-logo-sub { display: block; } }
+
+        /* Nav divider */
+        .nv-div {
+          width: 1px;
+          height: 24px;
+          background: var(--nv-border);
+          margin: 0 8px;
+          flex-shrink: 0;
+        }
+
+        /* Nav links scroll area */
+        .nv-links {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          flex: 1;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .nv-links::-webkit-scrollbar { display: none; }
+
+        .nv-link {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          padding: 6px 11px;
+          border-radius: 8px;
+          text-decoration: none;
+          color: var(--nv-text2);
+          font-size: 12.5px;
+          font-weight: 600;
+          white-space: nowrap;
+          transition: all .15s;
+          position: relative;
+          flex-shrink: 0;
+        }
+        .nv-link:hover { background: var(--nv-hover-bg); color: var(--nv-text); }
+        .nv-link.active {
+          background: var(--nv-active-bg);
+          color: var(--nv-active-color);
+        }
+        .nv-icon { font-size: 14px; }
+        .nv-label { /* show on wider screens */ }
+        @media(max-width:700px){ .nv-label { display: none; } }
+
+        /* Badge on nav link */
+        .nv-badge {
+          background: var(--nv-badge-bg);
+          color: #fff;
+          border-radius: 20px;
+          font-size: 9px;
+          font-weight: 800;
+          min-width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 4px;
+          line-height: 1;
+        }
+
+        /* Right section */
+        .nv-right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-left: auto;
+          flex-shrink: 0;
+        }
+
+        /* Notification bell */
+        .nv-bell {
+          position: relative;
+          width: 36px;
+          height: 36px;
+          border-radius: 9px;
+          background: transparent;
+          border: 1.5px solid var(--nv-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 16px;
+          transition: all .15s;
+          text-decoration: none;
+          color: var(--nv-text);
+        }
+        .nv-bell:hover { background: var(--nv-hover-bg); border-color: #2c5f4a; }
+        .nv-bell-badge {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          background: #e05c5c;
+          color: #fff;
+          border-radius: 50%;
+          font-size: 9px;
+          font-weight: 800;
+          min-width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid var(--nv-bg);
+          line-height: 1;
+        }
+
+        /* Dark mode toggle */
+        .nv-dark-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 9px;
+          background: transparent;
+          border: 1.5px solid var(--nv-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 16px;
+          transition: all .15s;
+          color: var(--nv-text);
+        }
+        .nv-dark-btn:hover { background: var(--nv-hover-bg); border-color: #2c5f4a; }
+
+        /* User profile pill */
+        .nv-user {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 10px 5px 5px;
+          border-radius: 99px;
+          border: 1.5px solid var(--nv-border);
+          cursor: pointer;
+          transition: all .15s;
+          background: transparent;
+          position: relative;
+          text-decoration: none;
+          color: var(--nv-text);
+        }
+        .nv-user:hover { background: var(--nv-hover-bg); border-color: #2c5f4a; }
+        .nv-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+        .nv-user-info { display: none; }
+        @media(min-width:640px){ .nv-user-info { display: block; } }
+        .nv-username { font-size: 12px; font-weight: 700; color: var(--nv-text); line-height: 1.2; }
+        .nv-userrole { font-size: 10px; color: var(--nv-text2); }
+
+        /* User dropdown */
+        .nv-dropdown {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          background: var(--nv-bg);
+          border: 1px solid var(--nv-border);
+          border-radius: 14px;
+          box-shadow: 0 8px 30px rgba(0,0,0,.12);
+          min-width: 220px;
+          z-index: 2000;
+          overflow: hidden;
+          display: none;
+        }
+        .nv-dropdown.open { display: block; animation: ddOpen .15s ease; }
+        @keyframes ddOpen { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        .nv-dd-header {
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--nv-border);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .nv-dd-avatar {
+          width: 42px; height: 42px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; font-weight: 700; color: #fff;
+          overflow: hidden; flex-shrink: 0;
+        }
+        .nv-dd-avatar img { width:100%; height:100%; object-fit:cover; }
+        .nv-dd-name { font-size: 14px; font-weight: 700; color: var(--nv-text); }
+        .nv-dd-role {
+          display: inline-flex; align-items: center; gap: 4px;
+          font-size: 11px; font-weight: 600; margin-top: 3px;
+          padding: 2px 7px; border-radius: 20px;
+        }
+        .nv-dd-item {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 16px; font-size: 13px; font-weight: 500;
+          color: var(--nv-text); text-decoration: none; cursor: pointer;
+          transition: background .12s; border: none; background: transparent; width: 100%;
+          text-align: left;
+        }
+        .nv-dd-item:hover { background: var(--nv-hover-bg); }
+        .nv-dd-item.danger { color: #dc3545; }
+        .nv-dd-item.danger:hover { background: #fdecea; }
+        body.dark-mode .nv-dd-item.danger:hover { background: #3a1818; }
+        .nv-dd-sep { height: 1px; background: var(--nv-border); margin: 4px 0; }
+        .nv-login-time {
+          padding: 8px 16px; font-size: 11px; color: var(--nv-text2);
+          border-bottom: 1px solid var(--nv-border);
+        }
+      </style>
+
+      <nav id="ruvia-navbar">
+        <!-- Logo -->
+        <a href="index.html" class="nv-logo">
+          <div class="nv-logo-icon">🏨</div>
+          <div>
+            <div class="nv-logo-text">RuviaOS</div>
+            <div class="nv-logo-sub">Ruvia Hotel</div>
+          </div>
+        </a>
+
+        ${loggedIn ? `<div class="nv-div"></div>` : ''}
+
+        <!-- Nav links -->
+        <div class="nv-links" id="nvLinks">
+          ${loggedIn ? navItemsHtml : ''}
         </div>
-        <div class="rn-dd-item" onclick="location.href='staff.html'">👤 My Profile</div>
-        <div class="rn-dd-item" onclick="rn_toggleDark()">🌙 Toggle Dark Mode</div>
-        ${['admin','manager'].includes(role)?`<div class="rn-dd-item" onclick="location.href='staff.html'">⚙ Manage Staff</div>`:''}
-        ${role==='admin'?`<div class="rn-dd-item" onclick="location.href='backup-dashboard.html'">💾 Backup</div>`:''}
-        <div class="rn-dd-item danger" onclick="rn_logout()">🚪 Sign Out</div>
-      </div>
-    </div>
-    `:` <a href="login.html" style="background:#ffc107;color:#1a1a2e;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">🔐 Login</a>`}
-  </div>
-</div>`;
 
-  const ph=document.getElementById('navbar-placeholder');
-  if(ph){ ph.innerHTML=html; ph.style.cssText='display:block;width:100%;margin:0;padding:0'; }
-  else{ const d=document.createElement('div');d.style.cssText='display:block;width:100%;margin:0;padding:0;';d.innerHTML=html;document.body.insertBefore(d,document.body.firstChild); }
+        <!-- Right section -->
+        <div class="nv-right">
+          ${loggedIn ? `
+            <!-- Notification bell -->
+            <a href="staff.html#notifications" class="nv-bell" id="nvBell" title="Notifications">
+              🔔
+              ${notifCount > 0 ? `<span class="nv-bell-badge">${notifCount > 99 ? '99+' : notifCount}</span>` : ''}
+            </a>
+          ` : ''}
 
-  if(li) renderNotifs(user);
+          <!-- Dark mode toggle -->
+          <button class="nv-dark-btn" id="nvDarkBtn" onclick="nvToggleDark()" title="Toggle dark mode">
+            <span id="nvDarkIcon">${document.documentElement.classList.contains('dark-mode') ? '☀️' : '🌙'}</span>
+          </button>
 
-  // OTP click-outside
-  document.addEventListener('click',e=>{
-    if(!e.target.closest('#rn-profile-btn')) document.getElementById('rn-dd')?.classList.remove('open');
-    if(!e.target.closest('.rn-icon-btn')&&!e.target.closest('#rn-notif-panel')) document.getElementById('rn-notif-panel')?.classList.remove('open');
+          ${loggedIn ? `
+            <!-- User pill + dropdown -->
+            <div style="position:relative">
+              <div class="nv-user" id="nvUserPill" onclick="nvToggleDropdown()">
+                <div class="nv-avatar" style="background:${meta.color}">
+                  ${avatarHtml}
+                </div>
+                <div class="nv-user-info">
+                  <div class="nv-username">${profile?.name || user}</div>
+                  <div class="nv-userrole">${meta.icon} ${meta.label}</div>
+                </div>
+                <span style="font-size:10px;color:var(--nv-text2);margin-left:2px">▾</span>
+              </div>
+
+              <!-- Dropdown -->
+              <div class="nv-dropdown" id="nvDropdown">
+                <div class="nv-dd-header">
+                  <div class="nv-dd-avatar" style="background:${meta.color}">
+                    ${avatarHtml}
+                  </div>
+                  <div>
+                    <div class="nv-dd-name">${profile?.name || user}</div>
+                    <div class="nv-dd-role" style="background:${meta.color}22;color:${meta.color}">
+                      ${meta.icon} ${meta.label}
+                    </div>
+                  </div>
+                </div>
+                ${localStorage.getItem('ruviaos_login_time') ? `
+                  <div class="nv-login-time">
+                    Signed in at ${new Date(localStorage.getItem('ruviaos_login_time')).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+                  </div>` : ''}
+                <a href="staff.html" class="nv-dd-item">👤 My Profile</a>
+                ${['admin','manager'].includes(role) ? `<a href="permissions.html" class="nv-dd-item">🔐 Manage Permissions</a>` : ''}
+                ${['admin','manager'].includes(role) ? `<a href="staff.html" class="nv-dd-item">👥 Staff</a>` : ''}
+                <div class="nv-dd-sep"></div>
+                <button class="nv-dd-item danger" onclick="nvLogout()">🚪 Sign Out</button>
+              </div>
+            </div>
+          ` : `
+            <a href="login.html" style="
+              background:linear-gradient(135deg,#2c5f4a,#1a3c34);
+              color:#fff; padding:8px 16px; border-radius:9px;
+              font-size:13px; font-weight:600; text-decoration:none;
+              transition:all .2s; display:inline-block;
+            ">Sign In</a>
+          `}
+        </div>
+      </nav>
+    `;
+
+    // ── Close dropdown on outside click ───────────────────────────────────
+    document.addEventListener('click', e => {
+      const pill = document.getElementById('nvUserPill');
+      const dd   = document.getElementById('nvDropdown');
+      if (pill && dd && !pill.contains(e.target) && !dd.contains(e.target)) {
+        dd.classList.remove('open');
+      }
+    });
+  }
+
+  // ── Global functions exposed to onclick ──────────────────────────────────
+  window.nvToggleDropdown = function () {
+    const dd = document.getElementById('nvDropdown');
+    if (dd) dd.classList.toggle('open');
+  };
+
+  window.nvToggleDark = function () {
+    const isDark = document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('ruvia-dark', isDark ? '1' : '0');
+    const icon = document.getElementById('nvDarkIcon');
+    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+  };
+
+  window.nvLogout = function () {
+    if (window.RuviaAuth) {
+      window.RuviaAuth.logout();
+    } else {
+      // Fallback if guard not loaded
+      try {
+        const u    = localStorage.getItem('ruviaos_user') || '';
+        const role = localStorage.getItem('ruviaos_role') || '';
+        const log  = JSON.parse(localStorage.getItem('ruvia_attendance') || '[]');
+        log.push({ username:u, role, event:'logout', time:new Date().toISOString(), date:new Date().toISOString().slice(0,10) });
+        localStorage.setItem('ruvia_attendance', JSON.stringify(log));
+      } catch (e) {}
+      localStorage.removeItem('ruviaos_logged_in');
+      localStorage.removeItem('ruviaos_user');
+      localStorage.removeItem('ruviaos_role');
+      localStorage.removeItem('ruviaos_login_time');
+      window.location.href = 'login.html';
+    }
+  };
+
+  // ── Auto-refresh badge counts every 30s ────────────────────────────────
+  function refreshBadges() {
+    // Refresh notification bell badge
+    const bell = document.getElementById('nvBell');
+    if (!bell) return;
+    const n = getBadge('notifications');
+    let badge = bell.querySelector('.nv-bell-badge');
+    if (n > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'nv-bell-badge';
+        bell.appendChild(badge);
+      }
+      badge.textContent = n > 99 ? '99+' : n;
+    } else if (badge) {
+      badge.remove();
+    }
+
+    // Refresh individual nav link badges
+    const visibleLinks = NAV_LINKS.filter(l => l.badge);
+    visibleLinks.forEach(l => {
+      const link = document.querySelector(`#nvLinks a[href="${l.href}"]`);
+      if (!link) return;
+      const val = getBadge(l.badge);
+      let b = link.querySelector('.nv-badge');
+      if (val > 0) {
+        if (!b) { b = document.createElement('span'); b.className = 'nv-badge'; link.appendChild(b); }
+        b.textContent = val > 99 ? '99+' : val;
+      } else if (b) {
+        b.remove();
+      }
+    });
+  }
+
+  // ── Build on DOM ready ────────────────────────────────────────────────────
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { build(); setInterval(refreshBadges, 30000); });
+  } else {
+    build();
+    setInterval(refreshBadges, 30000);
+  }
+
+  // Re-build when storage changes (e.g. new notification arrives in another tab)
+  window.addEventListener('storage', e => {
+    if (['ruvia_notifications', 'ruviaos_logged_in', 'ruvia_rooms', 'ruvia_reservations'].includes(e.key)) {
+      refreshBadges();
+    }
   });
-}
-
-// Global handlers
-window.rn_toggleDD=()=>{document.getElementById('rn-dd')?.classList.toggle('open');document.getElementById('rn-notif-panel')?.classList.remove('open');};
-window.rn_toggleNotif=()=>{
-  document.getElementById('rn-notif-panel')?.classList.toggle('open');
-  document.getElementById('rn-dd')?.classList.remove('open');
-  const u=localStorage.getItem('ruviaos_user');
-  renderNotifs(u);
-};
-window.rn_clearNotifs=()=>{
-  const u=localStorage.getItem('ruviaos_user');
-  if(window.RuviaNotifications) RuviaNotifications.markAllRead(u);
-  renderNotifs(u);
-  document.querySelectorAll('.rn-notif-dot').forEach(b=>b.remove());
-};
-window._rnavReadNotif=(id,link)=>{
-  if(window.RuviaNotifications) RuviaNotifications.markRead(id);
-  document.getElementById('rn-notif-panel')?.classList.remove('open');
-  if(link) location.href=link;
-};
-window.rn_logout=()=>{
-  try{
-    const u=localStorage.getItem('ruviaos_user');
-    const al=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');
-    al.unshift({id:Date.now(),type:'logout',message:u+' signed out',username:u,category:'auth',time:new Date().toISOString()});
-    localStorage.setItem('ruvia_activity_log',JSON.stringify(al.slice(0,500)));
-    const att=JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');
-    att.push({username:u,event:'logout',time:new Date().toISOString(),date:new Date().toISOString().slice(0,10)});
-    localStorage.setItem('ruvia_attendance',JSON.stringify(att));
-  }catch(e){}
-  ['ruviaos_logged_in','ruviaos_user','ruviaos_role'].forEach(k=>localStorage.removeItem(k));
-  location.href='login.html';
-};
-window.rn_toggleDark=function(){
-  const on=!document.body.classList.contains('dark-mode');
-  document.body.classList.toggle('dark-mode',on);
-  localStorage.setItem('ruvia-dark',on?'1':'0');
-  document.querySelectorAll('#rnDarkBtn,.rn-dark-btn,.ruvia-dark-btn,.darkmode-nav-btn').forEach(b=>b.textContent=on?'☀ Light':'🌙 Dark');
-  document.querySelectorAll('#darkModeToggleBtn').forEach(b=>b.innerHTML=on?'☀️ Light':'🌙 Dark');
-};
-// Also keep window.toggleDarkMode pointing same function
-window.toggleDarkMode=window.rn_toggleDark;
-
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build);
-else build();
-
-// Apply saved dark mode
-(function(){
-  const s=localStorage.getItem('ruvia-dark'),p=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
-  if(s==='1'||(s===null&&p)) document.body.classList.add('dark-mode');
-})();
 
 })();

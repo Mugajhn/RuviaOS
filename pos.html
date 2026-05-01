@@ -1,297 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>RuviaOS – POS Terminal</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS — POS</title>
+<script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;overflow:hidden}
-#navbar-placeholder{position:relative;z-index:20}
-.pos-wrap{display:flex;height:calc(100vh - 56px)}
-.products-panel{flex:3;background:var(--bg,#f0f2f5);display:flex;flex-direction:column;padding:12px;overflow:hidden}
-.search-row{display:flex;gap:8px;margin-bottom:10px}
-.search-row input{flex:1;padding:10px 16px;border:1.5px solid var(--input-border,#ddd);border-radius:24px;font-size:14px;background:var(--input-bg,#fff);color:var(--text,#222);outline:none}
-.search-row input:focus{border-color:var(--accent,#2c5f4a)}
-.cats{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.cat-btn{padding:8px 16px;background:var(--card,#fff);border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.1);color:var(--text,#222);transition:all .2s}
-.cat-btn.active{background:var(--accent,#2c5f4a);color:#fff}
-.products-grid{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-right:4px}
-.group-title{font-size:14px;font-weight:700;color:var(--accent,#2c5f4a);border-bottom:2px solid var(--accent,#2c5f4a);padding-bottom:4px;margin-bottom:8px}
-.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.tile{background:var(--card,#fff);border:none;border-radius:11px;padding:10px 7px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:0 1px 5px rgba(0,0,0,.08)}
-.tile:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.13)}
-.tile-emoji{font-size:28px;display:block;margin-bottom:5px}
-.tile-name{font-size:11px;font-weight:600;color:var(--text,#222);line-height:1.3}
-.tile-price{font-size:11px;color:var(--accent,#2c5f4a);font-weight:700;margin-top:3px}
-.tile-stock{font-size:9px;padding:1px 5px;border-radius:8px;margin-top:3px;display:inline-block}
-.stock-ok{background:#d4edda;color:#155724}
-.stock-low{background:#fff3cd;color:#856404}
-.stock-out{background:#f8d7da;color:#721c24;cursor:not-allowed}
-/* Cart */
-.cart-panel{flex:1.2;background:var(--card,#fff);display:flex;flex-direction:column;box-shadow:-2px 0 8px rgba(0,0,0,.09)}
-.cart-header{padding:12px;background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff}
-.cart-header h3{font-size:14px;margin-bottom:10px}
-.info-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-.info-select{flex:1;padding:7px;border-radius:6px;border:none;font-size:12px;background:rgba(255,255,255,.9);color:#222}
-.guest-row{display:flex;gap:6px;margin-bottom:6px}
-.guest-row input{flex:1;padding:7px;border:none;border-radius:6px;font-size:12px;background:rgba(255,255,255,.9);color:#222}
-.guest-row button{padding:7px 10px;background:#ffc107;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
-.guest-select{width:100%;padding:7px;border:none;border-radius:6px;font-size:12px;background:rgba(255,255,255,.9);color:#222;cursor:pointer}
-.guest-badge{padding:6px 10px;background:rgba(255,255,255,.15);border-radius:6px;font-size:10px;margin-top:6px;min-height:24px}
-.cart-items{flex:1;overflow-y:auto;padding:8px}
-.cart-item{display:flex;align-items:center;gap:6px;padding:7px;border-bottom:1px solid var(--border,#eee);font-size:11px}
-.ci-name{flex:2;font-weight:600;color:var(--text,#222)}
-.ci-price{font-size:9px;color:var(--text2,#666)}
-.qty-wrap{display:flex;align-items:center;gap:4px}
-.qty-btn{width:20px;height:20px;border:none;border-radius:50%;background:var(--th-bg,#f0f0f0);font-size:12px;cursor:pointer;color:var(--text,#222)}
-.ci-total{font-weight:700;min-width:55px;text-align:right;font-size:10px;color:var(--text,#222)}
-.remove-btn{color:#dc3545;cursor:pointer;font-size:13px;padding:0 3px}
-.empty-cart{text-align:center;color:var(--text2,#999);padding:30px 10px;font-size:13px}
-.cart-footer{padding:12px;border-top:2px solid var(--border,#eee);background:var(--th-bg,#f8f9fa)}
-.cart-total{font-size:22px;font-weight:700;color:var(--accent,#2c5f4a);text-align:right;margin-bottom:12px}
-.cart-actions{display:flex;gap:8px}
-.btn-pay{flex:2;padding:14px;background:#28a745;color:#fff;border:none;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;transition:all .3s}
-.btn-pay:hover{background:#1e7e34;transform:scale(1.02)}
-.btn-clr{flex:1;padding:14px;background:#6c757d;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
-/* Modals */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:20px;border-radius:14px;max-width:400px;width:92%;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.pay-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.pay-opt{padding:10px;border:2px solid var(--border,#ddd);border-radius:10px;text-align:center;cursor:pointer;background:var(--card,#fff);font-weight:600;font-size:13px;color:var(--text,#222)}
-.pay-opt.selected{border-color:var(--accent,#2c5f4a);background:#e8f5e9}
-.pay-amount{font-size:22px;font-weight:700;text-align:center;color:var(--accent,#2c5f4a);margin:10px 0}
-.pay-actions{display:flex;gap:8px;margin-top:12px}
-.btn-confirm{flex:1;padding:10px;background:#28a745;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer}
-.btn-cancel-pay{flex:1;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer}
-.receipt-box{font-family:monospace;font-size:10px;background:var(--th-bg,#f8f9fa);padding:12px;border-radius:8px;margin:10px 0;text-align:center;white-space:pre-wrap;color:var(--text,#222)}
-.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:8px;display:none;z-index:9999;font-size:12px;font-weight:700;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-@media(max-width:900px){.pos-wrap{flex-direction:column;overflow-y:auto;height:auto}.products-panel{max-height:55vh}.cart-panel{min-height:300px}}
+:root{--bg:#f4f6f9;--card:#fff;--text:#1a1a2e;--text2:#6b7280;--border:#e5e7eb;--accent:#2c5f4a;--accent-light:#e8f5f0;--input-bg:#fff;--th-bg:#f9fafb;--shadow-md:0 4px 16px rgba(0,0,0,.1)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+/* ─ layout ─ */
+.pos-wrap{display:flex;flex:1;overflow:hidden}
+/* ─ left panel ─ */
+.left{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid var(--border)}
+.toolbar{padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:150px;padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none}
+.search:focus{border-color:var(--accent)}
+.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;flex-shrink:0}
+.cat.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;align-content:start}
+.tile{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;transition:.2s;text-align:center;user-select:none}
+.tile:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.tile:active{transform:scale(.96)}
+.tile-emoji{font-size:34px;display:block;margin-bottom:8px;line-height:1}
+.tile-name{font-size:12px;font-weight:600;margin-bottom:4px;line-height:1.3}
+.tile-price{font-size:13px;font-weight:700;color:var(--accent)}
+/* ─ right/cart panel ─ */
+.right{width:340px;display:flex;flex-direction:column;background:var(--card);flex-shrink:0}
+.cart-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.cart-hdr h3{font-size:15px;font-weight:700}
+.cashier-tag{font-size:11px;color:var(--text2);background:var(--th-bg);padding:4px 10px;border-radius:20px}
+.cart-body{flex:1;overflow-y:auto;padding:10px 14px}
+.cart-empty{text-align:center;padding:50px 20px;color:var(--text2);font-size:13px;font-style:italic}
+.citem{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.citem:last-child{border-bottom:none}
+.citem-emoji{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.citem-info{flex:1;min-width:0}
+.citem-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citem-unit{font-size:11px;color:var(--text2);margin-top:1px}
+.citem-qty{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qbtn{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--border);background:var(--th-bg);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:.15s;padding:0;line-height:1}
+.qbtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qnum{font-size:13px;font-weight:700;min-width:20px;text-align:center}
+.citem-total{font-size:13px;font-weight:700;color:var(--accent);min-width:72px;text-align:right;flex-shrink:0}
+/* ─ cart footer ─ */
+.cart-foot{border-top:1px solid var(--border);padding:14px 16px}
+.summary{background:var(--th-bg);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.srow{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:3px 0}
+.srow.big{font-size:16px;font-weight:700;color:var(--text);padding-top:8px;border-top:1px dashed var(--border);margin-top:4px}
+.srow.big span:last-child{color:var(--accent)}
+.pay-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.pbtn{padding:8px 4px;border:1.5px solid var(--border);border-radius:9px;background:var(--card);font-size:11px;font-weight:600;cursor:pointer;text-align:center;color:var(--text);transition:.15s}
+.pbtn.on{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.meta-row{display:flex;gap:8px;margin-bottom:10px}
+.meta-row select,.meta-row input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;background:var(--input-bg);color:var(--text);outline:none}
+.charge-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2c5f4a,#1a3c34);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.01em}
+.charge-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(44,95,74,.4)}
+.charge-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.clear-btn{width:100%;padding:9px;background:transparent;border:1.5px solid var(--border);color:var(--text2);border-radius:9px;font-size:12px;cursor:pointer;margin-top:6px;transition:.15s}
+.clear-btn:hover{border-color:#dc3545;color:#dc3545}
+/* ─ receipt overlay ─ */
+.rcpt-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.rcpt-box{background:var(--card);border-radius:16px;max-width:480px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.rcpt-top{padding:14px 20px;background:#1a3c34;color:#fff;display:flex;justify-content:space-between;align-items:center;font-weight:600;flex-shrink:0}
+.rcpt-acts{display:flex;gap:8px;padding:10px 18px;background:var(--th-bg);border-bottom:1px solid var(--border);flex-shrink:0}
+.rbtn{padding:8px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.rcpt-scroll{overflow-y:auto;padding:20px;background:var(--bg)}
+.paper{background:#fff;padding:22px;border-radius:6px;font-family:'Courier New',monospace;font-size:12px;max-width:300px;margin:0 auto;color:#222}
+.p-hotel{text-align:center;font-size:15px;font-weight:700;margin-bottom:2px}
+.p-sub{text-align:center;font-size:10px;color:#555;margin-bottom:1px}
+.p-div{text-align:center;color:#ccc;margin:8px 0;font-size:11px}
+.p-meta{font-size:11px;color:#444;line-height:1.8;margin-bottom:2px}
+.p-table{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0}
+.p-table th{text-align:left;padding:2px 0;border-bottom:1px dashed #ccc;font-size:10px}
+.p-table td{padding:3px 0}
+.p-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.p-total{font-weight:700;font-size:14px;padding:5px 0;border-top:1px dashed #ccc;border-bottom:1px dashed #ccc;margin:4px 0;display:flex;justify-content:space-between}
+.p-foot{text-align:center;font-size:10px;color:#777;margin-top:8px}
+@media print{body>*:not(.rcpt-bg){display:none!important}.rcpt-bg{position:static;background:none;padding:0}.rcpt-box{box-shadow:none;max-height:none}.rcpt-top,.rcpt-acts{display:none!important}.rcpt-scroll{padding:0;background:#fff}.paper{max-width:80mm;margin:0}}
+@media(max-width:760px){.pos-wrap{flex-direction:column}.right{width:100%;max-height:48vh}.grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
-<script src="ruvia-store.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
 <div class="pos-wrap">
-  <!-- Products -->
-  <div class="products-panel">
-    <div class="search-row">
-      <input type="text" id="searchBox" placeholder="🔍 Search menu items..." oninput="renderProducts()">
-      <button class="cat-btn" onclick="document.getElementById('searchBox').value='';renderProducts()">✕</button>
+  <!-- LEFT: Products -->
+  <div class="left">
+    <div class="toolbar">
+      <input class="search" id="srch" placeholder="🔍 Search menu..." oninput="render()">
+      <div class="cats" id="cats"></div>
     </div>
-    <div class="cats" id="catBar"></div>
-    <div class="products-grid" id="productsGrid"></div>
+    <div class="grid" id="grid"></div>
   </div>
 
-  <!-- Cart -->
-  <div class="cart-panel">
-    <div class="cart-header">
-      <h3>🧾 Order</h3>
-      <div class="info-row">
-        <select id="orderType" class="info-select" onchange="toggleTableSel()">
-          <option value="dine_in">🍽️ Dine In</option>
-          <option value="takeaway">🥡 Takeaway</option>
+  <!-- RIGHT: Cart -->
+  <div class="right">
+    <div class="cart-hdr">
+      <h3>🛒 Order</h3>
+      <span class="cashier-tag" id="cashierTag">👤 Staff</span>
+    </div>
+    <div class="cart-body" id="cartBody">
+      <div class="cart-empty">Tap items to add to order</div>
+    </div>
+    <div class="cart-foot">
+      <div class="summary">
+        <div class="srow"><span>Subtotal</span><span id="sub">USh 0</span></div>
+        <div class="srow"><span>VAT 18%</span><span id="vat">USh 0</span></div>
+        <div class="srow big"><span>TOTAL</span><span id="tot">USh 0</span></div>
+      </div>
+      <div class="pay-row">
+        <button class="pbtn on" data-m="cash"   onclick="setPay(this)">💵 Cash</button>
+        <button class="pbtn"    data-m="card"   onclick="setPay(this)">💳 Card</button>
+        <button class="pbtn"    data-m="mobile" onclick="setPay(this)">📱 Mobile</button>
+      </div>
+      <div class="meta-row">
+        <select id="otype">
+          <option value="dine_in">🪑 Dine In</option>
+          <option value="takeaway">📦 Takeaway</option>
+          <option value="delivery">🛵 Delivery</option>
           <option value="room_service">🏨 Room Service</option>
         </select>
-        <select id="tableSelect" class="info-select" style="display:none">
-          <option value="">-- Table --</option>
-          <option>Table 1</option><option>Table 2</option><option>Table 3</option>
-          <option>Table 4</option><option>Table 5</option><option>Table 6</option>
-        </select>
+        <input id="tblnum" placeholder="Table / Room #">
       </div>
-      <div class="guest-row">
-        <input type="text" id="guestSearch" placeholder="Guest name (optional)">
-        <button onclick="searchGuest()">🔍</button>
-      </div>
-      <select id="guestDrop" class="guest-select" onchange="selectGuest(this.value)">
-        <option value="">-- Walk-in / No guest --</option>
-      </select>
-      <div class="guest-badge" id="guestBadge">No guest selected</div>
-    </div>
-
-    <div class="cart-items" id="cartItems"></div>
-
-    <div class="cart-footer">
-      <div class="cart-total" id="cartTotal">UGX 0</div>
-      <div class="cart-actions">
-        <button class="btn-pay" onclick="openPayModal()">💳 Checkout</button>
-        <button class="btn-clr" onclick="clearCart()">🗑️ Clear</button>
-      </div>
+      <button class="charge-btn" id="chargeBtn" onclick="checkout()" disabled>Charge — USh 0</button>
+      <button class="clear-btn" onclick="clearCart()">🗑 Clear</button>
     </div>
   </div>
 </div>
 
-<!-- Payment Modal -->
-<div id="payModal" class="modal">
-  <div class="modal-content">
-    <h3>💳 Payment</h3>
-    <div class="pay-amount" id="payAmount">UGX 0</div>
-    <div class="pay-opts">
-      <div class="pay-opt" onclick="pickPay('cash',this)">💵 Cash</div>
-      <div class="pay-opt" onclick="pickPay('momo',this)">📱 Mobile Money</div>
-      <div class="pay-opt" onclick="pickPay('card',this)">💳 Card</div>
-      <div class="pay-opt" onclick="pickPay('room',this)">🏨 Room Charge</div>
-    </div>
-    <div class="pay-actions">
-      <button class="btn-confirm" onclick="confirmPayment()">✓ Confirm</button>
-      <button class="btn-cancel-pay" onclick="closeModal('payModal')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- Receipt Modal -->
-<div id="receiptModal" class="modal">
-  <div class="modal-content" style="text-align:center">
-    <h3>✅ Order Complete!</h3>
-    <div class="receipt-box" id="receiptBox"></div>
-    <button class="btn-confirm" style="width:100%;margin-top:8px" onclick="closeModal('receiptModal');clearCart()">New Order</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
+<script src="ruvia-store.js"></script>
 <script>
-let cart=[], selectedGuest=null, selectedPayMethod=null;
-const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
+// ── constants ────────────────────────────────────────────
+const VAT_R = 0.18;
+const fmt = n => 'USh ' + Math.round(n||0).toLocaleString();
 
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
-function closeModal(id){document.getElementById(id).style.display='none';}
-window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+// ── data layer (works with or without ruvia-store.js) ────
+const DB = {
+  products(){
+    if(window.RuviaStore) return RuviaStore.getProducts();
+    try{ return JSON.parse(localStorage.getItem('ruvia_products')||'[]'); }catch(e){ return []; }
+  },
+  saveOrder(o){
+    if(window.RuviaStore){ try{ RuviaStore.saveOrder(o); }catch(e){} }
+    try{
+      const arr = JSON.parse(localStorage.getItem('ruvia_orders')||'[]');
+      arr.unshift(o);
+      localStorage.setItem('ruvia_orders', JSON.stringify(arr.slice(0,2000)));
+    }catch(e){}
+  }
+};
 
-// Categories
-const catMeta={all:{label:'📋 All'},breakfast:{label:'🍳 Breakfast'},maincourse:{label:'🍽️ Main'},snacks:{label:'🍔 Snacks'},beverages:{label:'🥤 Drinks'},spa:{label:'💆 Spa'}};
-let activeCat='all';
-
-function buildCatBar(){
-  const products=RuviaStore.getProducts();
-  const cats=['all',...new Set(products.map(p=>p.category))];
-  document.getElementById('catBar').innerHTML=cats.map(c=>`<button class="cat-btn${c===activeCat?' active':''}" onclick="selectCat('${c}')">${(catMeta[c]||{label:c}).label}</button>`).join('');
+// ── seed demo products if none exist ────────────────────
+function seedProducts(){
+  const existing = DB.products();
+  if(existing.length) return;
+  const demo=[
+    {id:'p1', name:'Grilled Chicken',    emoji:'🍗', category:'maincourse', unit_price:25000, current_stock:50, availability:'available'},
+    {id:'p2', name:'Beef Steak',          emoji:'🥩', category:'maincourse', unit_price:45000, current_stock:30, availability:'available'},
+    {id:'p3', name:'Fish & Chips',        emoji:'🐟', category:'maincourse', unit_price:28000, current_stock:40, availability:'available'},
+    {id:'p4', name:'Vegetable Stew',      emoji:'🥘', category:'maincourse', unit_price:18000, current_stock:60, availability:'available'},
+    {id:'p5', name:'Pork Ribs',           emoji:'🍖', category:'maincourse', unit_price:35000, current_stock:25, availability:'available'},
+    {id:'p6', name:'Full Breakfast',      emoji:'🍳', category:'breakfast',  unit_price:22000, current_stock:30, availability:'available'},
+    {id:'p7', name:'Pancakes',            emoji:'🥞', category:'breakfast',  unit_price:15000, current_stock:40, availability:'available'},
+    {id:'p8', name:'Omelette',            emoji:'🍳', category:'breakfast',  unit_price:12000, current_stock:50, availability:'available'},
+    {id:'p9', name:'Toast & Eggs',        emoji:'🍞', category:'breakfast',  unit_price:10000, current_stock:60, availability:'available'},
+    {id:'p10',name:'Coca Cola',           emoji:'🥤', category:'beverages',  unit_price:4000,  current_stock:100,availability:'available'},
+    {id:'p11',name:'Bottled Water',       emoji:'💧', category:'beverages',  unit_price:2000,  current_stock:200,availability:'available'},
+    {id:'p12',name:'Fresh Juice',         emoji:'🍊', category:'beverages',  unit_price:8000,  current_stock:50, availability:'available'},
+    {id:'p13',name:'Coffee',              emoji:'☕', category:'beverages',  unit_price:6000,  current_stock:80, availability:'available'},
+    {id:'p14',name:'Passion Fruit Juice', emoji:'🥭', category:'beverages',  unit_price:7000,  current_stock:60, availability:'available'},
+    {id:'p15',name:'Chocolate Cake',      emoji:'🍰', category:'desserts',   unit_price:12000, current_stock:20, availability:'available'},
+    {id:'p16',name:'Ice Cream',           emoji:'🍦', category:'desserts',   unit_price:8000,  current_stock:30, availability:'available'},
+    {id:'p17',name:'French Fries',        emoji:'🍟', category:'snacks',     unit_price:9000,  current_stock:80, availability:'available'},
+    {id:'p18',name:'Spring Rolls',        emoji:'🥟', category:'snacks',     unit_price:12000, current_stock:40, availability:'available'},
+    {id:'p19',name:'Samosas',             emoji:'🫓', category:'snacks',     unit_price:8000,  current_stock:60, availability:'available'},
+  ];
+  localStorage.setItem('ruvia_products', JSON.stringify(demo));
 }
-function selectCat(c){activeCat=c;buildCatBar();renderProducts();}
 
-function toggleTableSel(){
-  const v=document.getElementById('orderType').value;
-  document.getElementById('tableSelect').style.display=v==='dine_in'?'block':'none';
-}
+// ── state ────────────────────────────────────────────────
+let cart = [];
+let activeCat = 'all';
+let payMethod = 'cash';
+let allProds = [];
 
-function searchGuest(){
-  const q=document.getElementById('guestSearch').value.toLowerCase();
-  const guests=RuviaStore.getGuests();
-  const matches=guests.filter(g=>g.full_name.toLowerCase().includes(q)||String(g.phone).includes(q));
-  const drop=document.getElementById('guestDrop');
-  drop.innerHTML='<option value="">-- Select --</option>'+matches.map(g=>`<option value="${g.id}">${g.full_name} (${g.phone||'?'})</option>`).join('');
-}
-function loadGuestDrop(){
-  const guests=RuviaStore.getGuests();
-  document.getElementById('guestDrop').innerHTML='<option value="">-- Walk-in / No guest --</option>'+guests.map(g=>`<option value="${g.id}">${g.full_name}</option>`).join('');
-}
-function selectGuest(id){
-  if(!id){selectedGuest=null;document.getElementById('guestBadge').textContent='No guest selected';return;}
-  const g=RuviaStore.getGuests().find(x=>x.id==id);
-  selectedGuest=g||null;
-  document.getElementById('guestBadge').textContent=g?`👤 ${g.full_name} — ${g.phone||''}`:'-';
+// ── boot ─────────────────────────────────────────────────
+function boot(){
+  seedProducts();
+  allProds = DB.products().filter(p => p.availability !== 'unavailable');
+  document.getElementById('cashierTag').textContent = '👤 ' + (localStorage.getItem('ruviaos_user')||'Staff');
+  buildCats();
+  render();
 }
 
-function renderProducts(){
-  const products=RuviaStore.getProducts();
-  const q=document.getElementById('searchBox').value.toLowerCase();
-  let list=products.filter(p=>activeCat==='all'||p.category===activeCat);
-  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.category.includes(q));
-  // Group by category
-  const groups={};
-  list.forEach(p=>{if(!groups[p.category])groups[p.category]=[];groups[p.category].push(p);});
-  const grid=document.getElementById('productsGrid');
-  if(list.length===0){grid.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)">No items found</div>`;return;}
-  grid.innerHTML=Object.entries(groups).map(([cat,items])=>`
-    <div class="product-group">
-      <div class="group-title">${(catMeta[cat]||{label:cat}).label} ${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>
-      <div class="items-grid">${items.map(p=>{
-        const out=p.current_stock===0;
-        const low=p.current_stock>0&&p.current_stock<=p.reorder_level;
-        return `<div class="tile${out?' stock-out':''}" onclick="${out?'':('addToCart('+p.id+')')}">
-          <span class="tile-emoji">${p.emoji||'🍴'}</span>
-          <div class="tile-name">${p.name}</div>
-          <div class="tile-price">${fmt(p.unit_price)}</div>
-          <div class="tile-stock ${out?'stock-out':low?'stock-low':'stock-ok'}">${out?'Out of stock':low?'Low: '+p.current_stock:'Stock: '+p.current_stock}</div>
-        </div>`;}).join('')}
-      </div>
+// ── categories ───────────────────────────────────────────
+function buildCats(){
+  const cats = ['all', ...[...new Set(allProds.map(p=>p.category).filter(Boolean))]];
+  document.getElementById('cats').innerHTML = cats.map(c=>`
+    <button class="cat${c===activeCat?' on':''}" onclick="setCat('${c}',this)">
+      ${c==='all'?'🍽 All':c.charAt(0).toUpperCase()+c.slice(1)}
+    </button>`).join('');
+}
+
+function setCat(c, btn){
+  activeCat = c;
+  document.querySelectorAll('.cat').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+// ── product grid ─────────────────────────────────────────
+function render(){
+  const q = (document.getElementById('srch').value||'').toLowerCase().trim();
+  const list = allProds.filter(p=>{
+    if(activeCat !== 'all' && p.category !== activeCat) return false;
+    if(q && !p.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const g = document.getElementById('grid');
+  if(!list.length){
+    g.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text2);font-style:italic">No items found</div>';
+    return;
+  }
+  g.innerHTML = list.map(p=>`
+    <div class="tile" onclick="addItem('${p.id}')">
+      <span class="tile-emoji">${p.emoji||'🍽'}</span>
+      <div class="tile-name">${p.name}</div>
+      <div class="tile-price">${fmt(p.unit_price||0)}</div>
     </div>`).join('');
 }
 
-function addToCart(pid){
-  const p=RuviaStore.getProducts().find(x=>x.id===pid);
-  if(!p||p.current_stock===0){toast('Out of stock','error');return;}
-  const existing=cart.find(c=>c.product_id===pid);
-  if(existing){
-    if(existing.quantity>=p.current_stock){toast('Not enough stock','error');return;}
-    existing.quantity++;
-  } else {
-    cart.push({product_id:pid,name:p.name,unit_price:p.unit_price,quantity:1,emoji:p.emoji||'🍴'});
+// ── cart operations ──────────────────────────────────────
+function addItem(id){
+  const p = allProds.find(x=>x.id===id);
+  if(!p) return;
+  const ex = cart.find(i=>i.id===id);
+  if(ex){ ex.qty++; } else { cart.push({id:p.id, name:p.name, emoji:p.emoji||'🍽', price:p.unit_price||0, qty:1}); }
+  drawCart();
+}
+
+function changeQty(id, d){
+  const item = cart.find(i=>i.id===id);
+  if(!item) return;
+  item.qty += d;
+  if(item.qty <= 0) cart = cart.filter(i=>i.id!==id);
+  drawCart();
+}
+
+function clearCart(){
+  cart = [];
+  drawCart();
+}
+
+function drawCart(){
+  const body = document.getElementById('cartBody');
+
+  if(!cart.length){
+    body.innerHTML = '<div class="cart-empty">Tap items to add to order</div>';
+    totals();
+    return;
   }
-  renderCart();
-}
-function changeQty(pid,delta){
-  const i=cart.findIndex(c=>c.product_id===pid);
-  if(i<0)return;
-  cart[i].quantity+=delta;
-  if(cart[i].quantity<=0)cart.splice(i,1);
-  renderCart();
-}
-function removeItem(pid){cart=cart.filter(c=>c.product_id!==pid);renderCart();}
-function clearCart(){cart=[];selectedGuest=null;selectedPayMethod=null;document.getElementById('guestBadge').textContent='No guest selected';document.getElementById('guestDrop').value='';renderCart();}
 
-function renderCart(){
-  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
-  document.getElementById('cartTotal').textContent=fmt(total);
-  if(cart.length===0){document.getElementById('cartItems').innerHTML=`<div class="empty-cart">🛒<br>Cart is empty<br><small>Tap items to add</small></div>`;return;}
-  document.getElementById('cartItems').innerHTML=cart.map(c=>`<div class="cart-item">
-    <div class="ci-name">${c.emoji} ${c.name}<div class="ci-price">${fmt(c.unit_price)} each</div></div>
-    <div class="qty-wrap">
-      <button class="qty-btn" onclick="changeQty(${c.product_id},-1)">-</button>
-      <span style="font-size:12px;font-weight:700;min-width:18px;text-align:center">${c.quantity}</span>
-      <button class="qty-btn" onclick="changeQty(${c.product_id},1)">+</button>
-    </div>
-    <div class="ci-total">${fmt(c.unit_price*c.quantity)}</div>
-    <span class="remove-btn" onclick="removeItem(${c.product_id})">✕</span>
-  </div>`).join('');
+  body.innerHTML = cart.map(item=>`
+    <div class="citem">
+      <span class="citem-emoji">${item.emoji}</span>
+      <div class="citem-info">
+        <div class="citem-name">${item.name}</div>
+        <div class="citem-unit">${fmt(item.price)} each</div>
+      </div>
+      <div class="citem-qty">
+        <button class="qbtn" onclick="changeQty('${item.id}',-1)">−</button>
+        <span class="qnum">${item.qty}</span>
+        <button class="qbtn" onclick="changeQty('${item.id}',1)">+</button>
+      </div>
+      <span class="citem-total">${fmt(item.price*item.qty)}</span>
+    </div>`).join('');
+
+  totals();
 }
 
-function openPayModal(){
-  if(cart.length===0){toast('Cart is empty','error');return;}
-  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
-  document.getElementById('payAmount').textContent=fmt(total);
-  selectedPayMethod=null;
-  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));
-  document.getElementById('payModal').style.display='flex';
-}
-function pickPay(m,el){selectedPayMethod=m;document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
-
-function confirmPayment(){
-  if(!selectedPayMethod){toast('Select payment method','error');return;}
-  const total=cart.reduce((s,c)=>s+c.unit_price*c.quantity,0);
-  const table=document.getElementById('tableSelect').value||'';
-  const orderId=RuviaStore.addOrder({
-    items:cart.map(c=>({product_id:c.product_id,name:c.name,quantity:c.quantity,unit_price:c.unit_price})),
-    total,payment_method:selectedPayMethod,
-    order_type:document.getElementById('orderType').value,
-    table,guest_id:selectedGuest?selectedGuest.id:null,
-    guest_name:selectedGuest?selectedGuest.full_name:'Walk-in',
-  });
-  closeModal('payModal');
-  const now=new Date().toLocaleTimeString();
-  document.getElementById('receiptBox').textContent=`===== RUVIA HOTEL =====\nOrder #: ORD-${String(orderId).padStart(4,'0')}\nTime: ${now}\n${selectedGuest?'Guest: '+selectedGuest.full_name+'\n':''}\n${cart.map(c=>c.emoji+' '+c.name.padEnd(16)+' x'+c.quantity+'  '+fmt(c.unit_price*c.quantity)).join('\n')}\n\n${'─'.repeat(26)}\nTOTAL:  ${fmt(total)}\nPaid via: ${selectedPayMethod.toUpperCase()}\n${'═'.repeat(26)}\nThank you! Come again!`;
-  document.getElementById('receiptModal').style.display='flex';
-  renderProducts(); // refresh stock display
+function totals(){
+  const sub = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  const vat = Math.round(sub * VAT_R);
+  const tot = sub + vat;
+  document.getElementById('sub').textContent = fmt(sub);
+  document.getElementById('vat').textContent = fmt(vat);
+  document.getElementById('tot').textContent = fmt(tot);
+  const btn = document.getElementById('chargeBtn');
+  btn.disabled = !cart.length;
+  btn.textContent = cart.length ? `Charge — ${fmt(tot)}` : 'Charge — USh 0';
 }
 
-// Init
-buildCatBar();renderProducts();renderCart();loadGuestDrop();
-RuviaStore.onChange(()=>{renderProducts();loadGuestDrop();});
+function setPay(btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  payMethod = btn.dataset.m;
+}
+
+// ── checkout ─────────────────────────────────────────────
+function checkout(){
+  if(!cart.length) return;
+
+  const sub  = cart.reduce((s,i)=>s+i.price*i.qty, 0);
+  const vat  = Math.round(sub * VAT_R);
+  const tot  = sub + vat;
+  const user = localStorage.getItem('ruviaos_user')||'Staff';
+  const num  = 'ORD-' + Date.now().toString().slice(-6);
+  const now  = new Date().toISOString();
+
+  const order = {
+    id: Date.now().toString(), order_number: num,
+    items: cart.map(i=>({name:i.name, emoji:i.emoji, quantity:i.qty, unit_price:i.price})),
+    subtotal:sub, vat, total:tot,
+    payment_method: payMethod,
+    order_type: document.getElementById('otype').value,
+    table: document.getElementById('tblnum').value.trim()||null,
+    cashier: user, status:'completed', created_at: now
+  };
+
+  DB.saveOrder(order);
+
+  // activity log
+  try{
+    const al = JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');
+    al.unshift({id:Date.now(), type:'sale', message:`${user} completed ${num} — ${fmt(tot)}`, username:user, category:'sale', time:now});
+    localStorage.setItem('ruvia_activity_log', JSON.stringify(al.slice(0,500)));
+  }catch(e){}
+
+  showReceipt(order);
+  cart = [];
+  drawCart();
+  document.getElementById('tblnum').value = '';
+}
+
+// ── receipt ──────────────────────────────────────────────
+function showReceipt(o){
+  const cfg = (()=>{ const d={hotelName:'Ruvia Hotel',address:'Kampala, Uganda',phone:'+256 700 000000',footerMessage:'Thank you! Visit us again.'}; try{return{...d,...JSON.parse(localStorage.getItem('ruvia_hotel_config')||'{}')};}catch(e){return d;} })();
+  const ts = new Date(o.created_at);
+
+  const rows = (o.items||[]).map(i=>`
+    <tr>
+      <td>${i.name}</td>
+      <td style="text-align:center;width:30px">${i.quantity}</td>
+      <td style="text-align:right;width:72px">${fmt(i.unit_price)}</td>
+      <td style="text-align:right;width:76px">${fmt(i.unit_price*i.quantity)}</td>
+    </tr>`).join('');
+
+  const modal = document.createElement('div');
+  modal.className = 'rcpt-bg';
+  modal.id = 'rcpt';
+  modal.onclick = e => { if(e.target===modal) modal.remove(); };
+  modal.innerHTML = `
+    <div class="rcpt-box">
+      <div class="rcpt-top">
+        <span>🧾 ${o.order_number}</span>
+        <button onclick="document.getElementById('rcpt').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:13px">✕ Close</button>
+      </div>
+      <div class="rcpt-acts">
+        <button class="rbtn" style="background:#2c5f4a;color:#fff" onclick="window.print()">🖨 Print</button>
+        <button class="rbtn" style="background:#6c757d;color:#fff" onclick="document.getElementById('rcpt').remove()">Close</button>
+      </div>
+      <div class="rcpt-scroll">
+        <div class="paper">
+          <div class="p-hotel">${cfg.hotelName}</div>
+          <div class="p-sub">${cfg.address}</div>
+          <div class="p-sub">Tel: ${cfg.phone}</div>
+          <div class="p-div">- - - - - - - - - - - - - - -</div>
+          <div class="p-meta">
+            Receipt: <strong>${o.order_number}</strong><br>
+            Date: ${ts.toLocaleDateString('en-GB')}<br>
+            Time: ${ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}<br>
+            Cashier: <strong>${o.cashier}</strong><br>
+            ${o.table?'Table: '+o.table+'<br>':''}
+            Type: ${(o.order_type||'dine_in').replace('_',' ').toUpperCase()}
+          </div>
+          <div class="p-div">- - - - - - - - - - - - - - -</div>
+          <table class="p-table">
+            <thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div class="p-div">- - - - - - - - - - - - - - -</div>
+          <div class="p-row"><span>Subtotal</span><span>${fmt(o.subtotal)}</span></div>
+          <div class="p-row"><span>VAT (18%)</span><span>${fmt(o.vat)}</span></div>
+          <div class="p-total"><span>TOTAL</span><span>${fmt(o.total)}</span></div>
+          <div class="p-row"><span>Payment</span><span>${(o.payment_method||'cash').toUpperCase()}</span></div>
+          <div class="p-div">- - - - - - - - - - - - - - -</div>
+          <div class="p-foot">${cfg.footerMessage}</div>
+          <div class="p-foot">Powered by RuviaOS</div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>

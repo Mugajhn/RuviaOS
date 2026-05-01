@@ -2,401 +2,472 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Property Management</title>
+<title>RuviaOS — Reservations</title>
+<script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,var(--header-bg1,#1a3c34),var(--header-bg2,#2c5f4a));color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.header h1{font-size:22px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:22px}
-.stat-card{background:var(--card,#fff);padding:18px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:30px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:13px}
-.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.tab{padding:10px 20px;background:var(--card,#fff);border:none;border-radius:10px;cursor:pointer;font-weight:700;transition:all .2s;color:var(--text,#222)}
-.tab.active{background:var(--accent,#2c5f4a);color:#fff}
-.tab-content{display:none}.tab-content.active{display:block}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;margin-bottom:18px;box-shadow:var(--shadow)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:13px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.btn{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;margin:2px;font-weight:600;font-size:12px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-primary:hover{background:var(--accent2,#1a3c34)}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-warning{background:#ffc107;color:#333}
-.btn-success{background:#28a745;color:#fff}
-.btn-info{background:#17a2b8;color:#fff}
-.btn-sm{padding:5px 10px;font-size:11px}
-.form-container{background:var(--card,#fff);padding:18px;border-radius:12px;margin-bottom:18px;box-shadow:var(--shadow)}
-.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
-.form-group{margin-bottom:13px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:24px;border-radius:14px;max-width:500px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text,#222)}
-.modal-content h3{margin-bottom:16px;color:var(--accent,#2c5f4a)}
-.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block}
-.badge-ready{background:#d4edda;color:#155724}
-.badge-occupied{background:#f8d7da;color:#721c24}
-.badge-dirty{background:#fff3cd;color:#856404}
-.badge-cleaning{background:#d1ecf1;color:#0c5460}
-.badge-confirmed{background:#d1ecf1;color:#0c5460}
-.badge-checkedin{background:#d4edda;color:#155724}
-.badge-checkedout{background:#e2e3e5;color:#383d41}
-.badge-cancelled{background:#f8d7da;color:#721c24}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-.empty-cell{text-align:center;color:var(--text2,#999);font-style:italic;padding:28px}
-@media(max-width:768px){th,td{font-size:11px;padding:8px}.form-row{grid-template-columns:1fr}}
+:root{--bg:#f4f6f9;--card:#fff;--text:#1a1a2e;--text2:#6b7280;--border:#e5e7eb;--accent:#2c5f4a;--accent-light:#e8f5f0;--input-bg:#fff;--th-bg:#f9fafb;--row-hover:#f3f4f6;--shadow-md:0 4px 16px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.phdr h1{font-size:22px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:22px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:.2s;border-left:4px solid var(--accent)}
+.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.tile.warn{border-left-color:#e0a800}.tile.info{border-left-color:#17a2b8}.tile.success{border-left-color:#28a745}.tile.danger{border-left-color:#dc3545}
+.tv{font-size:26px;font-weight:700;color:var(--accent);line-height:1}
+.tile.warn .tv{color:#e0a800}.tile.info .tv{color:#17a2b8}.tile.success .tv{color:#28a745}
+.tl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.ts{font-size:11px;color:var(--text2);margin-top:2px}
+/* tabs */
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap}
+.tbtn{padding:8px 16px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.tbtn.on{background:var(--accent);color:#fff}
+.tab{display:none}.tab.on{display:block}
+/* table */
+.tbl-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;background:var(--th-bg);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border:none}
+tr:hover td{background:var(--row-hover)}
+.pill{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.p-confirmed{background:#d1ecf1;color:#0c5460}
+.p-checked-in{background:#d4edda;color:#155724}
+.p-checked-out{background:#f3f4f6;color:#6b7280}
+.p-cancelled{background:#f8d7da;color:#721c24}
+.p-pending{background:#fff3cd;color:#856404}
+.ab{padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap;margin-right:3px}
+.ab:hover{border-color:var(--accent);color:var(--accent)}
+/* booking form */
+.bform{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.bform h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select,.fg textarea{padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
+.rate-preview{background:var(--th-bg);border-radius:10px;padding:13px;margin-top:12px;font-size:13px;display:none}
+.rr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;color:var(--text2)}
+.rr.big{font-weight:700;font-size:15px;color:var(--text);padding-top:8px;border-top:1px dashed var(--border);margin-top:5px}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.btn-row .btn{flex:1}
+.btn-outline{flex:1;padding:10px;background:transparent;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;font-size:13px;cursor:pointer}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
+.mhdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:1}
+.mhdr h3{font-size:16px;font-weight:700}
+.mbody{padding:20px}
+.mfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 18px;border-radius:9px;font-size:13px;cursor:pointer}
+.btn-danger{background:#dc3545;color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.dr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dr:last-child{border:none}
+.dr span:first-child{color:var(--text2)}
+.dr span:last-child{font-weight:600}
+@media(max-width:640px){.fgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
-<script src="ruvia-store.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
-<div class="container">
-<div class="header">
-  <h1>🏨 Property Management System</h1>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn btn-primary" onclick="refreshAll()">🔄 Refresh</button>
-    <button class="btn btn-success" onclick="openReservationModal()">+ New Reservation</button>
+<div class="page">
+  <div class="phdr">
+    <h1>📅 Reservations & PMS</h1>
+    <button class="btn" onclick="switchTab('new-booking')">+ New Booking</button>
   </div>
-</div>
 
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-value" id="stTotal">-</div><div class="stat-label">Total Rooms</div></div>
-  <div class="stat-card"><div class="stat-value" id="stOccupied">-</div><div class="stat-label">🔴 Occupied</div></div>
-  <div class="stat-card"><div class="stat-value" id="stAvailable">-</div><div class="stat-label">🟢 Available</div></div>
-  <div class="stat-card"><div class="stat-value" id="stGuests">-</div><div class="stat-label">Total Guests</div></div>
-  <div class="stat-card"><div class="stat-value" id="stOccRate">-</div><div class="stat-label">Occupancy %</div></div>
-  <div class="stat-card"><div class="stat-value" id="stRevenue">-</div><div class="stat-label">Total Revenue</div></div>
-</div>
+  <div class="tiles" id="tilesRow"></div>
 
-<div class="tabs">
-  <button class="tab active" onclick="showTab('rooms',this)">🛏️ Rooms</button>
-  <button class="tab" onclick="showTab('guests',this)">👥 Guests</button>
-  <button class="tab" onclick="showTab('reservations',this)">📅 Reservations</button>
-  <button class="tab" onclick="showTab('calendar',this)">📆 Upcoming</button>
-  <button class="tab" onclick="showTab('folio',this)">💰 Guest Folio</button>
-</div>
+  <div class="tabs">
+    <button class="tbtn on" id="tab-btn-all"        onclick="switchTab('all')">📋 All</button>
+    <button class="tbtn"    id="tab-btn-arrivals"   onclick="switchTab('arrivals')">📥 Arrivals</button>
+    <button class="tbtn"    id="tab-btn-departures" onclick="switchTab('departures')">📤 Departures</button>
+    <button class="tbtn"    id="tab-btn-in-house"   onclick="switchTab('in-house')">🏨 In-House</button>
+    <button class="tbtn"    id="tab-btn-new-booking" onclick="switchTab('new-booking')">➕ New Booking</button>
+  </div>
 
-<!-- ROOMS TAB -->
-<div id="tab-rooms" class="tab-content active">
-  <div style="margin-bottom:12px"><button class="btn btn-primary" onclick="openRoomModal()">+ Add Room</button></div>
-  <div class="table-container"><table>
-    <thead><tr><th>Room #</th><th>Type</th><th>Floor</th><th>Beds</th><th>Price (UGX)</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody id="roomsBody"></tbody>
-  </table></div>
-</div>
-
-<!-- GUESTS TAB -->
-<div id="tab-guests" class="tab-content">
-  <div style="margin-bottom:12px"><button class="btn btn-primary" onclick="openGuestModal()">+ Add Guest</button></div>
-  <div class="table-container"><table>
-    <thead><tr><th>Name</th><th>Phone</th><th>Nationality</th><th>Stays</th><th>Spent (UGX)</th><th>Last Stay</th><th>Actions</th></tr></thead>
-    <tbody id="guestsBody"></tbody>
-  </table></div>
-</div>
-
-<!-- RESERVATIONS TAB -->
-<div id="tab-reservations" class="tab-content">
-  <div class="table-container"><table>
-    <thead><tr><th>Guest</th><th>Room</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th><th>Balance</th><th>Actions</th></tr></thead>
-    <tbody id="reservationsBody"></tbody>
-  </table></div>
-</div>
-
-<!-- CALENDAR TAB -->
-<div id="tab-calendar" class="tab-content">
-  <div class="table-container"><table>
-    <thead><tr><th>Guest</th><th>Room</th><th>Check In</th><th>Check Out</th><th>Nights</th><th>Status</th><th>Source</th></tr></thead>
-    <tbody id="calendarBody"></tbody>
-  </table></div>
-</div>
-
-<!-- FOLIO TAB -->
-<div id="tab-folio" class="tab-content">
-  <div class="form-container">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-      <div class="form-group" style="flex:1;margin:0"><label>Search Guest</label>
-        <input type="text" id="folioSearch" placeholder="Enter guest name..."></div>
-      <button class="btn btn-primary" onclick="loadFolio()">Search</button>
+  <!-- All reservations -->
+  <div class="tab on" id="tab-all">
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Res #</th><th>Guest</th><th>Room</th><th>Check-In</th><th>Check-Out</th><th>Nights</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="bodyAll"></tbody></table>
     </div>
   </div>
-  <div id="folioContent"></div>
-</div>
-</div>
 
-<!-- ROOM MODAL -->
-<div id="roomModal" class="modal">
-  <div class="modal-content">
-    <h3 id="rmTitle">Add Room</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Room Number</label><input id="rmNum" placeholder="e.g. 401"></div>
-      <div class="form-group"><label>Type</label><select id="rmType"><option>Standard</option><option>Deluxe</option><option>Suite</option></select></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Floor</label><input type="number" id="rmFloor"></div>
-      <div class="form-group"><label>Beds</label><input type="number" id="rmBeds" value="1"></div>
-      <div class="form-group"><label>Max Occupancy</label><input type="number" id="rmMax" value="2"></div>
-    </div>
-    <div class="form-group"><label>Base Price (UGX)</label><input type="number" id="rmPrice" step="1000" placeholder="80000"></div>
-    <div class="form-group"><label>Notes</label><textarea id="rmNotes" rows="2"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveRoom()">Save</button>
-      <button class="btn btn-danger" onclick="closeModal('roomModal')">Cancel</button>
+  <!-- Arrivals -->
+  <div class="tab" id="tab-arrivals">
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Res #</th><th>Guest</th><th>Room</th><th>Check-In</th><th>Nights</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="bodyArrivals"></tbody></table>
     </div>
   </div>
-</div>
 
-<!-- GUEST MODAL -->
-<div id="guestModal" class="modal">
-  <div class="modal-content">
-    <h3 id="gmTitle">Add Guest</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Full Name</label><input id="gmName"></div>
-      <div class="form-group"><label>Phone</label><input id="gmPhone"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Email</label><input type="email" id="gmEmail"></div>
-      <div class="form-group"><label>Nationality</label><input id="gmNat"></div>
-    </div>
-    <div class="form-group"><label>ID Number</label><input id="gmId"></div>
-    <div class="form-group"><label>Address</label><textarea id="gmAddr" rows="2"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveGuest()">Save</button>
-      <button class="btn btn-danger" onclick="closeModal('guestModal')">Cancel</button>
+  <!-- Departures -->
+  <div class="tab" id="tab-departures">
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Res #</th><th>Guest</th><th>Room</th><th>Check-Out</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="bodyDepartures"></tbody></table>
     </div>
   </div>
-</div>
 
-<!-- RESERVATION MODAL -->
-<div id="resModal" class="modal">
-  <div class="modal-content">
-    <h3>New Reservation</h3>
-    <div class="form-group"><label>Guest</label><select id="resGuest"></select></div>
-    <div class="form-group"><label>Room</label><select id="resRoom"></select></div>
-    <div class="form-row">
-      <div class="form-group"><label>Check In</label><input type="date" id="resIn"></div>
-      <div class="form-group"><label>Check Out</label><input type="date" id="resOut"></div>
+  <!-- In-House -->
+  <div class="tab" id="tab-in-house">
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Res #</th><th>Guest</th><th>Room</th><th>Check-In</th><th>Check-Out</th><th>Balance</th><th>Actions</th></tr></thead>
+      <tbody id="bodyInHouse"></tbody></table>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>Adults</label><input type="number" id="resAdults" value="1"></div>
-      <div class="form-group"><label>Children</label><input type="number" id="resChildren" value="0"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Total Amount (UGX)</label><input type="number" id="resTotal" step="1000"></div>
-      <div class="form-group"><label>Source</label>
-        <select id="resSource"><option>Direct</option><option>Booking.com</option><option>Expedia</option><option>Phone</option></select>
+  </div>
+
+  <!-- New Booking -->
+  <div class="tab" id="tab-new-booking">
+    <div class="bform">
+      <h3>📅 New Reservation</h3>
+      <div class="fgrid">
+        <div class="fg"><label>Guest Full Name</label><input id="bkName" placeholder="Full name" oninput="lookupGuest()"></div>
+        <div class="fg"><label>Phone</label><input id="bkPhone" placeholder="+256 ..."></div>
+        <div class="fg"><label>Email</label><input type="email" id="bkEmail" placeholder="email@example.com"></div>
+        <div class="fg"><label>ID / Passport</label><input id="bkID" placeholder="National ID or Passport"></div>
+        <div class="fg"><label>Room</label><select id="bkRoom" onchange="calcRate()"><option value="">Select room...</option></select></div>
+        <div class="fg"><label>Adults</label><select id="bkAdults"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+        <div class="fg"><label>Check-In</label><input type="date" id="bkCI" onchange="calcRate()"></div>
+        <div class="fg"><label>Check-Out</label><input type="date" id="bkCO" onchange="calcRate()"></div>
+        <div class="fg"><label>Payment Method</label>
+          <select id="bkPay"><option value="cash">Cash</option><option value="card">Card</option><option value="mobile">Mobile Money</option><option value="bank">Bank Transfer</option></select>
+        </div>
+        <div class="fg"><label>Deposit Paid (USh)</label><input type="number" id="bkDeposit" placeholder="0" oninput="calcRate()"></div>
+      </div>
+      <div class="fg"><label>Special Requests</label><textarea id="bkReqs" rows="2" placeholder="Any special requests..."></textarea></div>
+      <div class="rate-preview" id="ratePreview"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="saveBooking()">📅 Confirm Reservation</button>
+        <button class="btn-outline" onclick="clearForm()">Clear</button>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveReservation()">Create Reservation</button>
-      <button class="btn btn-danger" onclick="closeModal('resModal')">Cancel</button>
-    </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- View/actions modal -->
+<div class="overlay" id="resModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="mhdr"><h3 id="resModalTitle">Reservation</h3><button onclick="document.getElementById('resModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody" id="resModalBody"></div>
+    <div class="mfoot" id="resModalFoot"></div>
+  </div>
+</div>
 
+<script src="ruvia-store.js"></script>
 <script>
-const fmt = n => 'UGX ' + Math.round(n||0).toLocaleString();
-const fmtDate = d => d ? new Date(d+'T00:00').toLocaleDateString('en-GB') : '-';
-const nights = (ci,co) => Math.max(1,Math.round((new Date(co)-new Date(ci))/86400000));
+const fmt = n => 'USh ' + Math.round(n||0).toLocaleString();
+const nights = (a,b) => Math.max(1, Math.round((new Date(b)-new Date(a))/86400000));
 
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
-function showTab(name,btn){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-}
-function closeModal(id){document.getElementById(id).style.display='none';}
-window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+// ── data layer ───────────────────────────────────────────
+const DB = {
+  rooms(){    if(window.RuviaStore) return RuviaStore.getRooms();    try{return JSON.parse(localStorage.getItem('ruvia_rooms')||'[]');}catch(e){return[];} },
+  res(){      if(window.RuviaStore) return RuviaStore.getReservations(); try{return JSON.parse(localStorage.getItem('ruvia_reservations')||'[]');}catch(e){return[];} },
+  guests(){   if(window.RuviaStore) return RuviaStore.getGuests();   try{return JSON.parse(localStorage.getItem('ruvia_guests')||'[]');}catch(e){return[];} },
+  saveRes(r){ if(window.RuviaStore){RuviaStore.saveReservation(r);}else{const a=DB.res();const idx=a.findIndex(x=>x.id===r.id);if(idx>=0)a[idx]=r;else a.unshift(r);localStorage.setItem('ruvia_reservations',JSON.stringify(a));} },
+  updateResStatus(id,status){ const a=DB.res().map(r=>r.id===id?{...r,status}:r); if(window.RuviaStore){RuviaStore.updateReservationStatus(id,status);}else{localStorage.setItem('ruvia_reservations',JSON.stringify(a));} },
+  setRoomStatus(id,status){ if(window.RuviaStore){RuviaStore.updateRoomStatus(id,status);}else{const a=DB.rooms().map(r=>r.id===id?{...r,status}:r);localStorage.setItem('ruvia_rooms',JSON.stringify(a));} },
+  saveGuest(g){ if(window.RuviaStore){RuviaStore.saveGuest(g);}else{const a=DB.guests();const idx=a.findIndex(x=>x.id===g.id);if(idx>=0)a[idx]=g;else a.push(g);localStorage.setItem('ruvia_guests',JSON.stringify(a));} }
+};
 
-function refreshAll(){
-  const rooms=RuviaStore.getRooms(), guests=RuviaStore.getGuests(), res=RuviaStore.getReservations();
-  const occ=rooms.filter(r=>r.status==='occupied').length;
-  const avail=rooms.filter(r=>r.status==='ready').length;
-  const rev=res.reduce((s,r)=>s+(r.paid_amount||0),0);
-  document.getElementById('stTotal').textContent=rooms.length;
-  document.getElementById('stOccupied').textContent=occ;
-  document.getElementById('stAvailable').textContent=avail;
-  document.getElementById('stGuests').textContent=guests.length;
-  document.getElementById('stOccRate').textContent=Math.round(occ/rooms.length*100)+'%';
-  document.getElementById('stRevenue').textContent=fmt(rev);
-  renderRooms(rooms); renderGuests(guests); renderReservations(res,rooms,guests); renderCalendar(res,rooms,guests);
-}
-
-function renderRooms(rooms){
-  const bmap={ready:'badge-ready',occupied:'badge-occupied',dirty:'badge-dirty',cleaning:'badge-cleaning'};
-  const lmap={ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
-  document.getElementById('roomsBody').innerHTML=rooms.length===0?`<tr><td colspan="7" class="empty-cell">No rooms found</td></tr>`:
-    rooms.map(r=>`<tr>
-      <td><strong>${r.room_number}</strong></td><td>${r.room_type}</td><td>${r.floor||'-'}</td>
-      <td>${r.beds||r.bed_count||1}</td><td>${fmt(r.base_price)}</td>
-      <td><span class="badge ${bmap[r.status]||''}">${lmap[r.status]||r.status}</span></td>
-      <td>
-        <button class="btn btn-warning btn-sm" onclick="editRoom(${r.id})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteRoom(${r.id})">🗑️</button>
-      </td>
-    </tr>`).join('');
+// ── seed rooms ───────────────────────────────────────────
+function seedRooms(){
+  if(DB.rooms().length) return;
+  const data=[
+    {id:'rm1',room_number:'101',room_type:'Standard',base_price:80000,status:'ready',floor:1},
+    {id:'rm2',room_number:'102',room_type:'Standard',base_price:80000,status:'ready',floor:1},
+    {id:'rm3',room_number:'103',room_type:'Standard',base_price:80000,status:'occupied',floor:1},
+    {id:'rm4',room_number:'201',room_type:'Deluxe',base_price:120000,status:'ready',floor:2},
+    {id:'rm5',room_number:'202',room_type:'Deluxe',base_price:120000,status:'dirty',floor:2},
+    {id:'rm6',room_number:'203',room_type:'Deluxe',base_price:120000,status:'ready',floor:2},
+    {id:'rm7',room_number:'301',room_type:'Suite',base_price:200000,status:'ready',floor:3},
+    {id:'rm8',room_number:'302',room_type:'Suite',base_price:200000,status:'ready',floor:3},
+    {id:'rm9',room_number:'401',room_type:'Executive',base_price:280000,status:'ready',floor:4},
+    {id:'rm10',room_number:'402',room_type:'Executive',base_price:280000,status:'ready',floor:4},
+  ];
+  localStorage.setItem('ruvia_rooms', JSON.stringify(data));
 }
 
-function renderGuests(guests){
-  document.getElementById('guestsBody').innerHTML=guests.length===0?`<tr><td colspan="7" class="empty-cell">No guests</td></tr>`:
-    guests.map(g=>`<tr>
-      <td><strong>${g.full_name}</strong></td><td>${g.phone||'-'}</td><td>${g.nationality||'-'}</td>
-      <td>${g.total_stays||0}</td><td>${fmt(g.total_spent)}</td><td>${fmtDate(g.last_stay)}</td>
-      <td>
-        <button class="btn btn-warning btn-sm" onclick="editGuest(${g.id})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteGuest(${g.id})">🗑️</button>
-      </td>
-    </tr>`).join('');
+// ── boot ─────────────────────────────────────────────────
+function boot(){
+  seedRooms();
+  populateRooms();
+  const today = new Date().toISOString().slice(0,10);
+  const tom = new Date(); tom.setDate(tom.getDate()+1);
+  document.getElementById('bkCI').value = today;
+  document.getElementById('bkCI').min   = today;
+  document.getElementById('bkCO').value = tom.toISOString().slice(0,10);
+  document.getElementById('bkCO').min   = tom.toISOString().slice(0,10);
+  renderAll();
 }
 
-function renderReservations(res,rooms,guests){
-  const smap={confirmed:'badge-confirmed','checked-in':'badge-checkedin','checked-out':'badge-checkedout',cancelled:'badge-cancelled'};
-  document.getElementById('reservationsBody').innerHTML=res.length===0?`<tr><td colspan="8" class="empty-cell">No reservations</td></tr>`:
-    res.map(r=>{
-      const g=guests.find(x=>x.id===r.guest_id)||{};
-      const rm=rooms.find(x=>x.id===r.room_id)||{};
-      const bal=r.balance||(r.total_amount-r.paid_amount);
-      let actions='';
-      if(r.status==='confirmed') actions+=`<button class="btn btn-success btn-sm" onclick="doCheckIn(${r.id})">✓ In</button>`;
-      if(r.status==='checked-in') actions+=`<button class="btn btn-danger btn-sm" onclick="doCheckOut(${r.id})">✗ Out</button>`;
-      if(bal>0&&r.status!=='cancelled') actions+=`<button class="btn btn-info btn-sm" onclick="doPayment(${r.id},${bal})">💳</button>`;
-      if(r.status==='confirmed') actions+=`<button class="btn btn-warning btn-sm" onclick="cancelRes(${r.id})">✗</button>`;
-      return `<tr>
-        <td><strong>${g.full_name||'?'}</strong></td><td>${rm.room_number||'-'}</td>
-        <td>${fmtDate(r.check_in)}</td><td>${fmtDate(r.check_out)}</td>
-        <td><span class="badge ${smap[r.status]||''}">${r.status}</span></td>
-        <td>${fmt(r.total_amount)}</td>
-        <td>${bal>0?'<span style="color:#dc3545;font-weight:700">'+fmt(bal)+'</span>':'<span style="color:#28a745">✓</span>'}</td>
-        <td>${actions}</td>
-      </tr>`;
-    }).join('');
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+name)?.classList.add('on');
+  document.getElementById('tab-btn-'+name)?.classList.add('on');
+  renderAll();
 }
 
-function renderCalendar(res,rooms,guests){
-  const today=new Date().toISOString().slice(0,10);
-  const upcoming=res.filter(r=>r.status!=='checked-out'&&r.status!=='cancelled'&&r.check_out>=today)
-    .sort((a,b)=>a.check_in.localeCompare(b.check_in));
-  document.getElementById('calendarBody').innerHTML=upcoming.length===0?`<tr><td colspan="7" class="empty-cell">No upcoming reservations</td></tr>`:
-    upcoming.map(r=>{
-      const g=guests.find(x=>x.id===r.guest_id)||{};
-      const rm=rooms.find(x=>x.id===r.room_id)||{};
-      return `<tr>
-        <td>${g.full_name||'?'}</td><td>${rm.room_number||'-'}</td>
-        <td>${fmtDate(r.check_in)}</td><td>${fmtDate(r.check_out)}</td>
-        <td>${nights(r.check_in,r.check_out)}</td><td>${r.status}</td><td>${r.source||'-'}</td>
-      </tr>`;
-    }).join('');
+function populateRooms(){
+  const avail = DB.rooms().filter(r=>r.status==='ready'||r.status==='occupied');
+  const sel   = document.getElementById('bkRoom');
+  sel.innerHTML = '<option value="">Select room...</option>' +
+    avail.map(r=>`<option value="${r.id}" data-price="${r.base_price||80000}">Room ${r.room_number} — ${r.room_type} (${r.status}) · ${fmt(r.base_price)}/night</option>`).join('');
 }
 
-// Actions
-function doCheckIn(id){if(!confirm('Confirm check-in?'))return;RuviaStore.checkIn(id);toast('✅ Guest checked in');refreshAll();}
+function renderAll(){
+  renderTiles();
+  renderAllRes();
+  renderArrivals();
+  renderDepartures();
+  renderInHouse();
+}
+
+// ── tiles ─────────────────────────────────────────────────
+function renderTiles(){
+  const res   = DB.res();
+  const rooms = DB.rooms();
+  const today = new Date().toISOString().slice(0,10);
+  const occ   = rooms.filter(r=>r.status==='occupied').length;
+  const arr   = res.filter(r=>r.status==='confirmed'&&r.check_in<=today).length;
+  const dep   = res.filter(r=>r.status==='checked-in'&&r.check_out<=today).length;
+  const ih    = res.filter(r=>r.status==='checked-in').length;
+  const rev   = res.reduce((s,r)=>s+(r.paid_amount||0),0);
+  document.getElementById('tilesRow').innerHTML = [
+    {icon:'🛏',lbl:'Total Rooms',val:rooms.length,sub:occ+' occupied',cls:'',tab:'all'},
+    {icon:'📥',lbl:'Arrivals',val:arr,sub:'Due today',cls:'info',tab:'arrivals'},
+    {icon:'📤',lbl:'Departures',val:dep,sub:'Due today',cls:'warn',tab:'departures'},
+    {icon:'🏨',lbl:'In-House',val:ih,sub:'Checked in',cls:'success',tab:'in-house'},
+    {icon:'💰',lbl:'Revenue',val:'USh '+Math.round(rev/1000)+'K',sub:'Collected',cls:'',tab:'all'},
+  ].map(t=>`
+    <div class="tile ${t.cls}" onclick="switchTab('${t.tab}')">
+      <div class="tv">${t.val}</div>
+      <div class="tl">${t.icon} ${t.lbl}</div>
+      <div class="ts">${t.sub}</div>
+    </div>`).join('');
+}
+
+// ── helpers ───────────────────────────────────────────────
+const pill = s => {
+  const m={confirmed:'p-confirmed','checked-in':'p-checked-in','checked-out':'p-checked-out',cancelled:'p-cancelled',pending:'p-pending'};
+  return `<span class="pill ${m[s]||''}">${s}</span>`;
+};
+const gname = id => DB.guests().find(x=>x.id===id)?.full_name||'Unknown';
+const rnum  = id => 'Room '+(DB.rooms().find(x=>x.id===id)?.room_number||'?');
+
+// ── all reservations ──────────────────────────────────────
+function renderAllRes(){
+  const sorted = [...DB.res()].sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
+  document.getElementById('bodyAll').innerHTML = sorted.length
+    ? sorted.map(r=>`
+        <tr>
+          <td><strong>${r.reservation_number}</strong></td>
+          <td>${gname(r.guest_id)}</td>
+          <td>${rnum(r.room_id)}</td>
+          <td>${r.check_in}</td>
+          <td>${r.check_out}</td>
+          <td>${r.nights||1}</td>
+          <td>${fmt(r.total_amount)}</td>
+          <td>${pill(r.status)}</td>
+          <td>
+            <button class="ab" onclick="viewRes('${r.id}')">View</button>
+            ${r.status==='confirmed'?`<button class="ab" onclick="doCheckIn('${r.id}')">Check In</button>`:''}
+            ${r.status==='checked-in'?`<button class="ab" onclick="doCheckOut('${r.id}')">Check Out</button>`:''}
+          </td>
+        </tr>`).join('')
+    : '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--text2);font-style:italic">No reservations yet. Create the first one →</td></tr>';
+}
+
+// ── arrivals ──────────────────────────────────────────────
+function renderArrivals(){
+  const today = new Date().toISOString().slice(0,10);
+  const arr   = DB.res().filter(r=>r.status==='confirmed'&&r.check_in<=today);
+  document.getElementById('bodyArrivals').innerHTML = arr.length
+    ? arr.map(r=>`
+        <tr>
+          <td><strong>${r.reservation_number}</strong></td>
+          <td>${gname(r.guest_id)}</td>
+          <td>${rnum(r.room_id)}</td>
+          <td>${r.check_in}</td>
+          <td>${r.nights||1}</td>
+          <td>${fmt(r.total_amount)}</td>
+          <td>${pill(r.status)}</td>
+          <td><button class="ab" onclick="doCheckIn('${r.id}')">✅ Check In</button><button class="ab" onclick="viewRes('${r.id}')">View</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text2);font-style:italic">No arrivals today</td></tr>';
+}
+
+// ── departures ────────────────────────────────────────────
+function renderDepartures(){
+  const today = new Date().toISOString().slice(0,10);
+  const dep   = DB.res().filter(r=>r.status==='checked-in'&&r.check_out<=today);
+  document.getElementById('bodyDepartures').innerHTML = dep.length
+    ? dep.map(r=>`
+        <tr>
+          <td><strong>${r.reservation_number}</strong></td>
+          <td>${gname(r.guest_id)}</td>
+          <td>${rnum(r.room_id)}</td>
+          <td>${r.check_out}</td>
+          <td style="color:${(r.balance||0)>0?'#dc3545':'#28a745'}">${fmt(r.balance||0)}</td>
+          <td>${pill(r.status)}</td>
+          <td><button class="ab" onclick="doCheckOut('${r.id}')">🚪 Check Out</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text2);font-style:italic">No departures today</td></tr>';
+}
+
+// ── in-house ──────────────────────────────────────────────
+function renderInHouse(){
+  const ih = DB.res().filter(r=>r.status==='checked-in');
+  document.getElementById('bodyInHouse').innerHTML = ih.length
+    ? ih.map(r=>`
+        <tr>
+          <td><strong>${r.reservation_number}</strong></td>
+          <td>${gname(r.guest_id)}</td>
+          <td>${rnum(r.room_id)}</td>
+          <td>${r.check_in}</td>
+          <td>${r.check_out}</td>
+          <td style="color:${(r.balance||0)>0?'#dc3545':'#28a745'}">${fmt(r.balance||0)}</td>
+          <td><button class="ab" onclick="doCheckOut('${r.id}')">🚪 Check Out</button><button class="ab" onclick="viewRes('${r.id}')">View</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text2);font-style:italic">No guests currently in-house</td></tr>';
+}
+
+// ── rate calculator ───────────────────────────────────────
+function calcRate(){
+  const sel = document.getElementById('bkRoom');
+  const ci  = document.getElementById('bkCI').value;
+  const co  = document.getElementById('bkCO').value;
+  const dep = parseFloat(document.getElementById('bkDeposit').value)||0;
+  const box = document.getElementById('ratePreview');
+  if(!sel.value||!ci||!co||new Date(co)<=new Date(ci)){box.style.display='none';return;}
+  const price = parseFloat(sel.selectedOptions[0]?.dataset.price)||80000;
+  const n = nights(ci,co);
+  const sub = price*n, vat=Math.round(sub*0.18), tot=sub+vat, bal=Math.max(0,tot-dep);
+  box.style.display='block';
+  box.innerHTML=`
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">💰 Rate Preview</div>
+    <div class="rr"><span>${n} night(s) × ${fmt(price)}</span><span>${fmt(sub)}</span></div>
+    <div class="rr"><span>VAT 18%</span><span>${fmt(vat)}</span></div>
+    ${dep?`<div class="rr"><span>Deposit</span><span style="color:#28a745">− ${fmt(dep)}</span></div>`:''}
+    <div class="rr big"><span>Total</span><span style="color:var(--accent)">${fmt(tot)}</span></div>
+    ${bal>0?`<div class="rr big"><span>Balance Due</span><span style="color:#dc3545">${fmt(bal)}</span></div>`:''}`;
+}
+
+function lookupGuest(){
+  const n = document.getElementById('bkName').value.toLowerCase();
+  if(n.length<3) return;
+  const g = DB.guests().find(x=>x.full_name?.toLowerCase().includes(n));
+  if(g){ if(g.phone) document.getElementById('bkPhone').value=g.phone; if(g.email) document.getElementById('bkEmail').value=g.email||''; }
+}
+
+function saveBooking(){
+  const name  = document.getElementById('bkName').value.trim();
+  const phone = document.getElementById('bkPhone').value.trim();
+  const email = document.getElementById('bkEmail').value.trim();
+  const idnum = document.getElementById('bkID').value.trim();
+  const roomId= document.getElementById('bkRoom').value;
+  const ci    = document.getElementById('bkCI').value;
+  const co    = document.getElementById('bkCO').value;
+  const dep   = parseFloat(document.getElementById('bkDeposit').value)||0;
+
+  if(!name||!roomId||!ci||!co){ alert('Please fill in guest name, room and dates.'); return; }
+  if(new Date(co)<=new Date(ci)){ alert('Check-out must be after check-in.'); return; }
+
+  const room  = DB.rooms().find(r=>r.id===roomId);
+  const price = room?.base_price||80000;
+  const n     = nights(ci,co);
+  const sub   = price*n, vat=Math.round(sub*0.18), tot=sub+vat;
+
+  let guest = DB.guests().find(g=>g.full_name?.toLowerCase()===name.toLowerCase());
+  if(!guest){ guest={id:'g'+Date.now(),full_name:name,phone,email,id_number:idnum,created_at:new Date().toISOString()}; DB.saveGuest(guest); }
+
+  const num = 'RES-'+Date.now().toString().slice(-6);
+  const res = {
+    id:'r'+Date.now(), reservation_number:num,
+    guest_id:guest.id, room_id:roomId,
+    check_in:ci, check_out:co,
+    adults:parseInt(document.getElementById('bkAdults').value)||2,
+    nights:n, base_price:price, subtotal:sub, vat, total_amount:tot,
+    paid_amount:dep, balance:Math.max(0,tot-dep),
+    payment_method:document.getElementById('bkPay').value,
+    special_requests:document.getElementById('bkReqs').value.trim(),
+    status:'confirmed', created_at:new Date().toISOString(),
+    created_by:localStorage.getItem('ruviaos_user')||'staff'
+  };
+  DB.saveRes(res);
+  log(`Booking ${num} created for ${name} — Room ${room?.room_number}`, 'booking');
+  alert(`✅ Reservation ${num} confirmed for ${name}!`);
+  clearForm();
+  switchTab('all');
+}
+
+function clearForm(){
+  ['bkName','bkPhone','bkEmail','bkID','bkDeposit','bkReqs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bkRoom').value='';
+  document.getElementById('ratePreview').style.display='none';
+}
+
+// ── check in / out ────────────────────────────────────────
+function doCheckIn(id){
+  DB.updateResStatus(id,'checked-in');
+  const r = DB.res().find(x=>x.id===id);
+  if(r) DB.setRoomStatus(r.room_id,'occupied');
+  log(`${gname(r?.guest_id)} checked in`, 'checkin');
+  renderAll();
+}
+
 function doCheckOut(id){
-  const res=RuviaStore.getReservations().find(r=>r.id===id);
-  const bal=res?res.balance||0:0;
-  if(bal>0&&!confirm('Outstanding balance '+fmt(bal)+'. Check out anyway?'))return;
-  RuviaStore.checkOut(id);toast('👋 Guest checked out, room queued for cleaning');refreshAll();
+  if(!confirm('Confirm check out?')) return;
+  DB.updateResStatus(id,'checked-out');
+  const r = DB.res().find(x=>x.id===id);
+  if(r) DB.setRoomStatus(r.room_id,'dirty');
+  log(`${gname(r?.guest_id)} checked out`, 'checkout');
+  document.getElementById('resModal').style.display='none';
+  renderAll();
 }
-function doPayment(id,bal){
-  const a=prompt('Payment amount (UGX, balance is '+bal.toLocaleString()+'):');
-  if(!a)return;const n=parseInt(a.replace(/\D/g,''));
-  if(!n||n<=0)return;RuviaStore.recordPayment(id,Math.min(n,bal));toast('💳 Payment recorded');refreshAll();
-}
-function cancelRes(id){if(!confirm('Cancel reservation?'))return;
-  const res=RuviaStore.getReservations();const r=res.find(x=>x.id===id);if(!r)return;
-  r.status='cancelled';RuviaStore.saveReservations(res);toast('Reservation cancelled','error');refreshAll();}
 
-// Room CRUD
-let _editRoomId=null;
-function openRoomModal(){_editRoomId=null;document.getElementById('rmTitle').textContent='Add Room';['rmNum','rmFloor','rmBeds','rmMax','rmPrice','rmNotes'].forEach(id=>{document.getElementById(id).value='';});document.getElementById('rmBeds').value=1;document.getElementById('rmMax').value=2;document.getElementById('roomModal').style.display='flex';}
-function editRoom(id){
-  const r=RuviaStore.getRooms().find(x=>x.id===id);if(!r)return;
-  _editRoomId=id;document.getElementById('rmTitle').textContent='Edit Room';
-  document.getElementById('rmNum').value=r.room_number;document.getElementById('rmType').value=r.room_type;
-  document.getElementById('rmFloor').value=r.floor||r.floor_number||'';document.getElementById('rmBeds').value=r.beds||r.bed_count||1;
-  document.getElementById('rmMax').value=r.max_occupancy||2;document.getElementById('rmPrice').value=r.base_price||'';
-  document.getElementById('rmNotes').value=r.notes||'';document.getElementById('roomModal').style.display='flex';
-}
-function saveRoom(){
-  const d={room_number:document.getElementById('rmNum').value,room_type:document.getElementById('rmType').value,floor:parseInt(document.getElementById('rmFloor').value)||1,beds:parseInt(document.getElementById('rmBeds').value)||1,max_occupancy:parseInt(document.getElementById('rmMax').value)||2,base_price:parseInt(document.getElementById('rmPrice').value)||0,notes:document.getElementById('rmNotes').value,status:'ready'};
-  if(!d.room_number){toast('Enter room number','error');return;}
-  if(_editRoomId){const rooms=RuviaStore.getRooms();const i=rooms.findIndex(r=>r.id===_editRoomId);if(i>=0){rooms[i]={...rooms[i],...d};RuviaStore.saveRooms(rooms);}toast('Room updated');}
-  else{RuviaStore.addRoom(d);toast('Room added');}
-  closeModal('roomModal');refreshAll();
-}
-function deleteRoom(id){if(!confirm('Delete this room?'))return;const rooms=RuviaStore.getRooms().filter(r=>r.id!==id);RuviaStore.saveRooms(rooms);toast('Room deleted');refreshAll();}
-
-// Guest CRUD
-let _editGuestId=null;
-function openGuestModal(){_editGuestId=null;document.getElementById('gmTitle').textContent='Add Guest';['gmName','gmPhone','gmEmail','gmNat','gmId','gmAddr'].forEach(id=>document.getElementById(id).value='');document.getElementById('guestModal').style.display='flex';}
-function editGuest(id){
-  const g=RuviaStore.getGuests().find(x=>x.id===id);if(!g)return;
-  _editGuestId=id;document.getElementById('gmTitle').textContent='Edit Guest';
-  document.getElementById('gmName').value=g.full_name||'';document.getElementById('gmPhone').value=g.phone||'';
-  document.getElementById('gmEmail').value=g.email||'';document.getElementById('gmNat').value=g.nationality||'';
-  document.getElementById('gmId').value=g.id_number||'';document.getElementById('gmAddr').value=g.address||'';
-  document.getElementById('guestModal').style.display='flex';
-}
-function saveGuest(){
-  const d={full_name:document.getElementById('gmName').value,phone:document.getElementById('gmPhone').value,email:document.getElementById('gmEmail').value,nationality:document.getElementById('gmNat').value,id_number:document.getElementById('gmId').value,address:document.getElementById('gmAddr').value};
-  if(!d.full_name){toast('Enter guest name','error');return;}
-  if(_editGuestId){const guests=RuviaStore.getGuests();const i=guests.findIndex(g=>g.id===_editGuestId);if(i>=0){guests[i]={...guests[i],...d};RuviaStore.saveGuests(guests);}toast('Guest updated');}
-  else{RuviaStore.addGuest(d);toast('Guest added');}
-  closeModal('guestModal');refreshAll();
-}
-function deleteGuest(id){if(!confirm('Delete this guest?'))return;const guests=RuviaStore.getGuests().filter(g=>g.id!==id);RuviaStore.saveGuests(guests);toast('Guest deleted');refreshAll();}
-
-// Reservation
-function openReservationModal(){
-  const guests=RuviaStore.getGuests(),rooms=RuviaStore.getRooms();
-  document.getElementById('resGuest').innerHTML='<option value="">Select Guest</option>'+guests.map(g=>`<option value="${g.id}">${g.full_name}</option>`).join('');
-  document.getElementById('resRoom').innerHTML='<option value="">Select Room</option>'+rooms.filter(r=>r.status==='ready').map(r=>`<option value="${r.id}">${r.room_number} – ${r.room_type} (UGX ${r.base_price.toLocaleString()})</option>`).join('');
-  const today=new Date().toISOString().slice(0,10);
-  document.getElementById('resIn').value=today;
-  document.getElementById('resOut').value=new Date(Date.now()+3*86400000).toISOString().slice(0,10);
-  document.getElementById('resTotal').value='';
+// ── view reservation modal ────────────────────────────────
+function viewRes(id){
+  const r  = DB.res().find(x=>x.id===id);
+  const g  = DB.guests().find(x=>x.id===r.guest_id)||{};
+  const rm = DB.rooms().find(x=>x.id===r.room_id)||{};
+  document.getElementById('resModalTitle').textContent = r.reservation_number;
+  document.getElementById('resModalBody').innerHTML = `
+    <div class="dr"><span>Guest</span><span>${g.full_name||'—'}</span></div>
+    <div class="dr"><span>Phone</span><span>${g.phone||'—'}</span></div>
+    <div class="dr"><span>Email</span><span>${g.email||'—'}</span></div>
+    <div class="dr"><span>Room</span><span>Room ${rm.room_number||'?'} — ${rm.room_type||''}</span></div>
+    <div class="dr"><span>Check-In</span><span>${r.check_in}</span></div>
+    <div class="dr"><span>Check-Out</span><span>${r.check_out}</span></div>
+    <div class="dr"><span>Nights</span><span>${r.nights||1}</span></div>
+    <div class="dr"><span>Total</span><span style="color:var(--accent)">${fmt(r.total_amount)}</span></div>
+    <div class="dr"><span>Paid</span><span style="color:#28a745">${fmt(r.paid_amount||0)}</span></div>
+    <div class="dr"><span>Balance</span><span style="color:#dc3545">${fmt(r.balance||0)}</span></div>
+    <div class="dr"><span>Payment</span><span style="text-transform:capitalize">${r.payment_method||'cash'}</span></div>
+    <div class="dr"><span>Status</span><span>${pill(r.status)}</span></div>
+    ${r.special_requests?`<div style="margin-top:12px;padding:10px;background:var(--th-bg);border-radius:9px;font-size:12px;color:var(--text2)"><strong>Requests:</strong> ${r.special_requests}</div>`:''}`;
+  document.getElementById('resModalFoot').innerHTML = `
+    ${r.status==='confirmed'?`<button class="btn-save" onclick="doCheckIn('${id}');document.getElementById('resModal').style.display='none'">✅ Check In</button>`:''}
+    ${r.status==='checked-in'?`<button class="btn-danger" onclick="doCheckOut('${id}')">🚪 Check Out</button>`:''}
+    <button class="btn-cancel" onclick="document.getElementById('resModal').style.display='none'">Close</button>`;
   document.getElementById('resModal').style.display='flex';
 }
-function saveReservation(){
-  const gid=parseInt(document.getElementById('resGuest').value);
-  const rid=parseInt(document.getElementById('resRoom').value);
-  if(!gid||!rid){toast('Select guest and room','error');return;}
-  const total=parseInt(document.getElementById('resTotal').value)||0;
-  RuviaStore.addReservation({guest_id:gid,room_id:rid,check_in:document.getElementById('resIn').value,check_out:document.getElementById('resOut').value,adults:parseInt(document.getElementById('resAdults').value)||1,children:parseInt(document.getElementById('resChildren').value)||0,total_amount:total,paid_amount:0,status:'confirmed',source:document.getElementById('resSource').value});
-  toast('✅ Reservation created');closeModal('resModal');refreshAll();
-}
 
-function loadFolio(){
-  const search=document.getElementById('folioSearch').value.toLowerCase();
-  if(!search){toast('Enter a name','error');return;}
-  const guests=RuviaStore.getGuests(),rooms=RuviaStore.getRooms(),res=RuviaStore.getReservations();
-  const g=guests.find(x=>x.full_name.toLowerCase().includes(search));
-  if(!g){document.getElementById('folioContent').innerHTML=`<div class="table-container" style="padding:24px;text-align:center;color:var(--text2)">Guest not found</div>`;return;}
-  const gres=res.filter(r=>r.guest_id===g.id);
-  let total=0;
-  let rows=gres.map(r=>{const rm=rooms.find(x=>x.id===r.room_id)||{};const bal=(r.total_amount||0)-(r.paid_amount||0);total+=Math.max(0,bal);
-    return `<tr><td>${rm.room_number||'-'}</td><td>${fmtDate(r.check_in)}</td><td>${fmtDate(r.check_out)}</td><td>${r.status}</td><td>${fmt(r.total_amount)}</td><td>${fmt(r.paid_amount)}</td><td>${bal>0?'<span style=color:#dc3545;font-weight:700>'+fmt(bal)+'</span>':'<span style=color:#28a745>✓ Clear</span>'}</td><td>${r.status==='checked-in'&&bal>0?`<button class="btn btn-success btn-sm" onclick="doPayment(${r.id},${bal})">💳 Pay</button>`:''}</td></tr>`;}).join('');
-  document.getElementById('folioContent').innerHTML=`<div class="table-container"><table>
-    <thead><tr><th colspan="8" style="font-size:15px;padding:14px">${g.full_name} — ${g.nationality||'Guest'} — ${g.phone||''}</th></tr>
-    <tr><th>Room</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Total</th><th>Paid</th><th>Balance</th><th>Action</th></tr></thead>
-    <tbody>${rows||'<tr><td colspan="8" class="empty-cell">No reservations</td></tr>'}</tbody>
-    <tfoot><tr><td colspan="6" style="font-weight:700;padding:12px">Total Outstanding</td><td style="font-weight:700;color:${total>0?'#dc3545':'#28a745'};padding:12px">${total>0?fmt(total):'✓ Clear'}</td><td></td></tr></tfoot>
-  </table></div>`;
-}
+function log(msg,type){ const u=localStorage.getItem('ruviaos_user')||'staff'; try{const a=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');a.unshift({id:Date.now(),type,message:msg,username:u,category:type,time:new Date().toISOString()});localStorage.setItem('ruvia_activity_log',JSON.stringify(a.slice(0,500)));}catch(e){} }
 
-RuviaStore.onChange(()=>refreshAll());
-refreshAll();
+if(window.RuviaStore) RuviaStore.onChange(renderAll);
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>

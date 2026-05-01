@@ -2,198 +2,437 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Staff Management</title>
+<title>RuviaOS — Staff Management</title>
+<script>(function(){var s=localStorage.getItem('ruvia-dark');if(s==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:28px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.search-input{flex:1;min-width:180px;padding:9px 14px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;margin:2px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-primary:hover{background:var(--accent2,#1a3c34)}
-.btn-warning{background:#ffc107;color:#333}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-success{background:#28a745;color:#fff}
-.btn-sm{padding:5px 10px;font-size:11px}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:16px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.badge{padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700;display:inline-block}
-.b-admin{background:#f8d7da;color:#721c24}
-.b-manager{background:#fff3cd;color:#856404}
-.b-reception{background:#d1ecf1;color:#0c5460}
-.b-kitchen{background:#d4edda;color:#155724}
-.b-housekeeping{background:#e2e3e5;color:#383d41}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:22px;border-radius:14px;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group select{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-@media(max-width:768px){th,td{font-size:11px;padding:8px}.form-row{grid-template-columns:1fr}}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-hdr h1{font-size:22px;font-weight:700;color:var(--text)}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.tab-btn.active{background:var(--accent);color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+/* Staff grid */
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.staff-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s;position:relative}
+.staff-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.staff-card-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.staff-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;position:relative;overflow:hidden}
+.staff-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.staff-info h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.staff-role-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.role-admin{background:#fdecea;color:#c0392b}
+.role-manager{background:#fff3cd;color:#856404}
+.role-reception{background:#d1ecf1;color:#0c5460}
+.role-kitchen{background:#d4edda;color:#155724}
+.role-housekeeping{background:#f3e5f5;color:#6f42c1}
+body.dark-mode .role-admin{background:#3a1818;color:#f87171}
+body.dark-mode .role-manager{background:#2a2210;color:#ffc107}
+body.dark-mode .role-reception{background:#0a1c2c;color:#4cafd6}
+body.dark-mode .role-kitchen{background:#0d2018;color:#4caf87}
+body.dark-mode .role-housekeeping{background:#1e1030;color:#c084fc}
+.staff-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.staff-stat{background:var(--th-bg);border-radius:8px;padding:8px;text-align:center}
+.ss-val{font-size:16px;font-weight:700;color:var(--accent)}
+.ss-lbl{font-size:10px;color:var(--text2);margin-top:2px}
+.staff-actions{display:flex;gap:6px}
+.staff-act-btn{flex:1;padding:7px;border:1.5px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.staff-act-btn:hover{border-color:var(--accent);color:var(--accent)}
+.online-dot{width:10px;height:10px;border-radius:50%;background:#28a745;position:absolute;bottom:2px;right:2px;border:2px solid var(--card)}
+/* Attendance table */
+.data-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+.data-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;background:var(--th-bg);border-bottom:1px solid var(--border)}
+.data-table td{padding:11px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--row-hover)}
+/* Notification sender */
+.notif-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+.notif-form h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--card);border-radius:16px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:1}
+.modal-hdr h3{font-size:16px;font-weight:700;color:var(--text)}
+.modal-body{padding:20px}
+.modal-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.avatar-preview{width:72px;height:72px;border-radius:50%;background:var(--th-bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;cursor:pointer;flex-shrink:0}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
+.perf-bar-wrap{background:var(--th-bg);border-radius:99px;height:8px;overflow:hidden;margin-top:4px}
+.perf-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#4caf87)}
+.badge-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-in{background:#d4edda;color:#155724}.badge-out{background:#f8d7da;color:#721c24}
+body.dark-mode .badge-in{background:#0d2018;color:#4caf87}
+body.dark-mode .badge-out{background:#1f0f0f;color:#e05c5c}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
-<div class="container">
-<div class="header">
-  <h1>👥 Staff Management</h1>
-  <button class="btn btn-success" onclick="openModal()">➕ Register Employee</button>
-</div>
+<div class="page">
+  <div class="page-hdr">
+    <h1>👥 Staff Management</h1>
+    <button class="btn-primary" onclick="openAddStaff()">+ Add Staff Member</button>
+  </div>
 
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-value" id="stTotal">-</div><div class="stat-label">Total Staff</div></div>
-  <div class="stat-card"><div class="stat-value" id="stActive" style="color:#28a745">-</div><div class="stat-label">Active</div></div>
-  <div class="stat-card"><div class="stat-value" id="stInactive" style="color:#dc3545">-</div><div class="stat-label">Inactive</div></div>
-  <div class="stat-card"><div class="stat-value" id="stRoles">-</div><div class="stat-label">Roles</div></div>
-</div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('profiles')">👤 Profiles</button>
+    <button class="tab-btn" onclick="showTab('attendance')">🕐 Attendance</button>
+    <button class="tab-btn" onclick="showTab('performance')">📊 Performance</button>
+    <button class="tab-btn" onclick="showTab('notifications')">🔔 Send Notification</button>
+  </div>
 
-<div class="toolbar">
-  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by name, role, or department..." oninput="render()">
-  <button class="btn btn-primary" onclick="document.getElementById('searchInput').value='';render()">Clear</button>
-</div>
+  <!-- Profiles Tab -->
+  <div class="tab-content active" id="tab-profiles">
+    <div class="staff-grid" id="staffGrid"></div>
+  </div>
 
-<div class="table-container"><table>
-  <thead><tr><th>Staff Code</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
-  <tbody id="staffBody"></tbody>
-</table></div>
-</div>
-
-<!-- Modal -->
-<div id="staffModal" class="modal">
-  <div class="modal-content">
-    <h3 id="mTitle">Register Employee</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Staff Code *</label><input id="mCode" placeholder="STAFF-001"></div>
-      <div class="form-group"><label>Full Name *</label><input id="mName" placeholder="Full name"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Email</label><input type="email" id="mEmail" placeholder="email@ruvia.com"></div>
-      <div class="form-group"><label>Phone</label><input id="mPhone" placeholder="07xxxxxxxx"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Role *</label>
-        <select id="mRole">
-          <option value="admin">👑 Administrator</option>
-          <option value="manager">📊 Manager</option>
-          <option value="reception" selected>🏨 Receptionist</option>
-          <option value="kitchen">🍳 Kitchen Staff</option>
-          <option value="housekeeping">🧹 Housekeeping</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Department</label><input id="mDept" placeholder="Front Office"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Hire Date</label><input type="date" id="mHire"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="mStatus"><option value="true">Active</option><option value="false">Inactive</option></select>
+  <!-- Attendance Tab -->
+  <div class="tab-content" id="tab-attendance">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:14px;font-weight:600;color:var(--text)">Login / Logout Records</div>
+      <div style="display:flex;gap:8px">
+        <input type="date" id="attDate" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text)" onchange="renderAttendance()">
+        <button class="btn-primary" onclick="exportAttendance()" style="padding:8px 16px;font-size:12px">📥 Export CSV</button>
       </div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveStaff()">💾 Save</button>
-      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="attTable">
+        <thead><tr><th>Staff Member</th><th>Role</th><th>Event</th><th>Time</th><th>Date</th></tr></thead>
+        <tbody id="attBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Performance Tab -->
+  <div class="tab-content" id="tab-performance">
+    <div id="perfGrid"></div>
+  </div>
+
+  <!-- Notifications Tab -->
+  <div class="tab-content" id="tab-notifications">
+    <div class="notif-form">
+      <h3>📣 Send Task / Notification to Staff</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Send To</label>
+          <select id="notifTarget">
+            <option value="*">📢 All Staff</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="notifType">
+            <option value="task">📋 Task Assignment</option>
+            <option value="alert">⚠️ Alert</option>
+            <option value="info">ℹ️ Information</option>
+            <option value="praise">🌟 Praise / Reward</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Title</label>
+        <input id="notifTitle" placeholder="e.g. Clean Room 301 before 14:00">
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Message</label>
+        <textarea id="notifBody" rows="3" placeholder="Provide details about the task or message..."></textarea>
+      </div>
+      <button class="btn-primary" onclick="sendNotification()">📤 Send Notification</button>
+      <div id="notifSuccess" style="display:none;margin-top:12px;padding:10px 14px;background:#d4edda;color:#155724;border-radius:9px;font-size:13px">✅ Notification sent successfully!</div>
+    </div>
+
+    <!-- Sent notifications log -->
+    <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px">Recent Notifications Sent</div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>To</th><th>Type</th><th>Title</th><th>Time</th></tr></thead>
+        <tbody id="notifLog"></tbody>
+      </table>
     </div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
 
+<!-- Add/Edit Staff Modal -->
+<div class="modal-overlay" id="staffModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h3 id="modalTitle">Add Staff Member</h3>
+      <button onclick="document.getElementById('staffModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="avatar-upload" onclick="document.getElementById('avatarFileInput').click()">
+        <div class="avatar-preview" id="avatarPreview"><span id="avatarPlaceholder">📷</span></div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Profile Photo</div>
+          <div style="font-size:11px;color:var(--text2)">Click to upload (JPG, PNG)</div>
+        </div>
+        <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="previewAvatar(this)">
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name</label><input id="sfName" placeholder="Full name"></div>
+        <div class="form-group"><label>Username</label><input id="sfUsername" placeholder="Login username"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Role</label>
+          <select id="sfRole">
+            <option value="admin">Administrator</option>
+            <option value="manager">Manager</option>
+            <option value="reception">Receptionist</option>
+            <option value="kitchen">Kitchen Staff</option>
+            <option value="housekeeping">Housekeeping</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Phone</label><input id="sfPhone" placeholder="+256 ..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email</label><input id="sfEmail" type="email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>Start Date</label><input id="sfStartDate" type="date"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px"><label>Address</label><input id="sfAddress" placeholder="Home address"></div>
+      <div class="form-group"><label>Notes</label><textarea id="sfNotes" rows="2" placeholder="Any additional notes..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('staffModal').style.display='none'">Cancel</button>
+      <button class="btn-save" onclick="saveStaff()">Save Staff Member</button>
+    </div>
+  </div>
+</div>
+
+<script src="ruvia-store.js"></script>
 <script>
-// Staff is stored in localStorage independently (not in ruvia-store products)
-const STAFF_KEY='ruvia_staff';
-const ROLE_LABELS={admin:'👑 Admin',manager:'📊 Manager',reception:'🏨 Reception',kitchen:'🍳 Kitchen',housekeeping:'🧹 Housekeeping'};
-const ROLE_BADGES={admin:'b-admin',manager:'b-manager',reception:'b-reception',kitchen:'b-kitchen',housekeeping:'b-housekeeping'};
+let staffList = [];
+let editingId = null;
+let avatarDataURL = null;
 
-function getStaff(){try{const d=localStorage.getItem(STAFF_KEY);return d?JSON.parse(d):getDefaultStaff();}catch(e){return getDefaultStaff();}}
-function saveStaffData(d){localStorage.setItem(STAFF_KEY,JSON.stringify(d));}
-function getDefaultStaff(){const d=[
-  {id:1,staff_code:'ADMIN-001',full_name:'System Administrator',email:'admin@ruvia.com',phone:'0700111111',role:'admin',department:'Management',is_active:true,hire_date:'2024-01-15'},
-  {id:2,staff_code:'MGR-001',full_name:'Sarah Johnson',email:'sarah@ruvia.com',phone:'0700222222',role:'manager',department:'Management',is_active:true,hire_date:'2024-02-01'},
-  {id:3,staff_code:'REC-001',full_name:'John Otim',email:'john@ruvia.com',phone:'0700333333',role:'reception',department:'Front Office',is_active:true,hire_date:'2024-02-10'},
-  {id:4,staff_code:'REC-002',full_name:'Mary Nambi',email:'mary@ruvia.com',phone:'0700444444',role:'reception',department:'Front Office',is_active:true,hire_date:'2024-03-01'},
-  {id:5,staff_code:'KIT-001',full_name:'James Mukasa',email:'james@ruvia.com',phone:'0700555555',role:'kitchen',department:'F&B',is_active:true,hire_date:'2024-01-20'},
-  {id:6,staff_code:'HK-001',full_name:'Peter Okello',email:'peter@ruvia.com',phone:'0700777777',role:'housekeeping',department:'Housekeeping',is_active:true,hire_date:'2024-01-25'},
-  {id:7,staff_code:'HK-002',full_name:'Florence Achieng',email:'flo@ruvia.com',phone:'0700888888',role:'housekeeping',department:'Housekeeping',is_active:false,hire_date:'2024-02-20'}
-];saveStaffData(d);return d;}
+const ROLE_COLORS = { admin:'#dc3545', manager:'#e0a800', reception:'#17a2b8', kitchen:'#28a745', housekeeping:'#6c757d' };
+const ROLE_LABELS = { admin:'Administrator', manager:'Manager', reception:'Receptionist', kitchen:'Kitchen Staff', housekeeping:'Housekeeping' };
 
-let _editId=null;
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
-function closeModal(){document.getElementById('staffModal').style.display='none';}
-window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+function getStaff(){ try{ return JSON.parse(localStorage.getItem('ruvia_staff')||'[]'); }catch(e){ return []; } }
+function saveStaffList(list){ localStorage.setItem('ruvia_staff',JSON.stringify(list)); }
 
-function render(){
-  const staff=getStaff();
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  const list=q?staff.filter(s=>s.full_name.toLowerCase().includes(q)||(s.email||'').toLowerCase().includes(q)||s.role.includes(q)||(s.department||'').toLowerCase().includes(q)||s.staff_code.toLowerCase().includes(q)):staff;
-  document.getElementById('stTotal').textContent=staff.length;
-  document.getElementById('stActive').textContent=staff.filter(s=>s.is_active).length;
-  document.getElementById('stInactive').textContent=staff.filter(s=>!s.is_active).length;
-  document.getElementById('stRoles').textContent=new Set(staff.map(s=>s.role)).size;
-  document.getElementById('staffBody').innerHTML=list.length===0
-    ?`<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:24px">No staff found</td></tr>`
-    :list.map(s=>`<tr>
-        <td style="font-family:monospace;font-size:11px"><strong>${s.staff_code}</strong></td>
-        <td><strong>${s.full_name}</strong></td>
-        <td style="font-size:11px">${s.email||'-'}</td>
-        <td>${s.phone||'-'}</td>
-        <td><span class="badge ${ROLE_BADGES[s.role]||''}">${ROLE_LABELS[s.role]||s.role}</span></td>
-        <td>${s.department||'-'}</td>
-        <td>${s.is_active?'<span style="color:#28a745;font-weight:600">● Active</span>':'<span style="color:#dc3545;font-weight:600">● Inactive</span>'}</td>
-        <td>
-          <button class="btn btn-warning btn-sm" onclick="editStaff(${s.id})">✏️</button>
-          <button class="btn ${s.is_active?'btn-danger':'btn-success'} btn-sm" onclick="toggleActive(${s.id})">${s.is_active?'Deactivate':'Activate'}</button>
-        </td>
-      </tr>`).join('');
+function showTab(name){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='attendance') renderAttendance();
+  if(name==='performance') renderPerformance();
+  if(name==='notifications') renderNotifLog();
 }
 
-function openModal(){
-  _editId=null;document.getElementById('mTitle').textContent='Register Employee';
-  ['mCode','mName','mEmail','mPhone','mDept'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('mRole').value='reception';document.getElementById('mStatus').value='true';
-  document.getElementById('mHire').value=new Date().toISOString().slice(0,10);
-  document.getElementById('staffModal').style.display='flex';
-}
-function editStaff(id){
-  const s=getStaff().find(x=>x.id===id);if(!s)return;
-  _editId=id;document.getElementById('mTitle').textContent='Edit Employee';
-  document.getElementById('mCode').value=s.staff_code||'';document.getElementById('mName').value=s.full_name||'';
-  document.getElementById('mEmail').value=s.email||'';document.getElementById('mPhone').value=s.phone||'';
-  document.getElementById('mRole').value=s.role||'reception';document.getElementById('mDept').value=s.department||'';
-  document.getElementById('mHire').value=s.hire_date||'';document.getElementById('mStatus').value=s.is_active?'true':'false';
-  document.getElementById('staffModal').style.display='flex';
-}
-function saveStaff(){
-  const code=document.getElementById('mCode').value.trim();
-  const name=document.getElementById('mName').value.trim();
-  if(!code||!name){toast('Enter staff code and name','error');return;}
-  const d={staff_code:code,full_name:name,email:document.getElementById('mEmail').value,phone:document.getElementById('mPhone').value,role:document.getElementById('mRole').value,department:document.getElementById('mDept').value,hire_date:document.getElementById('mHire').value,is_active:document.getElementById('mStatus').value==='true'};
-  const staff=getStaff();
-  if(_editId){const i=staff.findIndex(s=>s.id===_editId);if(i>=0){staff[i]={...staff[i],...d};saveStaffData(staff);toast('Employee updated');}
-  } else {d.id=Date.now();staff.push(d);saveStaffData(staff);toast('Employee registered');}
-  closeModal();render();
-}
-function toggleActive(id){
-  const staff=getStaff();const s=staff.find(x=>x.id===id);if(!s)return;
-  const action=s.is_active?'deactivate':'activate';
-  if(!confirm(action+' '+s.full_name+'?'))return;
-  s.is_active=!s.is_active;saveStaffData(staff);toast(s.full_name+(s.is_active?' activated':' deactivated'));render();
+function initials(name){ return (name||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+
+function init(){
+  staffList = getStaff();
+  // Seed demo staff if empty
+  if(!staffList.length){
+    staffList = [
+      { id:'s1', name:'John Admin', username:'admin', role:'admin', phone:'+256 700 100001', email:'admin@ruvia.ug', startDate:'2023-01-01', notes:'System administrator' },
+      { id:'s2', name:'Sarah Manager', username:'manager', role:'manager', phone:'+256 700 100002', email:'manager@ruvia.ug', startDate:'2023-01-15' },
+      { id:'s3', name:'Alice Reception', username:'reception', role:'reception', phone:'+256 700 100003', email:'reception@ruvia.ug', startDate:'2023-03-01' },
+      { id:'s4', name:'Bob Kitchen', username:'kitchen', role:'kitchen', phone:'+256 700 100004', email:'kitchen@ruvia.ug', startDate:'2023-02-01' },
+      { id:'s5', name:'Grace Housekeeping', username:'housekeeping', role:'housekeeping', phone:'+256 700 100005', email:'housekeeping@ruvia.ug', startDate:'2023-04-01' },
+    ];
+    saveStaffList(staffList);
+  }
+  renderStaffGrid();
+  populateNotifTargets();
+
+  // Set today's date for attendance
+  document.getElementById('attDate').value = new Date().toISOString().slice(0,10);
 }
 
-render();
+function renderStaffGrid(){
+  const currentUser = localStorage.getItem('ruviaos_user');
+  const grid = document.getElementById('staffGrid');
+  const orders = window.RuviaStore ? RuviaStore.getOrders() : [];
+
+  grid.innerHTML = staffList.map(s => {
+    const salesCount = orders.filter(o => o.cashier === s.username).length;
+    const salesTotal = orders.filter(o => o.cashier === s.username).reduce((sum,o)=>sum+(o.total||0),0);
+    const isOnline = s.username === currentUser;
+    const att = JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');
+    const todayLogins = att.filter(a=>a.username===s.username&&a.event==='login'&&a.date===new Date().toISOString().slice(0,10));
+    const loginTime = todayLogins.length ? new Date(todayLogins[0].time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : null;
+    const avatarHtml = s.avatar
+      ? `<img src="${s.avatar}" alt="${s.name}">`
+      : `<span>${initials(s.name)}</span>`;
+
+    return `
+      <div class="staff-card">
+        <div class="staff-card-top">
+          <div class="staff-avatar" style="background:${ROLE_COLORS[s.role]||'#2c5f4a'}">
+            ${avatarHtml}
+            ${isOnline?'<span class="online-dot"></span>':''}
+          </div>
+          <div class="staff-info">
+            <h3>${s.name}</h3>
+            <span class="staff-role-badge role-${s.role}">${ROLE_LABELS[s.role]||s.role}</span>
+            ${loginTime?`<div style="font-size:10px;color:var(--text2);margin-top:4px">In today at ${loginTime}</div>`:''}
+          </div>
+        </div>
+        <div class="staff-stats">
+          <div class="staff-stat"><div class="ss-val">${salesCount}</div><div class="ss-lbl">Sales</div></div>
+          <div class="staff-stat"><div class="ss-val">${salesTotal>=1000?Math.round(salesTotal/1000)+'K':salesTotal}</div><div class="ss-lbl">Revenue</div></div>
+          <div class="staff-stat"><div class="ss-val">${todayLogins.length?'✓':'—'}</div><div class="ss-lbl">Today</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">
+          ${s.phone?`📞 ${s.phone} `:''}${s.email?`· ${s.email}`:''}
+        </div>
+        <div class="staff-actions">
+          <button class="staff-act-btn" onclick="editStaff('${s.id}')">✏️ Edit</button>
+          <button class="staff-act-btn" onclick="sendToStaff('${s.username}')">🔔 Notify</button>
+          <button class="staff-act-btn" onclick="confirmDelete('${s.id}')" style="color:#dc3545;border-color:#dc3545">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderAttendance(){
+  const date = document.getElementById('attDate').value || new Date().toISOString().slice(0,10);
+  const att = JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');
+  const filtered = att.filter(a=>a.date===date).sort((a,b)=>new Date(b.time)-new Date(a.time));
+  const tbody = document.getElementById('attBody');
+  if(!filtered.length){
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text2);font-style:italic">No attendance records for this date</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(a=>`
+    <tr>
+      <td><strong>${a.username}</strong></td>
+      <td><span class="staff-role-badge role-${a.role||'reception'}">${ROLE_LABELS[a.role]||a.role||'Staff'}</span></td>
+      <td><span class="badge-pill ${a.event==='login'?'badge-in':'badge-out'}">${a.event==='login'?'🟢 Login':'🔴 Logout'}</span></td>
+      <td>${new Date(a.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</td>
+      <td>${new Date(a.date).toLocaleDateString('en-GB')}</td>
+    </tr>`).join('');
+}
+
+function exportAttendance(){
+  const date = document.getElementById('attDate').value;
+  const att = JSON.parse(localStorage.getItem('ruvia_attendance')||'[]');
+  const filtered = att.filter(a=>a.date===date);
+  const csv = 'Username,Role,Event,Time,Date\n' + filtered.map(a=>`${a.username},${a.role||''},${a.event},${new Date(a.time).toLocaleTimeString()},${a.date}`).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`attendance-${date}.csv`; a.click();
+}
+
+function renderPerformance(){
+  const orders = window.RuviaStore ? RuviaStore.getOrders() : [];
+  const grid = document.getElementById('perfGrid');
+  const perf = staffList.map(s=>{
+    const myOrders = orders.filter(o=>o.cashier===s.username);
+    const total = myOrders.reduce((sum,o)=>sum+(o.total||0),0);
+    return { ...s, orderCount:myOrders.length, revenue:total };
+  }).sort((a,b)=>b.revenue-a.revenue);
+
+  const maxRev = Math.max(...perf.map(p=>p.revenue),1);
+  grid.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text)">📊 Staff Performance Leaderboard</div>
+      ${perf.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);${i===0?'background:var(--accent-light)':''}">
+          <div style="font-size:18px;width:28px;text-align:center;font-weight:700;color:${i===0?'var(--accent)':i===1?'#e0a800':i===2?'#cd7f32':'var(--text2)'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</div>
+          <div style="width:38px;height:38px;border-radius:50%;background:${ROLE_COLORS[s.role]||'#2c5f4a'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">
+            ${s.avatar?`<img src="${s.avatar}" style="width:100%;height:100%;object-fit:cover">`:`<span>${initials(s.name)}</span>`}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${s.name}</div>
+            <div style="font-size:11px;color:var(--text2)">${ROLE_LABELS[s.role]||s.role} · ${s.orderCount} orders</div>
+            <div class="perf-bar-wrap" style="margin-top:6px"><div class="perf-bar" style="width:${Math.round(s.revenue/maxRev*100)}%"></div></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:14px;font-weight:700;color:var(--accent)">USh ${Math.round(s.revenue).toLocaleString()}</div>
+            <div style="font-size:11px;color:var(--text2)">${s.orderCount} sale${s.orderCount!==1?'s':''}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function populateNotifTargets(){
+  const sel = document.getElementById('notifTarget');
+  sel.innerHTML = '<option value="*">📢 All Staff</option>' +
+    staffList.map(s=>`<option value="${s.username}">${s.name} (${ROLE_LABELS[s.role]||s.role})</option>`).join('');
+}
+
+function sendNotification(){
+  const target = document.getElementById('notifTarget').value;
+  const type = document.getElementById('notifType').value;
+  const title = document.getElementById('notifTitle').value.trim();
+  const body = document.getElementById('notifBody').value.trim();
+  if(!title||!body){ alert('Please fill in both title and message.'); return; }
+
+  const sender = localStorage.getItem('ruviaos_user')||'Manager';
+  // Save notification
+  const notes = JSON.parse(localStorage.getItem('ruvia_notifications')||'[]');
+  notes.unshift({ id:Date.now(), targetUser:target, type, title, body, sender, read:false, time:new Date().toISOString() });
+  localStorage.setItem('ruvia_notifications', JSON.stringify(notes.slice(0,200)));
+
+  // Activity log
+  try{
+    const al=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');
+    al.unshift({id:Date.now(),type:'notification',message:`${sender} sent "${title}" to ${target==='*'?'all staff':target}`,username:sender,category:'notification',time:new Date().toISOString()});
+    localStorage.setItem('ruvia_activity_log',JSON.stringify(al.slice(0,500)));
+  }catch(e){}
+
+  // Show success
+  const suc = document.getElementById('notifSuccess');
+  suc.style.display='block';
+  setTimeout(()=>suc.style.display='none',3000);
+  document.getElementById('notifTitle').value='';
+  document.getElementById('notifBody').value='';
+  renderNotifLog();
+}
+
+function sendToStaff(username){
+  showTab.call({target:document.querySelectorAll('.tab-btn')[3]}, 'notifications');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[3].classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-notifications').classList.add('active');
+  document.getElementById('notifTarget').value=username;
+}
+
+function renderNotifLog(){
+  const notes = JSON.parse(localStorage.getItem('ruvia_notifications')||'[]').slice(0,20);
+  const tbody = document.getElementById('notifLog');
+  if(!notes.length){ tbody.innerHTML=`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text2);font-style:italic">No notifications sent yet</td></tr>`; return; }
+  tbody.innerHTML = notes.map(n=>`
+    <tr>
+      <td>${n.targetUser==='*'?'All Staff':n.targetUser}</td>
+      <td><span style="font-size:11px;font-weight:600">${n.type}</span></td>
+      <td>${n.title}</td>
+      <td style="font-size:11px;color:var(--text2)">${new Date(n.time).toLocaleString()}</td>
+    </tr>`).join('');
+}
+
+function openAddStaff(){ editingId=null; avatarDataURL=null; document.getElementById('modalTitle').textContent='Add Staff Member'; document.getElementById('staffModal').style.display='flex'; ['sfName','sfUsername','sfPhone','sfEmail','sfAddress','sfNotes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('sfRole').value='reception'; document.getElementById('sfStartDate').value=new Date().toISOString().slice(0,10); document.getElementById('avatarPreview').innerHTML='<span id="avatarPlaceholder">📷</span>'; }
+
+function editStaff(id){ const s=staffList.find(x=>x.id===id); if(!s)return; editingId=id; avatarDataURL=s.avatar||null; document.getElementById('modalTitle').textContent='Edit Staff Member'; document.getElementById('sfName').value=s.name||''; document.getElementById('sfUsername').value=s.username||''; document.getElementById('sfRole').value=s.role||'reception'; document.getElementById('sfPhone').value=s.phone||''; document.getElementById('sfEmail').value=s.email||''; document.getElementById('sfStartDate').value=s.startDate||''; document.getElementById('sfAddress').value=s.address||''; document.getElementById('sfNotes').value=s.notes||''; document.getElementById('avatarPreview').innerHTML=s.avatar?`<img src="${s.avatar}" alt="">`:'<span id="avatarPlaceholder">📷</span>'; document.getElementById('staffModal').style.display='flex'; }
+
+function previewAvatar(input){ if(input.files&&input.files[0]){ const reader=new FileReader(); reader.onload=e=>{avatarDataURL=e.target.result;document.getElementById('avatarPreview').innerHTML=`<img src="${e.target.result}" alt="">`;}; reader.readAsDataURL(input.files[0]); } }
+
+function saveStaff(){ const name=document.getElementById('sfName').value.trim(); const username=document.getElementById('sfUsername').value.trim(); if(!name||!username){ alert('Name and username are required.'); return; } const data={id:editingId||'s'+Date.now(),name,username,role:document.getElementById('sfRole').value,phone:document.getElementById('sfPhone').value,email:document.getElementById('sfEmail').value,startDate:document.getElementById('sfStartDate').value,address:document.getElementById('sfAddress').value,notes:document.getElementById('sfNotes').value,avatar:avatarDataURL||null}; if(editingId){ staffList=staffList.map(s=>s.id===editingId?data:s); }else{ staffList.push(data); } saveStaffList(staffList); document.getElementById('staffModal').style.display='none'; renderStaffGrid(); populateNotifTargets(); }
+
+function confirmDelete(id){ if(confirm('Remove this staff member?')){ staffList=staffList.filter(s=>s.id!==id); saveStaffList(staffList); renderStaffGrid(); } }
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

@@ -2,189 +2,353 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Housekeeping</title>
+<title>RuviaOS — Housekeeping</title>
+<script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s}
-.stat-card:hover{transform:translateY(-3px)}
-.stat-value{font-size:28px;font-weight:700}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.stat-card.ready .stat-value{color:#28a745}
-.stat-card.dirty .stat-value{color:#dc3545}
-.stat-card.occupied .stat-value{color:#e0a800}
-.stat-card.cleaning .stat-value{color:#17a2b8}
-.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.filter-btn{padding:9px 18px;background:var(--card,#fff);border:none;border-radius:25px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;box-shadow:0 2px 5px rgba(0,0,0,.08);color:var(--text,#222)}
-.filter-btn.active{background:#2c5f4a;color:#fff}
-.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:28px}
-.room-card{background:var(--card,#fff);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:var(--shadow);border-left:5px solid #ccc}
-.room-card:hover{transform:translateY(-4px);box-shadow:0 8px 22px rgba(0,0,0,.14)}
-.room-card.ready{border-left-color:#28a745;background:#f0fff4}
-.room-card.dirty{border-left-color:#dc3545;background:#fff5f5}
-.room-card.occupied{border-left-color:#e0a800;background:#fffdf0}
-.room-card.cleaning{border-left-color:#17a2b8;background:#f0fbff}
-.room-number{font-size:26px;font-weight:700;color:var(--text,#222)}
-.room-type{font-size:12px;color:var(--text2,#666);margin:4px 0}
-.room-status-badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;margin:6px 0}
-.bs-ready{background:#28a745;color:#fff}
-.bs-dirty{background:#dc3545;color:#fff}
-.bs-occupied{background:#e0a800;color:#fff}
-.bs-cleaning{background:#17a2b8;color:#fff}
-.assigned-info{font-size:11px;color:var(--text2,#666);margin-top:6px;padding:4px 8px;background:var(--th-bg,#f8f9fa);border-radius:6px}
-.section-title{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--accent,#2c5f4a);display:inline-block;color:var(--text,#222)}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:24px;border-radius:14px;max-width:440px;width:92%;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.status-option{padding:12px;border:2px solid var(--border,#ddd);border-radius:10px;text-align:center;cursor:pointer;background:var(--card,#fff);font-weight:600;font-size:13px;color:var(--text,#222);transition:all .2s}
-.status-option:hover{transform:scale(1.02)}
-.status-option.selected{border-color:var(--accent,#2c5f4a);background:#e8f5e9}
-.form-group{margin-bottom:13px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group textarea,.form-group select{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;margin:4px}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-primary:hover{background:var(--accent2,#1a3c34)}
-.btn-danger{background:#dc3545;color:#fff}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-@media(max-width:768px){.room-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+:root{--bg:#f4f6f9;--card:#fff;--text:#1a1a2e;--text2:#6b7280;--border:#e5e7eb;--accent:#2c5f4a;--accent-light:#e8f5f0;--input-bg:#fff;--th-bg:#f9fafb;--shadow-md:0 4px 16px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.phdr h1{font-size:22px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{opacity:.9}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:.2s}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.sv{font-size:26px;font-weight:700;color:var(--accent);line-height:1}
+.sc.warn .sv{color:#e0a800}.sc.danger .sv{color:#dc3545}.sc.info .sv{color:#17a2b8}
+.sl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+/* filter bar */
+.fbar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.fbtn{padding:7px 15px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.fbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* room grid */
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-bottom:22px}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;border-left:4px solid #e5e7eb;transition:.2s;position:relative}
+.rc:hover{box-shadow:var(--shadow-md)}
+.rc.ready{border-left-color:#28a745}
+.rc.occupied{border-left-color:#dc3545}
+.rc.dirty{border-left-color:#e0a800}
+.rc.cleaning{border-left-color:#17a2b8}
+.rc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.rc-num{font-size:20px;font-weight:700}
+.rc-type{font-size:11px;color:var(--text2);margin-top:2px}
+.rbadge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.rb-ready{background:#d4edda;color:#155724}
+.rb-occupied{background:#f8d7da;color:#721c24}
+.rb-dirty{background:#fff3cd;color:#856404}
+.rb-cleaning{background:#d1ecf1;color:#0c5460}
+.rc-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ra{flex:1;min-width:60px;padding:6px 4px;border:1.5px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:.15s;text-align:center}
+.ra:hover{border-color:var(--accent);color:var(--accent)}
+.ra.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* tasks */
+.tsec{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.tsec-hdr{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tsec-hdr h3{font-size:14px;font-weight:700}
+.titem{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border)}
+.titem:last-child{border-bottom:none}
+.tchk{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.15s}
+.tchk.done{background:var(--accent);border-color:var(--accent);color:#fff}
+.tchk:not(.done):hover{border-color:var(--accent)}
+.tinfo{flex:1}
+.ttitle{font-size:13px;font-weight:600}
+.ttitle.done{text-decoration:line-through;color:var(--text2)}
+.tmeta{font-size:11px;color:var(--text2);margin-top:2px}
+.ttime{font-size:11px;color:var(--text2);flex-shrink:0;text-align:right}
+/* priority colors */
+.urgent .ttitle{color:#dc3545}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:450px;max-height:90vh;overflow-y:auto}
+.mhdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mhdr h3{font-size:16px;font-weight:700}
+.mbody{padding:20px}
+.mfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
+.f2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 18px;border-radius:9px;font-size:13px;cursor:pointer}
+/* status buttons grid inside modal */
+.schoice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.schoice button{padding:12px;border-radius:9px;border:2px solid var(--border);background:var(--card);font-size:12px;font-weight:600;cursor:pointer;color:var(--text);transition:.15s}
+.schoice button:hover,.schoice button.act{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
-<script src="ruvia-store.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
-<div class="container">
-<div class="header">
-  <h1>🧹 Housekeeping Management</h1>
-  <button style="background:#fff;color:#2c5f4a;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700" onclick="loadAll()">🔄 Refresh</button>
-</div>
+<div class="page">
+  <div class="phdr">
+    <h1>🧹 Housekeeping</h1>
+    <button class="btn" onclick="openTaskModal()">+ Assign Task</button>
+  </div>
 
-<div class="stats-grid">
-  <div class="stat-card ready" onclick="filterBy('ready')"><div class="stat-value" id="readyCount">-</div><div class="stat-label">🟢 Ready</div></div>
-  <div class="stat-card dirty" onclick="filterBy('dirty')"><div class="stat-value" id="dirtyCount">-</div><div class="stat-label">🔴 Dirty</div></div>
-  <div class="stat-card occupied" onclick="filterBy('occupied')"><div class="stat-value" id="occupiedCount">-</div><div class="stat-label">👤 Occupied</div></div>
-  <div class="stat-card cleaning" onclick="filterBy('cleaning')"><div class="stat-value" id="cleaningCount">-</div><div class="stat-label">🧹 Cleaning</div></div>
-  <div class="stat-card" onclick="filterBy('all')"><div class="stat-value" id="totalCount">-</div><div class="stat-label">All Rooms</div></div>
-</div>
+  <div class="stats" id="statsRow"></div>
 
-<div class="filters">
-  <button class="filter-btn active" id="fb-all" onclick="filterBy('all')">All Rooms</button>
-  <button class="filter-btn" id="fb-ready" onclick="filterBy('ready')">🟢 Ready</button>
-  <button class="filter-btn" id="fb-dirty" onclick="filterBy('dirty')">🔴 Dirty</button>
-  <button class="filter-btn" id="fb-occupied" onclick="filterBy('occupied')">👤 Occupied</button>
-  <button class="filter-btn" id="fb-cleaning" onclick="filterBy('cleaning')">🧹 Cleaning</button>
-</div>
+  <div class="fbar" id="filterBar">
+    <button class="fbtn on" onclick="setFilter('all',this)">All Rooms</button>
+    <button class="fbtn" onclick="setFilter('dirty',this)">🟡 Dirty</button>
+    <button class="fbtn" onclick="setFilter('cleaning',this)">🔵 Cleaning</button>
+    <button class="fbtn" onclick="setFilter('ready',this)">🟢 Ready</button>
+    <button class="fbtn" onclick="setFilter('occupied',this)">🔴 Occupied</button>
+  </div>
 
-<div class="room-grid" id="roomGrid"></div>
+  <div class="rg" id="roomsGrid"></div>
 
-<h3 class="section-title">📋 Recent Activity</h3>
-<div class="table-container"><table>
-  <thead><tr><th>Room</th><th>Action</th><th>From</th><th>To</th><th>Assigned</th><th>Time</th></tr></thead>
-  <tbody id="activityBody"></tbody>
-</table></div>
-</div>
-
-<!-- Status Modal -->
-<div id="statusModal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalTitle">Change Room Status</h3>
-    <div class="status-options">
-      <div class="status-option" onclick="pickStatus('ready',this)">🟢 Ready</div>
-      <div class="status-option" onclick="pickStatus('dirty',this)">🔴 Dirty</div>
-      <div class="status-option" onclick="pickStatus('occupied',this)">👤 Occupied</div>
-      <div class="status-option" onclick="pickStatus('cleaning',this)">🧹 Cleaning</div>
+  <div class="tsec">
+    <div class="tsec-hdr">
+      <h3>📋 Assigned Tasks</h3>
+      <span id="taskCount" style="font-size:12px;color:var(--text2)"></span>
     </div>
-    <div class="form-group"><label>Assign Housekeeper</label>
-      <input id="hkName" placeholder="Housekeeper name (optional)"></div>
-    <div class="form-group"><label>Notes</label>
-      <textarea id="hkNotes" rows="2" placeholder="Any notes about the room..."></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
-      <button class="btn btn-primary" onclick="applyStatus()">Update Status</button>
-      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
+    <div id="tasksList"></div>
+  </div>
+</div>
+
+<!-- Task modal -->
+<div class="overlay" id="taskModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="mhdr"><h3>📋 Assign Task</h3><button onclick="document.getElementById('taskModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Task Title</label><input id="tTitle" placeholder="e.g. Clean and prepare Room 201"></div>
+      <div class="f2col">
+        <div class="fg"><label>Assign To</label><select id="tAssignee"><option value="housekeeping">housekeeping</option></select></div>
+        <div class="fg"><label>Room (optional)</label><select id="tRoom"><option value="">None</option></select></div>
+      </div>
+      <div class="f2col">
+        <div class="fg"><label>Priority</label><select id="tPriority"><option value="normal">Normal</option><option value="urgent">🔴 Urgent</option><option value="low">Low</option></select></div>
+        <div class="fg"><label>Due Time</label><input type="time" id="tDue"></div>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="tNotes" rows="2" placeholder="Additional instructions..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="document.getElementById('taskModal').style.display='none'">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Send Task & Notify</button>
     </div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
 
+<!-- Status change modal -->
+<div class="overlay" id="statusModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:360px">
+    <div class="mhdr"><h3 id="smTitle">Change Status</h3><button onclick="document.getElementById('statusModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:4px">Select new status:</p>
+      <div class="schoice" id="smChoices"></div>
+    </div>
+  </div>
+</div>
+
+<script src="ruvia-store.js"></script>
 <script>
-let currentFilter='all', pendingRoomId=null, pendingStatus=null;
+let roomFilter = 'all';
+let statusTargetId = null;
 
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
-function closeModal(){document.getElementById('statusModal').style.display='none';}
-window.onclick=e=>{if(e.target===document.getElementById('statusModal'))closeModal();}
+// ── data helpers ──────────────────────────────────────────
+const DB = {
+  rooms(){    try{ return window.RuviaStore?RuviaStore.getRooms():JSON.parse(localStorage.getItem('ruvia_rooms')||'[]');}catch(e){return[];} },
+  setStatus(id,s){ if(window.RuviaStore){RuviaStore.updateRoomStatus(id,s);}else{const a=DB.rooms().map(r=>r.id===id?{...r,status:s}:r);localStorage.setItem('ruvia_rooms',JSON.stringify(a));} },
+  tasks(){    try{ return JSON.parse(localStorage.getItem('ruvia_hk_tasks')||'[]');}catch(e){return[];} },
+  saveTasks(t){ localStorage.setItem('ruvia_hk_tasks',JSON.stringify(t)); },
+  staff(){    try{ return JSON.parse(localStorage.getItem('ruvia_staff')||'[]');}catch(e){return[];} }
+};
 
-function filterBy(f){
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  const fb=document.getElementById('fb-'+f);if(fb)fb.classList.add('active');
-  renderRooms(RuviaStore.getRooms());
+// ── seed rooms if none ────────────────────────────────────
+function seed(){
+  if(DB.rooms().length) return;
+  const data=[
+    {id:'rm1',room_number:'101',room_type:'Standard',base_price:80000,status:'dirty',floor:1},
+    {id:'rm2',room_number:'102',room_type:'Standard',base_price:80000,status:'cleaning',floor:1},
+    {id:'rm3',room_number:'103',room_type:'Standard',base_price:80000,status:'ready',floor:1},
+    {id:'rm4',room_number:'201',room_type:'Deluxe',base_price:120000,status:'occupied',floor:2},
+    {id:'rm5',room_number:'202',room_type:'Deluxe',base_price:120000,status:'dirty',floor:2},
+    {id:'rm6',room_number:'203',room_type:'Deluxe',base_price:120000,status:'ready',floor:2},
+    {id:'rm7',room_number:'301',room_type:'Suite',base_price:200000,status:'ready',floor:3},
+    {id:'rm8',room_number:'302',room_type:'Suite',base_price:200000,status:'occupied',floor:3},
+  ];
+  localStorage.setItem('ruvia_rooms',JSON.stringify(data));
 }
 
-function loadAll(){
-  const rooms=RuviaStore.getRooms(),log=RuviaStore.getHousekeepingLog();
-  document.getElementById('readyCount').textContent=rooms.filter(r=>r.status==='ready').length;
-  document.getElementById('dirtyCount').textContent=rooms.filter(r=>r.status==='dirty').length;
-  document.getElementById('occupiedCount').textContent=rooms.filter(r=>r.status==='occupied').length;
-  document.getElementById('cleaningCount').textContent=rooms.filter(r=>r.status==='cleaning').length;
-  document.getElementById('totalCount').textContent=rooms.length;
-  renderRooms(rooms); renderLog(log);
+function boot(){ seed(); populateModalSelects(); renderAll(); }
+
+function renderAll(){ renderStats(); renderRooms(); renderTasks(); }
+
+// ── stats ─────────────────────────────────────────────────
+function renderStats(){
+  const rooms = DB.rooms();
+  [
+    {lbl:'Total',val:rooms.length,cls:'',f:'all'},
+    {lbl:'Ready',val:rooms.filter(r=>r.status==='ready').length,cls:'',f:'ready'},
+    {lbl:'Occupied',val:rooms.filter(r=>r.status==='occupied').length,cls:'warn',f:'occupied'},
+    {lbl:'Dirty',val:rooms.filter(r=>r.status==='dirty').length,cls:'danger',f:'dirty'},
+    {lbl:'Cleaning',val:rooms.filter(r=>r.status==='cleaning').length,cls:'info',f:'cleaning'},
+  ].forEach((s,i)=>{
+    document.getElementById('statsRow').innerHTML = [
+      {lbl:'Total',val:rooms.length,cls:'',f:'all'},
+      {lbl:'🟢 Ready',val:rooms.filter(r=>r.status==='ready').length,cls:'',f:'ready'},
+      {lbl:'🔴 Occupied',val:rooms.filter(r=>r.status==='occupied').length,cls:'warn',f:'occupied'},
+      {lbl:'🟡 Dirty',val:rooms.filter(r=>r.status==='dirty').length,cls:'danger',f:'dirty'},
+      {lbl:'🔵 Cleaning',val:rooms.filter(r=>r.status==='cleaning').length,cls:'info',f:'cleaning'},
+    ].map(s=>`<div class="sc ${s.cls}" onclick="setFilter('${s.f}',null)"><div class="sv">${s.val}</div><div class="sl">${s.lbl}</div></div>`).join('');
+    return; // break after first iteration — we set innerHTML once
+  });
 }
 
-function renderRooms(rooms){
-  const list=currentFilter==='all'?rooms:rooms.filter(r=>r.status===currentFilter);
-  const bmap={ready:'bs-ready',dirty:'bs-dirty',occupied:'bs-occupied',cleaning:'bs-cleaning'};
-  const lmap={ready:'🟢 Ready',dirty:'🔴 Dirty',occupied:'👤 Occupied',cleaning:'🧹 Cleaning'};
-  document.getElementById('roomGrid').innerHTML=list.length===0
-    ?`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text2)">No rooms in this category</div>`
-    :list.map(r=>`<div class="room-card ${r.status}" onclick="openModal(${r.id},'${r.room_number}','${r.status}')">
-        <div class="room-number">${r.room_number}</div>
-        <div class="room-type">${r.room_type}</div>
-        <div><span class="room-status-badge ${bmap[r.status]||''}">${lmap[r.status]||r.status}</span></div>
-        ${r.assigned_housekeeper?`<div class="assigned-info">🧹 ${r.assigned_housekeeper}</div>`:''}
-      </div>`).join('');
+function setFilter(f,btn){
+  roomFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  else { document.querySelectorAll('.fbtn').forEach(b=>{ if(b.textContent.toLowerCase().includes(f==='all'?'all':f)) b.classList.add('on'); }); }
+  renderRooms();
 }
 
-function renderLog(log){
-  document.getElementById('activityBody').innerHTML=log.length===0
-    ?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:20px">No activity yet</td></tr>`
-    :log.slice(0,30).map(e=>`<tr>
-        <td><strong>${e.room}</strong></td><td>${e.action}</td>
-        <td>${e.old_status||'-'}</td><td>${e.new_status||'-'}</td>
-        <td>${e.assigned_to||'-'}</td><td>${e.time||'-'}</td>
-      </tr>`).join('');
+// ── room cards ────────────────────────────────────────────
+function renderRooms(){
+  const rooms = DB.rooms().filter(r=>roomFilter==='all'||r.status===roomFilter);
+  const BADGE = {ready:'rb-ready',occupied:'rb-occupied',dirty:'rb-dirty',cleaning:'rb-cleaning'};
+  const LABEL = {ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'};
+
+  document.getElementById('roomsGrid').innerHTML = rooms.length
+    ? rooms.map(r=>`
+        <div class="rc ${r.status}">
+          <div class="rc-top">
+            <div><div class="rc-num">Room ${r.room_number}</div><div class="rc-type">${r.room_type} · USh ${(r.base_price||0).toLocaleString()}/night</div></div>
+            <span class="rbadge ${BADGE[r.status]||''}">${LABEL[r.status]||r.status}</span>
+          </div>
+          <div class="rc-actions">
+            ${r.status==='dirty'   ?`<button class="ra primary" onclick="quickStatus('${r.id}','cleaning')">▶ Start Cleaning</button>`:''}
+            ${r.status==='cleaning'?`<button class="ra primary" onclick="quickStatus('${r.id}','ready')">✅ Mark Ready</button>`:''}
+            ${r.status==='occupied'?`<button class="ra" onclick="quickStatus('${r.id}','dirty')">🟡 Mark Dirty</button>`:''}
+            ${r.status==='ready'   ?`<button class="ra" onclick="quickStatus('${r.id}','dirty')">🟡 Mark Dirty</button>`:''}
+            <button class="ra" onclick="openStatusModal('${r.id}','${r.room_number}','${r.status}')">🔄 Status</button>
+            <button class="ra" onclick="preAssign('${r.id}','${r.room_number}')">📋 Assign</button>
+          </div>
+        </div>`)
+      .join('')
+    : '<div style="text-align:center;padding:36px;color:var(--text2);font-style:italic;grid-column:1/-1">No rooms match this filter</div>';
 }
 
-function openModal(id,num,status){
-  pendingRoomId=id;pendingStatus=null;
-  document.getElementById('modalTitle').textContent=`Room ${num} – Change Status`;
-  document.getElementById('hkName').value='';document.getElementById('hkNotes').value='';
-  document.querySelectorAll('.status-option').forEach(o=>o.classList.remove('selected'));
+function quickStatus(id,status){
+  DB.setStatus(id,status);
+  log(`Room ${DB.rooms().find(r=>r.id===id)?.room_number||id} → ${status}`,'housekeeping');
+  renderAll();
+}
+
+// ── status modal ──────────────────────────────────────────
+function openStatusModal(id,num,current){
+  statusTargetId = id;
+  document.getElementById('smTitle').textContent = `Room ${num} — Status`;
+  document.getElementById('smChoices').innerHTML =
+    ['ready','occupied','dirty','cleaning'].map(s=>`
+      <button class="${s===current?'act':''}" onclick="applyStatus('${s}')">
+        ${{ready:'🟢 Ready',occupied:'🔴 Occupied',dirty:'🟡 Dirty',cleaning:'🔵 Cleaning'}[s]}
+      </button>`).join('');
   document.getElementById('statusModal').style.display='flex';
 }
-function pickStatus(s,el){pendingStatus=s;document.querySelectorAll('.status-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
-function applyStatus(){
-  if(!pendingStatus){toast('Pick a status','error');return;}
-  const hk=document.getElementById('hkName').value.trim()||null;
-  RuviaStore.updateRoomStatus(pendingRoomId,pendingStatus,hk);
-  toast('✅ Room status updated');closeModal();loadAll();
+
+function applyStatus(s){
+  if(!statusTargetId) return;
+  DB.setStatus(statusTargetId,s);
+  log(`Room ${DB.rooms().find(r=>r.id===statusTargetId)?.room_number||statusTargetId} → ${s}`,'housekeeping');
+  document.getElementById('statusModal').style.display='none';
+  renderAll();
 }
 
-RuviaStore.onChange(()=>loadAll());
-loadAll();
+// ── task modal ────────────────────────────────────────────
+function populateModalSelects(){
+  const staff = DB.staff();
+  const sel   = document.getElementById('tAssignee');
+  sel.innerHTML = '<option value="housekeeping">housekeeping (default)</option>' +
+    staff.map(s=>`<option value="${s.username}">${s.name}</option>`).join('');
+
+  const rsel  = document.getElementById('tRoom');
+  rsel.innerHTML = '<option value="">None</option>' +
+    DB.rooms().map(r=>`<option value="${r.id}">Room ${r.room_number} (${r.status})</option>`).join('');
+
+  const now = new Date(); now.setHours(now.getHours()+1);
+  document.getElementById('tDue').value = now.toTimeString().slice(0,5);
+}
+
+function openTaskModal(){
+  populateModalSelects();
+  document.getElementById('tTitle').value='';
+  document.getElementById('tNotes').value='';
+  document.getElementById('taskModal').style.display='flex';
+}
+
+function preAssign(roomId, roomNum){
+  openTaskModal();
+  document.getElementById('tTitle').value = `Clean and prepare Room ${roomNum}`;
+  document.getElementById('tRoom').value  = roomId;
+}
+
+function saveTask(){
+  const title    = document.getElementById('tTitle').value.trim();
+  const assignee = document.getElementById('tAssignee').value;
+  const roomId   = document.getElementById('tRoom').value;
+  const priority = document.getElementById('tPriority').value;
+  const due      = document.getElementById('tDue').value;
+  const notes    = document.getElementById('tNotes').value.trim();
+  if(!title){ alert('Please enter a task title.'); return; }
+
+  const room = DB.rooms().find(r=>r.id===roomId);
+  const task = { id:'t'+Date.now(), title, assignee, roomId, roomNum:room?.room_number||'', priority, due, notes, done:false, createdAt:new Date().toISOString(), createdBy:localStorage.getItem('ruviaos_user')||'staff' };
+  const tasks = DB.tasks();
+  tasks.unshift(task);
+  DB.saveTasks(tasks);
+
+  // push bell notification
+  try{
+    const n=JSON.parse(localStorage.getItem('ruvia_notifications')||'[]');
+    n.unshift({id:Date.now(),targetUser:assignee,type:'task',title:`Task: ${title}`,body:`${notes||'Please complete this task'}${due?' · Due: '+due:''}${room?' · Room '+room.room_number:''}`,read:false,time:new Date().toISOString(),link:'housekeeping.html'});
+    localStorage.setItem('ruvia_notifications',JSON.stringify(n.slice(0,200)));
+  }catch(e){}
+
+  log(`Task assigned to ${assignee}: ${title}`,'housekeeping');
+  document.getElementById('taskModal').style.display='none';
+  renderTasks();
+}
+
+// ── tasks list ────────────────────────────────────────────
+function renderTasks(){
+  const tasks = DB.tasks();
+  const open  = tasks.filter(t=>!t.done);
+  const done  = tasks.filter(t=>t.done).slice(0,5);
+  document.getElementById('taskCount').textContent = `${open.length} open · ${done.length} completed`;
+  const all   = [...open,...done];
+  if(!all.length){ document.getElementById('tasksList').innerHTML='<div style="padding:24px;text-align:center;color:var(--text2);font-size:12px;font-style:italic">No tasks assigned yet</div>'; return; }
+  const PC = {urgent:'#dc3545',normal:'var(--accent)',low:'var(--text2)'};
+  document.getElementById('tasksList').innerHTML = all.map(t=>`
+    <div class="titem ${t.priority==='urgent'?'urgent':''}">
+      <div class="tchk ${t.done?'done':''}" onclick="toggleTask('${t.id}')">${t.done?'✓':''}</div>
+      <div class="tinfo">
+        <div class="ttitle${t.done?' done':''}" style="color:${t.done?'var(--text2)':PC[t.priority||'normal']}">${t.priority==='urgent'&&!t.done?'🔴 ':''} ${t.title}</div>
+        <div class="tmeta"><strong>${t.assignee}</strong>${t.roomNum?' · Room '+t.roomNum:''}${t.notes?' · '+t.notes:''}</div>
+      </div>
+      <div class="ttime">${t.due||''}<br><span style="font-size:10px">${new Date(t.createdAt).toLocaleDateString()}</span></div>
+    </div>`).join('');
+}
+
+function toggleTask(id){
+  const tasks = DB.tasks();
+  const t = tasks.find(x=>x.id===id);
+  if(t) t.done = !t.done;
+  DB.saveTasks(tasks);
+  renderTasks();
+}
+
+function log(msg,type){ const u=localStorage.getItem('ruviaos_user')||'staff'; try{const a=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');a.unshift({id:Date.now(),type,message:msg,username:u,category:type,time:new Date().toISOString()});localStorage.setItem('ruvia_activity_log',JSON.stringify(a.slice(0,500)));}catch(e){} }
+
+if(window.RuviaStore) RuviaStore.onChange(renderAll);
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>

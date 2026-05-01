@@ -2,276 +2,282 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Reports & Analytics</title>
+<title>RuviaOS — Reports</title>
+<script>(function(){var s=localStorage.getItem('ruvia-dark');if(s==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.filter-section{background:var(--card,#fff);padding:16px;border-radius:12px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;box-shadow:var(--shadow)}
-.fg{display:flex;flex-direction:column;gap:4px}
-.fg label{font-size:11px;font-weight:600;color:var(--text2,#555)}
-.fg input,.fg select{padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-success{background:#28a745;color:#fff}
-.btn-info{background:#17a2b8;color:#fff}
-.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.tab{padding:10px 20px;background:var(--card,#fff);border:none;border-radius:10px;cursor:pointer;font-weight:700;transition:all .2s;color:var(--text,#222)}
-.tab.active{background:var(--accent,#2c5f4a);color:#fff}
-.tab-content{display:none}.tab-content.active{display:block}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}
-.kpi{background:var(--card,#fff);padding:18px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.kpi-value{font-size:26px;font-weight:700;color:var(--accent,#2c5f4a)}
-.kpi-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.chart-card{background:var(--card,#fff);padding:18px;border-radius:12px;margin-bottom:18px;box-shadow:var(--shadow)}
-.chart-card h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text,#222);border-bottom:2px solid var(--accent,#2c5f4a);padding-bottom:6px;display:inline-block}
-.bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px;padding:8px 0}
-.bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
-.bar{width:100%;border-radius:6px 6px 0 0;min-height:4px;transition:all .3s;cursor:pointer;background:var(--accent,#2c5f4a);opacity:.8}
-.bar:hover{opacity:1}
-.bar-label{font-size:10px;color:var(--text2,#666);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px}
-.bar-val{font-size:9px;font-weight:700;color:var(--text2,#666)}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:18px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.no-data{text-align:center;color:var(--text2,#999);padding:30px;font-style:italic}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-hdr h1{font-size:22px;font-weight:700}
+.hdr-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary:hover{opacity:.9}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+/* Date filter bar */
+.filter-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.filter-bar label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.filter-bar input[type=date]{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none}
+.filter-bar input[type=date]:focus{border-color:var(--accent)}
+.filter-bar select{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none}
+.quick-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.quick-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;border-top:3px solid var(--accent)}
+.kpi-card.warn{border-top-color:#e0a800}
+.kpi-card.info{border-top-color:#17a2b8}
+.kpi-card.success{border-top-color:#28a745}
+.kpi-card.danger{border-top-color:#dc3545}
+.kpi-val{font-size:26px;font-weight:700;color:var(--text);margin-bottom:3px}
+.kpi-lbl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:4px}
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 @media(max-width:768px){.two-col{grid-template-columns:1fr}}
+/* Table */
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px}
+.section-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.section-hdr h3{font-size:14px;font-weight:700}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:11px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;background:var(--th-bg);border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--row-hover)}
+.status-pill{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.sp-green{background:#d4edda;color:#155724}
+.sp-yellow{background:#fff3cd;color:#856404}
+.sp-red{background:#f8d7da;color:#721c24}
+body.dark-mode .sp-green{background:#0d2018;color:#4caf87}
+body.dark-mode .sp-yellow{background:#1e1a08;color:#ffc107}
+body.dark-mode .sp-red{background:#1f0f0f;color:#e05c5c}
+@media print{
+  .hdr-actions,.filter-bar .quick-btn,.btn-outline,.btn-primary{display:none!important}
+  body{background:#fff;color:#000}
+  .section-card,.kpi-card{border:1px solid #ddd}
+}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
-<script src="ruvia-store.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
-<div class="container">
-<div class="header">
-  <h1>📊 Reports & Analytics</h1>
-  <div style="display:flex;gap:8px">
-    <button class="btn btn-success" onclick="exportCSV()">📄 Export CSV</button>
-    <button class="btn btn-primary" onclick="loadAll()">🔄 Refresh</button>
+<div class="page">
+  <div class="page-hdr">
+    <h1>📈 Reports</h1>
+    <div class="hdr-actions">
+      <button class="btn-outline" onclick="window.print()">🖨 Print Report</button>
+      <button class="btn-primary" onclick="exportAllCSV()">📥 Export CSV</button>
+    </div>
   </div>
-</div>
 
-<div class="filter-section">
-  <div class="fg"><label>Quick Select</label>
-    <select id="quickSelect" onchange="applyQuick()">
-      <option value="">Custom Range</option>
-      <option value="today">Today</option>
-      <option value="week">This Week</option>
-      <option value="month" selected>This Month</option>
-      <option value="year">This Year</option>
-    </select>
+  <!-- Date filter -->
+  <div class="filter-bar">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <label>From</label>
+      <input type="date" id="dateFrom" onchange="renderAll()">
+      <label>To</label>
+      <input type="date" id="dateTo" onchange="renderAll()">
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="quick-btn" onclick="setQuick('today')">Today</button>
+      <button class="quick-btn" onclick="setQuick('week')">This Week</button>
+      <button class="quick-btn" onclick="setQuick('month')">This Month</button>
+      <button class="quick-btn" onclick="setQuick('year')">This Year</button>
+    </div>
   </div>
-  <div class="fg"><label>From</label><input type="date" id="dateFrom"></div>
-  <div class="fg"><label>To</label><input type="date" id="dateTo"></div>
-  <button class="btn btn-primary" onclick="loadAll()">Apply Filter</button>
-</div>
 
-<div class="tabs">
-  <button class="tab active" onclick="showTab('overview',this)">📈 Overview</button>
-  <button class="tab" onclick="showTab('sales',this)">💵 Sales</button>
-  <button class="tab" onclick="showTab('occupancy',this)">🛏️ Occupancy</button>
-  <button class="tab" onclick="showTab('stock',this)">📦 Stock</button>
-</div>
+  <!-- KPI row -->
+  <div class="kpi-row" id="kpiRow"></div>
 
-<!-- OVERVIEW -->
-<div id="tab-overview" class="tab-content active">
-  <div class="kpi-grid">
-    <div class="kpi"><div class="kpi-value" id="kpiRevenue">-</div><div class="kpi-label">💰 Total Revenue</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiSales">-</div><div class="kpi-label">🍽️ POS Sales</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiOccRate">-</div><div class="kpi-label">🛏️ Occupancy Rate</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiGuests">-</div><div class="kpi-label">👤 Total Guests</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiLowStock" style="color:#e0a800">-</div><div class="kpi-label">⚠️ Low Stock</div></div>
-    <div class="kpi"><div class="kpi-value" id="kpiPending" style="color:#dc3545">-</div><div class="kpi-label">💳 Outstanding Balance</div></div>
-  </div>
+  <!-- Revenue + Reservations -->
   <div class="two-col">
-    <div class="chart-card"><h3>Room Status Breakdown</h3><div id="roomChart"></div></div>
-    <div class="chart-card"><h3>Top Selling Products</h3><div id="topProducts"></div></div>
+    <div class="section-card">
+      <div class="section-hdr"><h3>💰 Revenue Breakdown</h3></div>
+      <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Source</th><th>Count</th><th>Revenue</th><th>% of Total</th></tr></thead><tbody id="revenueBreakdown"></tbody></table></div>
+    </div>
+    <div class="section-card">
+      <div class="section-hdr"><h3>🧾 Payment Methods</h3></div>
+      <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Method</th><th>Transactions</th><th>Total</th></tr></thead><tbody id="paymentMethods"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Orders report -->
+  <div class="section-card">
+    <div class="section-hdr">
+      <h3>🍽 Sales / POS Report</h3>
+      <button class="btn-outline" style="padding:6px 12px;font-size:11px" onclick="exportOrdersCSV()">Export</button>
+    </div>
+    <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Order #</th><th>Cashier</th><th>Type</th><th>Items</th><th>Total</th><th>Payment</th><th>Date / Time</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+  </div>
+
+  <!-- Reservations report -->
+  <div class="section-card">
+    <div class="section-hdr">
+      <h3>📅 Reservations Report</h3>
+      <button class="btn-outline" style="padding:6px 12px;font-size:11px" onclick="exportResCSV()">Export</button>
+    </div>
+    <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Res #</th><th>Guest</th><th>Room</th><th>Check-In</th><th>Check-Out</th><th>Nights</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody id="resBody"></tbody></table></div>
+  </div>
+
+  <!-- Staff performance -->
+  <div class="section-card">
+    <div class="section-hdr"><h3>👥 Staff Performance</h3></div>
+    <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Staff</th><th>Role</th><th>Orders Processed</th><th>Revenue Generated</th><th>Avg Order</th></tr></thead><tbody id="staffBody"></tbody></table></div>
   </div>
 </div>
 
-<!-- SALES -->
-<div id="tab-sales" class="tab-content">
-  <div class="kpi-grid">
-    <div class="kpi"><div class="kpi-value" id="sKpiOrders">-</div><div class="kpi-label">Total Orders</div></div>
-    <div class="kpi"><div class="kpi-value" id="sKpiTotal">-</div><div class="kpi-label">Total Sales</div></div>
-    <div class="kpi"><div class="kpi-value" id="sKpiAvg">-</div><div class="kpi-label">Avg. Order Value</div></div>
-  </div>
-  <div class="chart-card"><h3>Sales by Payment Method</h3><div id="salesByMethod"></div></div>
-  <div class="chart-card"><h3>Recent Orders</h3>
-    <div class="table-container"><table>
-      <thead><tr><th>Order #</th><th>Date</th><th>Guest</th><th>Items</th><th>Total</th><th>Payment</th></tr></thead>
-      <tbody id="ordersBody"></tbody>
-    </table></div>
-  </div>
-</div>
-
-<!-- OCCUPANCY -->
-<div id="tab-occupancy" class="tab-content">
-  <div class="kpi-grid">
-    <div class="kpi"><div class="kpi-value" id="oKpiTotal">-</div><div class="kpi-label">Total Rooms</div></div>
-    <div class="kpi"><div class="kpi-value" id="oKpiOcc">-</div><div class="kpi-label">Currently Occupied</div></div>
-    <div class="kpi"><div class="kpi-value" id="oKpiRate">-</div><div class="kpi-label">Occupancy Rate</div></div>
-    <div class="kpi"><div class="kpi-value" id="oKpiRevPAR">-</div><div class="kpi-label">Revenue</div></div>
-  </div>
-  <div class="chart-card"><h3>Reservations</h3>
-    <div class="table-container"><table>
-      <thead><tr><th>Guest</th><th>Room</th><th>Check In</th><th>Check Out</th><th>Nights</th><th>Total</th><th>Paid</th><th>Status</th></tr></thead>
-      <tbody id="resBody"></tbody>
-    </table></div>
-  </div>
-</div>
-
-<!-- STOCK -->
-<div id="tab-stock" class="tab-content">
-  <div class="kpi-grid">
-    <div class="kpi"><div class="kpi-value" id="stKpiTotal">-</div><div class="kpi-label">Total Products</div></div>
-    <div class="kpi"><div class="kpi-value" id="stKpiValue">-</div><div class="kpi-label">Inventory Value</div></div>
-    <div class="kpi"><div class="kpi-value" id="stKpiLow" style="color:#e0a800">-</div><div class="kpi-label">Low Stock</div></div>
-    <div class="kpi"><div class="kpi-value" id="stKpiOut" style="color:#dc3545">-</div><div class="kpi-label">Out of Stock</div></div>
-  </div>
-  <div class="chart-card"><h3>Stock Levels by Product</h3>
-    <div class="table-container"><table>
-      <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Value</th><th>Status</th></tr></thead>
-      <tbody id="stockRepBody"></tbody>
-    </table></div>
-  </div>
-</div>
-</div>
-
+<script src="ruvia-store.js"></script>
 <script>
-const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
-const fmtDate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-GB'):'-';
-const nights=(ci,co)=>Math.max(1,Math.round((new Date(co)-new Date(ci))/86400000));
+const fmt = n => 'USh ' + Math.round(n||0).toLocaleString();
+const nights = (ci,co) => Math.max(1,Math.round((new Date(co)-new Date(ci))/86400000));
 
-function showTab(n,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('active');}
+function init(){
+  setQuick('month');
+}
 
-function applyQuick(){
-  const v=document.getElementById('quickSelect').value;
-  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
-  let from,to=now.toISOString().slice(0,10);
-  if(v==='today') from=to;
-  else if(v==='week'){const d=new Date(now);d.setDate(d.getDate()-d.getDay());from=d.toISOString().slice(0,10);}
-  else if(v==='month') from=new Date(y,m,1).toISOString().slice(0,10);
-  else if(v==='year') from=new Date(y,0,1).toISOString().slice(0,10);
-  else return;
+function setQuick(period){
+  const now = new Date();
+  const to = now.toISOString().slice(0,10);
+  let from = to;
+  if(period==='week'){const d=new Date(now);d.setDate(d.getDate()-6);from=d.toISOString().slice(0,10);}
+  else if(period==='month'){const d=new Date(now);d.setDate(1);from=d.toISOString().slice(0,10);}
+  else if(period==='year'){const d=new Date(now);d.setMonth(0,1);from=d.toISOString().slice(0,10);}
   document.getElementById('dateFrom').value=from;
   document.getElementById('dateTo').value=to;
-  loadAll();
+  renderAll();
 }
 
-function getRange(){
-  return{from:document.getElementById('dateFrom').value,to:document.getElementById('dateTo').value};}
-
-function inRange(dateStr,from,to){if(!from&&!to)return true;const d=dateStr.slice(0,10);if(from&&d<from)return false;if(to&&d>to)return false;return true;}
-
-function barChart(container, data, colorFn){
-  if(!data.length){container.innerHTML=`<div class="no-data">No data in this period</div>`;return;}
-  const max=Math.max(...data.map(d=>d.value),1);
-  container.innerHTML=`<div class="bar-chart">${data.map(d=>`<div class="bar-wrap">
-    <div class="bar-val">${d.label2||''}</div>
-    <div class="bar" style="height:${Math.round(d.value/max*140)}px;background:${colorFn?colorFn(d):''}" title="${d.key}: ${d.label2||d.value}"></div>
-    <div class="bar-label">${d.key}</div>
-  </div>`).join('')}</div>`;
+function filterByDate(items, key){
+  const from=document.getElementById('dateFrom').value||'2000-01-01';
+  const to=document.getElementById('dateTo').value||'2099-12-31';
+  return items.filter(i=>{const d=(i[key]||'').slice(0,10);return d>=from&&d<=to;});
 }
 
-function loadAll(){
-  const rooms=RuviaStore.getRooms(),guests=RuviaStore.getGuests(),
-        reservations=RuviaStore.getReservations(),
-        orders=RuviaStore.getOrders(),products=RuviaStore.getProducts();
-  const {from,to}=getRange();
-
-  // Filter by date range
-  const filteredRes=reservations.filter(r=>inRange(r.check_in,from,to)||inRange(r.check_out,from,to));
-  const filteredOrders=orders.filter(o=>inRange(o.created_at||'',from,to));
-
-  // ── OVERVIEW ──
-  const totalRevenue=filteredRes.reduce((s,r)=>s+(r.paid_amount||0),0);
-  const posSales=filteredOrders.reduce((s,o)=>s+(o.total||0),0);
-  const occ=rooms.filter(r=>r.status==='occupied').length;
-  const occRate=Math.round(occ/rooms.length*100);
-  const lowStock=products.filter(p=>p.current_stock>0&&p.current_stock<=p.reorder_level).length;
-  const pending=reservations.reduce((s,r)=>s+(r.balance||(r.total_amount-r.paid_amount)||0),0);
-
-  document.getElementById('kpiRevenue').textContent=fmt(totalRevenue);
-  document.getElementById('kpiSales').textContent=fmt(posSales);
-  document.getElementById('kpiOccRate').textContent=occRate+'%';
-  document.getElementById('kpiGuests').textContent=guests.length;
-  document.getElementById('kpiLowStock').textContent=lowStock;
-  document.getElementById('kpiPending').textContent=fmt(Math.max(0,pending));
-
-  // Room status bar chart
-  const roomStatuses={ready:0,occupied:0,dirty:0,cleaning:0};
-  rooms.forEach(r=>roomStatuses[r.status]=(roomStatuses[r.status]||0)+1);
-  const colors={ready:'#28a745',occupied:'#e0a800',dirty:'#dc3545',cleaning:'#17a2b8'};
-  barChart(document.getElementById('roomChart'),Object.entries(roomStatuses).map(([k,v])=>({key:k,value:v,label2:v})),d=>colors[d.key]||'#2c5f4a');
-
-  // Top products by order quantity
-  const prodSales={};
-  filteredOrders.forEach(o=>(o.items||[]).forEach(item=>{prodSales[item.name]=(prodSales[item.name]||0)+item.quantity;}));
-  const topProds=Object.entries(prodSales).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({key:k,value:v,label2:'x'+v}));
-  barChart(document.getElementById('topProducts'),topProds);
-
-  // ── SALES ──
-  document.getElementById('sKpiOrders').textContent=filteredOrders.length;
-  document.getElementById('sKpiTotal').textContent=fmt(posSales);
-  document.getElementById('sKpiAvg').textContent=filteredOrders.length?fmt(Math.round(posSales/filteredOrders.length)):'UGX 0';
-  const payMethods={};
-  filteredOrders.forEach(o=>{const m=o.payment_method||'unknown';payMethods[m]=(payMethods[m]||0)+(o.total||0);});
-  barChart(document.getElementById('salesByMethod'),Object.entries(payMethods).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({key:k,value:v,label2:fmt(v)})));
-  document.getElementById('ordersBody').innerHTML=filteredOrders.length===0
-    ?`<tr><td colspan="6" class="no-data">No orders in this period</td></tr>`
-    :filteredOrders.slice().reverse().slice(0,20).map(o=>`<tr>
-        <td style="font-family:monospace">${o.order_number||'-'}</td>
-        <td>${fmtDate((o.created_at||'').slice(0,10))}</td>
-        <td>${o.guest_name||'Walk-in'}</td>
-        <td>${(o.items||[]).length} items</td>
-        <td><strong>${fmt(o.total)}</strong></td>
-        <td style="text-transform:capitalize">${o.payment_method||'-'}</td>
-      </tr>`).join('');
-
-  // ── OCCUPANCY ──
-  const revenuePaid=filteredRes.reduce((s,r)=>s+(r.paid_amount||0),0);
-  document.getElementById('oKpiTotal').textContent=rooms.length;
-  document.getElementById('oKpiOcc').textContent=occ;
-  document.getElementById('oKpiRate').textContent=occRate+'%';
-  document.getElementById('oKpiRevPAR').textContent=fmt(revenuePaid);
-  document.getElementById('resBody').innerHTML=filteredRes.length===0
-    ?`<tr><td colspan="8" class="no-data">No reservations in this period</td></tr>`
-    :filteredRes.map(r=>{const g=guests.find(x=>x.id===r.guest_id)||{};const rm=rooms.find(x=>x.id===r.room_id)||{};
-      return `<tr><td>${g.full_name||'?'}</td><td>${rm.room_number||'-'}</td><td>${fmtDate(r.check_in)}</td><td>${fmtDate(r.check_out)}</td><td>${nights(r.check_in,r.check_out)}</td><td>${fmt(r.total_amount)}</td><td>${fmt(r.paid_amount)}</td><td>${r.status}</td></tr>`;}).join('');
-
-  // ── STOCK ──
-  const stockVal=products.reduce((s,p)=>s+(p.current_stock||0)*(p.unit_cost||0),0);
-  const outStock=products.filter(p=>p.current_stock===0).length;
-  document.getElementById('stKpiTotal').textContent=products.length;
-  document.getElementById('stKpiValue').textContent=fmt(stockVal);
-  document.getElementById('stKpiLow').textContent=lowStock;
-  document.getElementById('stKpiOut').textContent=outStock;
-  document.getElementById('stockRepBody').innerHTML=products.map(p=>{
-    const isOut=p.current_stock===0,isLow=p.current_stock<=p.reorder_level&&p.current_stock>0;
-    const badge=isOut?'<span style="color:#dc3545;font-weight:700">Out of Stock</span>':isLow?'<span style="color:#e0a800;font-weight:700">Low</span>':'<span style="color:#28a745">OK</span>';
-    return `<tr><td>${p.emoji||''} <strong>${p.name}</strong></td><td>${p.category}</td><td><strong style="color:${isOut?'#dc3545':isLow?'#e0a800':'#28a745'}">${p.current_stock}</strong></td><td>${p.reorder_level}</td><td>${fmt((p.current_stock||0)*(p.unit_cost||0))}</td><td>${badge}</td></tr>`;}).join('');
+function renderAll(){
+  if(!window.RuviaStore) return;
+  renderKPIs();
+  renderRevenueBreakdown();
+  renderPaymentMethods();
+  renderOrders();
+  renderReservations();
+  renderStaff();
 }
 
-function exportCSV(){
-  const {from,to}=getRange();
-  const orders=RuviaStore.getOrders().filter(o=>inRange(o.created_at||'',from,to));
-  const rows=[['Order #','Date','Guest','Total','Payment'],...orders.map(o=>[o.order_number,o.created_at,o.guest_name,o.total,o.payment_method])];
-  const csv=rows.map(r=>r.map(c=>`"${c||''}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='ruvia_report.csv';a.click();
+function renderKPIs(){
+  const orders = filterByDate(RuviaStore.getOrders(),'created_at');
+  const res = filterByDate(RuviaStore.getReservations(),'created_at');
+  const orderRev = orders.reduce((s,o)=>s+(o.total||0),0);
+  const resRev = res.reduce((s,r)=>s+(r.paid_amount||0),0);
+  const totalRev = orderRev + resRev;
+  const rooms = RuviaStore.getRooms();
+  const occ = rooms.filter(r=>r.status==='occupied').length;
+  const occPct = rooms.length ? Math.round(occ/rooms.length*100) : 0;
+  const kpis = [
+    {lbl:'Total Revenue',val:fmt(totalRev),sub:'Orders + Accommodation',cls:''},
+    {lbl:'POS Revenue',val:fmt(orderRev),sub:orders.length+' orders',cls:'info'},
+    {lbl:'Room Revenue',val:fmt(resRev),sub:res.length+' bookings',cls:'success'},
+    {lbl:'Occupancy',val:occPct+'%',sub:occ+'/'+rooms.length+' rooms',cls:occPct>=70?'success':occPct>=40?'warn':'danger'},
+    {lbl:'Avg Order Value',val:fmt(orders.length?Math.round(orderRev/orders.length):0),sub:'POS only',cls:'warn'},
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>`<div class="kpi-card ${k.cls}"><div class="kpi-val">${k.val}</div><div class="kpi-lbl">${k.lbl}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 
-// Init with this month
-document.addEventListener('DOMContentLoaded',()=>applyQuick());
-applyQuick();
-RuviaStore.onChange(()=>loadAll());
+function renderRevenueBreakdown(){
+  const orders = filterByDate(RuviaStore.getOrders(),'created_at');
+  const res = filterByDate(RuviaStore.getReservations(),'created_at');
+  const orderRev=orders.reduce((s,o)=>s+(o.total||0),0);
+  const resRev=res.reduce((s,r)=>s+(r.paid_amount||0),0);
+  const total=orderRev+resRev||1;
+  const rows=[{src:'Restaurant / POS',cnt:orders.length,rev:orderRev},{src:'Room Accommodation',cnt:res.length,rev:resRev}];
+  document.getElementById('revenueBreakdown').innerHTML=rows.map(r=>`<tr><td>${r.src}</td><td>${r.cnt}</td><td><strong>${fmt(r.rev)}</strong></td><td>${Math.round(r.rev/total*100)}%</td></tr>`).join('');
+}
+
+function renderPaymentMethods(){
+  const orders=filterByDate(RuviaStore.getOrders(),'created_at');
+  const methods={};
+  orders.forEach(o=>{const m=o.payment_method||'cash';if(!methods[m])methods[m]={cnt:0,rev:0};methods[m].cnt++;methods[m].rev+=(o.total||0);});
+  const rows=Object.entries(methods).sort((a,b)=>b[1].rev-a[1].rev);
+  const icons={cash:'💵',card:'💳',mobile:'📱',bank:'🏦'};
+  document.getElementById('paymentMethods').innerHTML=rows.length?rows.map(([m,v])=>`<tr><td>${icons[m]||'💰'} ${m.charAt(0).toUpperCase()+m.slice(1)}</td><td>${v.cnt}</td><td><strong>${fmt(v.rev)}</strong></td></tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text2);font-style:italic">No data</td></tr>';
+}
+
+function renderOrders(){
+  const orders=filterByDate(RuviaStore.getOrders(),'created_at').sort((a,b)=>b.created_at?.localeCompare(a.created_at||''));
+  document.getElementById('ordersBody').innerHTML=orders.length?orders.slice(0,50).map(o=>`
+    <tr>
+      <td><strong>${o.order_number}</strong></td>
+      <td>${o.cashier||'—'}</td>
+      <td style="text-transform:capitalize">${(o.order_type||'dine_in').replace('_',' ')}</td>
+      <td style="color:var(--text2)">${(o.items||[]).length} item(s)</td>
+      <td><strong>${fmt(o.total)}</strong></td>
+      <td style="text-transform:capitalize">${o.payment_method||'cash'}</td>
+      <td style="font-size:11px">${new Date(o.created_at).toLocaleString()}</td>
+    </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text2);font-style:italic">No orders in this period</td></tr>';
+}
+
+function renderReservations(){
+  const res=filterByDate(RuviaStore.getReservations(),'created_at').sort((a,b)=>b.created_at?.localeCompare(a.created_at||''));
+  const guests=RuviaStore.getGuests(); const rooms=RuviaStore.getRooms();
+  const g=id=>guests.find(x=>x.id===id)||{full_name:'Unknown'};
+  const r=id=>rooms.find(x=>x.id===id)||{room_number:'?'};
+  const SC={confirmed:'sp-yellow','checked-in':'sp-green','checked-out':'sp-green',cancelled:'sp-red',pending:'sp-yellow'};
+  document.getElementById('resBody').innerHTML=res.length?res.slice(0,30).map(x=>`
+    <tr>
+      <td><strong>${x.reservation_number}</strong></td>
+      <td>${g(x.guest_id).full_name}</td>
+      <td>Room ${r(x.room_id).room_number}</td>
+      <td>${x.check_in}</td>
+      <td>${x.check_out}</td>
+      <td>${x.nights||1}</td>
+      <td>${fmt(x.total_amount)}</td>
+      <td style="color:#28a745">${fmt(x.paid_amount||0)}</td>
+      <td style="color:${(x.balance||0)>0?'#dc3545':'#28a745'}">${fmt(x.balance||0)}</td>
+      <td><span class="status-pill ${SC[x.status]||''}">${x.status}</span></td>
+    </tr>`).join(''):'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text2);font-style:italic">No reservations in this period</td></tr>';
+}
+
+function renderStaff(){
+  const staff=JSON.parse(localStorage.getItem('ruvia_staff')||'[]');
+  const orders=filterByDate(RuviaStore.getOrders(),'created_at');
+  const ROLE={admin:'Administrator',manager:'Manager',reception:'Receptionist',kitchen:'Kitchen',housekeeping:'Housekeeping'};
+  const rows=staff.map(s=>{const my=orders.filter(o=>o.cashier===s.username);const rev=my.reduce((sum,o)=>sum+(o.total||0),0);return{...s,cnt:my.length,rev,avg:my.length?Math.round(rev/my.length):0};}).sort((a,b)=>b.rev-a.rev);
+  document.getElementById('staffBody').innerHTML=rows.length?rows.map(s=>`
+    <tr>
+      <td><strong>${s.name}</strong></td>
+      <td>${ROLE[s.role]||s.role}</td>
+      <td>${s.cnt}</td>
+      <td><strong style="color:var(--accent)">${fmt(s.rev)}</strong></td>
+      <td>${s.avg?fmt(s.avg):'—'}</td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text2);font-style:italic">No staff data</td></tr>';
+}
+
+function exportAllCSV(){
+  exportOrdersCSV(); setTimeout(exportResCSV, 200);
+}
+
+function exportOrdersCSV(){
+  const orders=filterByDate(RuviaStore.getOrders(),'created_at');
+  const csv='Order#,Cashier,Type,Items,Subtotal,VAT,Total,Payment,Date\n'+orders.map(o=>`"${o.order_number}","${o.cashier||''}","${o.order_type||''}","${(o.items||[]).length} items",${o.subtotal||0},${o.vat||0},${o.total||0},"${o.payment_method||'cash'}","${new Date(o.created_at).toLocaleString()}"`).join('\n');
+  dlCSV(csv,'orders-report.csv');
+}
+
+function exportResCSV(){
+  const res=filterByDate(RuviaStore.getReservations(),'created_at');
+  const guests=RuviaStore.getGuests(); const rooms=RuviaStore.getRooms();
+  const g=id=>guests.find(x=>x.id===id)||{full_name:'Unknown'};
+  const r=id=>rooms.find(x=>x.id===id)||{room_number:'?'};
+  const csv='Res#,Guest,Room,CheckIn,CheckOut,Nights,Total,Paid,Balance,Status\n'+res.map(x=>`"${x.reservation_number}","${g(x.guest_id).full_name}","Room ${r(x.room_id).room_number}","${x.check_in}","${x.check_out}",${x.nights||1},${x.total_amount||0},${x.paid_amount||0},${x.balance||0},"${x.status}"`).join('\n');
+  dlCSV(csv,'reservations-report.csv');
+}
+
+function dlCSV(csv,filename){ const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=filename;a.click(); }
+
+if(window.RuviaStore) RuviaStore.onChange(renderAll);
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

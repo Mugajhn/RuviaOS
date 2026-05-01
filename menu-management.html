@@ -2,276 +2,397 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Menu Management</title>
+<title>RuviaOS — Menu Management</title>
+<script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
-.stat-value{font-size:28px;font-weight:700;color:var(--accent,#2c5f4a)}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.tab{padding:10px 20px;background:var(--card,#fff);border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;color:var(--text,#222);transition:all .2s}
-.tab.active{background:var(--accent,#2c5f4a);color:#fff}
-.tab-content{display:none}.tab-content.active{display:block}
-.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.search-input{flex:1;min-width:160px;padding:9px 14px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.cat-filter{padding:9px 12px;border:1px solid var(--input-border,#ddd);border-radius:8px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;margin:2px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-primary:hover{background:var(--accent2,#1a3c34)}
-.btn-warning{background:#ffc107;color:#333}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-sm{padding:5px 10px;font-size:11px}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:16px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.form-container{background:var(--card,#fff);padding:18px;border-radius:12px;margin-bottom:16px;box-shadow:var(--shadow)}
-.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:22px;border-radius:14px;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.cat-tag{display:inline-flex;align-items:center;gap:6px;background:var(--th-bg,#e9ecef);padding:5px 12px;border-radius:20px;font-size:12px;margin:3px;color:var(--text,#222)}
-.cat-rm{color:#dc3545;cursor:pointer;font-weight:700}
-.badge{padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700}
-.badge-active{background:#d4edda;color:#155724}
-.badge-inactive{background:#f8d7da;color:#721c24}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-@media(max-width:768px){.form-row{grid-template-columns:1fr}}
+:root{--bg:#f4f6f9;--card:#fff;--text:#1a1a2e;--text2:#6b7280;--border:#e5e7eb;--accent:#2c5f4a;--accent-light:#e8f5f0;--input-bg:#fff;--th-bg:#f9fafb;--shadow-md:0 4px 16px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.phdr h1{font-size:22px;font-weight:700}
+.hacts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{opacity:.9}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+/* toolbar */
+.tbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.fbtn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.fbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.srch{padding:8px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;width:220px;margin-left:auto}
+.srch:focus{border-color:var(--accent)}
+/* grid */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s;position:relative}
+.mc:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.mc.unavail{opacity:.55}
+.mc-img{width:100%;height:130px;background:var(--th-bg);display:flex;align-items:center;justify-content:center;font-size:54px;flex-shrink:0}
+.mc-img img{width:100%;height:100%;object-fit:cover}
+.mc-body{padding:13px}
+.mc-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.mc-desc{font-size:11px;color:var(--text2);margin-bottom:7px;line-height:1.4;min-height:14px}
+.mc-foot{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.mc-price{font-size:15px;font-weight:700;color:var(--accent)}
+.mc-cat{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--th-bg);color:var(--text2);text-transform:capitalize}
+.mc-stock{font-size:11px;color:var(--text2);margin-bottom:7px}
+.mc-actions{display:flex;gap:6px}
+.ma{flex:1;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;transition:.15s;text-align:center}
+.ma:hover{border-color:var(--accent);color:var(--accent)}
+.ma.red:hover{border-color:#dc3545;color:#dc3545}
+/* availability badge */
+.avail-badge{position:absolute;top:8px;right:8px;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;cursor:pointer;border:none;z-index:1}
+.av-on{background:#d4edda;color:#155724}
+.av-off{background:#f8d7da;color:#721c24}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto}
+.mhdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:1}
+.mhdr h3{font-size:16px;font-weight:700}
+.mbody{padding:20px}
+.mfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 18px;border-radius:9px;font-size:13px;cursor:pointer}
+/* emoji picker */
+.media-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.media-preview{width:72px;height:72px;border-radius:10px;background:var(--th-bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:38px;flex-shrink:0;cursor:pointer;overflow:hidden}
+.media-preview img{width:100%;height:100%;object-fit:cover}
+.mtabs{display:flex;gap:4px;margin-bottom:7px}
+.mtab{padding:5px 11px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-size:11px;font-weight:600;cursor:pointer}
+.mtab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.egrid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-height:130px;overflow-y:auto}
+.eo{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border-radius:5px;border:1.5px solid transparent;transition:.1s}
+.eo:hover{background:var(--th-bg)}
+.eo.on{border-color:var(--accent);background:var(--accent-light)}
+@media print{.phdr,.tbar,.hacts,.mc-actions,.avail-badge,#navbar-placeholder,button{display:none!important}body{background:#fff}.mc{break-inside:avoid;border:1px solid #ddd}}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
+
+<div class="page">
+  <div class="phdr">
+    <h1>📋 Menu Management</h1>
+    <div class="hacts">
+      <button class="btn-outline" onclick="printMenu()">🖨 Print Menu</button>
+      <button class="btn-outline" onclick="showQR()">📱 QR Code</button>
+      <button class="btn" onclick="openAdd()">+ Add Item</button>
+    </div>
+  </div>
+
+  <div class="tbar">
+    <button class="fbtn on" onclick="setCat('all',this)">🍽 All</button>
+    <div id="catBtns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+    <input class="srch" id="srch" placeholder="Search items..." oninput="render()">
+  </div>
+
+  <div class="mgrid" id="mgrid"></div>
+</div>
+
+<!-- Add/Edit modal -->
+<div class="overlay" id="itemModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="mhdr"><h3 id="mTitle">Add Menu Item</h3><button onclick="document.getElementById('itemModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <!-- Media -->
+      <div class="fg">
+        <label>Emoji / Image</label>
+        <div class="media-row">
+          <div class="media-preview" id="mprev" onclick="document.getElementById('imgFile').click()">
+            <span id="mprevInner">🍽</span>
+          </div>
+          <div style="flex:1">
+            <div class="mtabs">
+              <button class="mtab on" onclick="switchMtab('emoji',this)">Emoji</button>
+              <button class="mtab" onclick="switchMtab('upload',this)">Upload</button>
+            </div>
+            <div id="emojiTab"><div class="egrid" id="egrid"></div></div>
+            <div id="uploadTab" style="display:none">
+              <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="previewImg(this)">
+              <button class="btn-outline" style="width:100%;padding:9px" onclick="document.getElementById('imgFile').click()">📁 Choose Image</button>
+              <div id="imgName" style="font-size:11px;color:var(--text2);margin-top:5px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="f2">
+        <div class="fg"><label>Item Name</label><input id="iName" placeholder="e.g. Grilled Chicken"></div>
+        <div class="fg"><label>Category</label>
+          <select id="iCat">
+            <option value="breakfast">Breakfast</option>
+            <option value="maincourse">Main Course</option>
+            <option value="snacks">Snacks</option>
+            <option value="beverages">Beverages</option>
+            <option value="desserts">Desserts</option>
+            <option value="specials">Specials</option>
+          </select>
+        </div>
+        <div class="fg"><label>Price (USh)</label><input type="number" id="iPrice" placeholder="25000" min="0"></div>
+        <div class="fg"><label>Stock Qty</label><input type="number" id="iStock" placeholder="50" min="0"></div>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="iDesc" rows="2" placeholder="Brief description..."></textarea></div>
+      <div class="fg"><label>Availability</label>
+        <select id="iAvail">
+          <option value="available">✅ Available</option>
+          <option value="unavailable">❌ Unavailable</option>
+        </select>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="document.getElementById('itemModal').style.display='none'">Cancel</button>
+      <button class="btn-save" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR modal -->
+<div class="overlay" id="qrModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:320px;text-align:center">
+    <div class="mhdr"><h3>📱 Menu QR Code</h3><button onclick="document.getElementById('qrModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Guests can scan this to view the menu</p>
+      <img id="qrImg" src="" alt="QR Code" style="width:200px;height:200px;border-radius:10px;border:1px solid var(--border)">
+      <p style="font-size:11px;color:var(--text2);margin-top:10px">Updates automatically when menu changes</p>
+    </div>
+  </div>
+</div>
+
 <script src="ruvia-store.js"></script>
-
-<div class="container">
-<div class="header">
-  <h1>📋 Menu Management</h1>
-  <button class="btn btn-primary" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600" onclick="loadAll()">🔄 Refresh</button>
-</div>
-
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-value" id="stItems">-</div><div class="stat-label">Menu Items</div></div>
-  <div class="stat-card"><div class="stat-value" id="stCats">-</div><div class="stat-label">Categories</div></div>
-  <div class="stat-card"><div class="stat-value" id="stLow" style="color:#e0a800">-</div><div class="stat-label">Low Stock</div></div>
-  <div class="stat-card"><div class="stat-value" id="stOut" style="color:#dc3545">-</div><div class="stat-label">Out of Stock</div></div>
-</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="showTab('items',this)">📋 Menu Items</button>
-  <button class="tab" onclick="showTab('add',this)">➕ Add Item</button>
-  <button class="tab" onclick="showTab('categories',this)">📁 Categories</button>
-</div>
-
-<!-- ITEMS TAB -->
-<div id="tab-items" class="tab-content active">
-  <div class="toolbar">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search items..." oninput="loadAll()">
-    <select id="catFilter" class="cat-filter" onchange="loadAll()">
-      <option value="">All Categories</option>
-    </select>
-    <button class="btn btn-primary" onclick="showTab('add',document.querySelectorAll('.tab')[1])">➕ Add Item</button>
-  </div>
-  <div class="table-container"><table>
-    <thead><tr><th>Icon</th><th>Item Name</th><th>Category</th><th>Price (UGX)</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody id="itemsBody"></tbody>
-  </table></div>
-</div>
-
-<!-- ADD ITEM TAB -->
-<div id="tab-add" class="tab-content">
-  <div class="form-container">
-    <h3 style="margin-bottom:14px;color:var(--accent,#2c5f4a)">Add New Menu Item</h3>
-    <div class="form-row">
-      <div class="form-group"><label>Item Name *</label><input id="aName" placeholder="e.g. Grilled Tilapia"></div>
-      <div class="form-group"><label>Category *</label><select id="aCat"></select></div>
-      <div class="form-group"><label>Price (UGX) *</label><input type="number" id="aPrice" step="500" placeholder="25000"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Emoji</label><input id="aEmoji" placeholder="🍽️" maxlength="4" value="🍽️"></div>
-      <div class="form-group"><label>Initial Stock</label><input type="number" id="aStock" value="20"></div>
-      <div class="form-group"><label>Reorder Level</label><input type="number" id="aReorder" value="10"></div>
-    </div>
-    <div class="form-group"><label>Description</label><textarea id="aDesc" rows="2" placeholder="Brief description of the item..."></textarea></div>
-    <div class="form-group"><label>Unit Cost (UGX)</label><input type="number" id="aCost" step="500" placeholder="15000"></div>
-    <button class="btn btn-primary" onclick="addItem()">➕ Add to Menu</button>
-  </div>
-</div>
-
-<!-- CATEGORIES TAB -->
-<div id="tab-categories" class="tab-content">
-  <div class="form-container">
-    <h3 style="margin-bottom:12px;color:var(--accent,#2c5f4a)">Existing Categories</h3>
-    <div id="catList" style="margin-bottom:20px"></div>
-    <hr style="border-color:var(--border,#eee);margin-bottom:16px">
-    <h3 style="margin-bottom:12px;color:var(--accent,#2c5f4a)">Add New Category</h3>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input type="text" id="newCatInput" placeholder="e.g. Seafood" style="flex:1;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)">
-      <input type="text" id="newCatEmoji" placeholder="🐟" maxlength="4" style="width:70px;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)">
-      <button class="btn btn-primary" onclick="addCategory()">Add</button>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <h3>Edit Item</h3>
-    <div class="form-group"><label>Name</label><input id="eName"></div>
-    <div class="form-group"><label>Category</label><select id="eCat"></select></div>
-    <div class="form-group"><label>Price (UGX)</label><input type="number" id="ePrice" step="500"></div>
-    <div class="form-group"><label>Stock</label><input type="number" id="eStock"></div>
-    <div class="form-group"><label>Reorder Level</label><input type="number" id="eReorder"></div>
-    <div class="form-group"><label>Emoji</label><input id="eEmoji" maxlength="4"></div>
-    <div class="form-group"><label>Description</label><textarea id="eDesc" rows="2"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveEdit()">Save</button>
-      <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
 <script>
-let _editId=null;
-const CAT_LABELS={breakfast:'🍳 Breakfast',maincourse:'🍽️ Main Course',snacks:'🍔 Snacks',beverages:'🥤 Beverages',spa:'💆 Spa',other:'📦 Other'};
-const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
+const fmt = n => 'USh '+Math.round(n||0).toLocaleString();
+const EMOJIS=['🍽','🍔','🍕','🍜','🍛','🥩','🍗','🐟','🥘','🥗','🍳','🥞','🍞','🌮','🌯','🍱','🍖','🥙','🍟','🥚','☕','🍵','🥤','🍺','🍷','🧃','🧋','💧','🍰','🎂','🍩','🍫','🍦','🍮','🍬','🥜','🥦','🍅','🍋','🥭'];
+let activeCat='all', editId=null, selEmoji='🍽', imgData=null, mediaMtab='emoji';
 
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
-function showTab(n,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');if(btn)btn.classList.add('active');}
-function closeModal(){document.getElementById('editModal').style.display='none';}
-window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
+// ── data layer ────────────────────────────────────────────
+const DB={
+  get(){ try{return window.RuviaStore?RuviaStore.getProducts():JSON.parse(localStorage.getItem('ruvia_products')||'[]');}catch(e){return[];} },
+  save(p){ if(window.RuviaStore){RuviaStore.saveProduct(p);}else{const a=DB.get();const i=a.findIndex(x=>x.id===p.id);if(i>=0)a[i]=p;else a.push(p);localStorage.setItem('ruvia_products',JSON.stringify(a));} },
+  del(id){ const a=DB.get().filter(x=>x.id!==id);localStorage.setItem('ruvia_products',JSON.stringify(a)); }
+};
 
-function loadAll(){
-  const products=RuviaStore.getProducts();
-  const q=document.getElementById('searchInput').value.toLowerCase();
-  const cf=document.getElementById('catFilter').value;
-  let list=products;
-  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.category.includes(q));
-  if(cf) list=list.filter(p=>p.category===cf);
-
-  const cats=[...new Set(products.map(p=>p.category))];
-  const low=products.filter(p=>p.current_stock>0&&p.current_stock<=p.reorder_level).length;
-  const out=products.filter(p=>p.current_stock===0).length;
-  document.getElementById('stItems').textContent=products.length;
-  document.getElementById('stCats').textContent=cats.length;
-  document.getElementById('stLow').textContent=low;
-  document.getElementById('stOut').textContent=out;
-
-  // Populate category dropdowns
-  const catOpts='<option value="">All</option>'+cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
-  document.getElementById('catFilter').innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
-  document.getElementById('aCat').innerHTML=cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
-  document.getElementById('eCat').innerHTML=cats.map(c=>`<option value="${c}">${CAT_LABELS[c]||c}</option>`).join('');
-
-  // Category list
-  document.getElementById('catList').innerHTML=cats.length===0?`<p style="color:var(--text2)">No categories yet</p>`:
-    cats.map(c=>`<span class="cat-tag">${CAT_LABELS[c]||c}<span class="cat-rm" onclick="removeCategory('${c}')">✕</span></span>`).join('');
-
-  // Items table
-  document.getElementById('itemsBody').innerHTML=list.length===0
-    ?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">No items found</td></tr>`
-    :list.map(p=>{
-      const isOut=p.current_stock===0,isLow=!isOut&&p.current_stock<=p.reorder_level;
-      const stockColor=isOut?'#dc3545':isLow?'#e0a800':'#28a745';
-      const statusLabel=isOut?'Out of Stock':isLow?'Low Stock':'In Stock';
-      return `<tr>
-        <td style="font-size:26px">${p.emoji||'🍽️'}</td>
-        <td><strong>${p.name}</strong>${p.description?`<br><small style="color:var(--text2)">${p.description}</small>`:''}</td>
-        <td style="text-transform:capitalize">${CAT_LABELS[p.category]||p.category}</td>
-        <td>${fmt(p.unit_price)}</td>
-        <td><strong style="color:${stockColor}">${p.current_stock}</strong></td>
-        <td><span style="color:${stockColor};font-weight:600;font-size:11px">${statusLabel}</span></td>
-        <td>
-          <button class="btn btn-warning btn-sm" onclick="openEdit(${p.id})">✏️ Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteItem(${p.id})">🗑️</button>
-        </td>
-      </tr>`;
-    }).join('');
+// ── seed demo menu ────────────────────────────────────────
+function seed(){
+  if(DB.get().length) return;
+  const demo=[
+    {id:'m1', name:'Full Breakfast',    emoji:'🍳',category:'breakfast',  unit_price:22000,current_stock:30,description:'Eggs, toast, sausage, juice',availability:'available'},
+    {id:'m2', name:'Pancakes & Syrup',  emoji:'🥞',category:'breakfast',  unit_price:15000,current_stock:40,description:'Fluffy pancakes with maple syrup',availability:'available'},
+    {id:'m3', name:'Omelette',          emoji:'🥚',category:'breakfast',  unit_price:12000,current_stock:50,description:'3-egg omelette with vegetables',availability:'available'},
+    {id:'m4', name:'Grilled Chicken',   emoji:'🍗',category:'maincourse', unit_price:25000,current_stock:30,description:'Herb-marinated grilled chicken',availability:'available'},
+    {id:'m5', name:'Beef Steak',        emoji:'🥩',category:'maincourse', unit_price:45000,current_stock:20,description:'250g tenderloin, served with fries',availability:'available'},
+    {id:'m6', name:'Fish & Chips',      emoji:'🐟',category:'maincourse', unit_price:28000,current_stock:25,description:'Tilapia fillet, crispy chips',availability:'available'},
+    {id:'m7', name:'Vegetable Stew',    emoji:'🥘',category:'maincourse', unit_price:18000,current_stock:40,description:'Garden vegetables in rich sauce',availability:'available'},
+    {id:'m8', name:'Pork Ribs',         emoji:'🍖',category:'maincourse', unit_price:35000,current_stock:15,description:'Slow-cooked BBQ ribs',availability:'available'},
+    {id:'m9', name:'French Fries',      emoji:'🍟',category:'snacks',     unit_price:9000, current_stock:80,description:'Crispy golden fries',availability:'available'},
+    {id:'m10',name:'Spring Rolls (4)',  emoji:'🥟',category:'snacks',     unit_price:12000,current_stock:40,description:'Crispy vegetable spring rolls',availability:'available'},
+    {id:'m11',name:'Samosas (3)',        emoji:'🫓',category:'snacks',     unit_price:8000, current_stock:60,description:'Spiced minced meat samosas',availability:'available'},
+    {id:'m12',name:'Coca Cola',         emoji:'🥤',category:'beverages',  unit_price:4000, current_stock:100,description:'355ml chilled',availability:'available'},
+    {id:'m13',name:'Bottled Water',     emoji:'💧',category:'beverages',  unit_price:2000, current_stock:200,description:'500ml mineral water',availability:'available'},
+    {id:'m14',name:'Fresh Juice',       emoji:'🍊',category:'beverages',  unit_price:8000, current_stock:50,description:'Orange, mango or passion fruit',availability:'available'},
+    {id:'m15',name:'Coffee',            emoji:'☕',category:'beverages',  unit_price:6000, current_stock:80,description:'Ethiopian arabica, served hot',availability:'available'},
+    {id:'m16',name:'Chocolate Cake',    emoji:'🍰',category:'desserts',   unit_price:12000,current_stock:15,description:'Rich chocolate layer cake',availability:'available'},
+    {id:'m17',name:'Ice Cream (2 scoops)',emoji:'🍦',category:'desserts', unit_price:8000, current_stock:30,description:'Vanilla, chocolate or strawberry',availability:'available'},
+  ];
+  localStorage.setItem('ruvia_products',JSON.stringify(demo));
 }
 
-function addItem(){
-  const name=document.getElementById('aName').value.trim();
-  const cat=document.getElementById('aCat').value;
-  const price=parseInt(document.getElementById('aPrice').value)||0;
-  if(!name||!cat||!price){toast('Fill in name, category, and price','error');return;}
-  RuviaStore.addProduct({
-    name,category:cat,
-    unit_price:price,
-    unit_cost:parseInt(document.getElementById('aCost').value)||0,
-    current_stock:parseInt(document.getElementById('aStock').value)||0,
-    reorder_level:parseInt(document.getElementById('aReorder').value)||10,
-    emoji:document.getElementById('aEmoji').value||'🍽️',
-    description:document.getElementById('aDesc').value,
-    sku:'MENU-'+Date.now(),
-    location:'Kitchen'
+// ── boot ─────────────────────────────────────────────────
+function boot(){ seed(); buildEmojiGrid(); buildCatBtns(); render(); }
+
+function setCat(c,btn){
+  activeCat=c;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  render();
+}
+
+function buildCatBtns(){
+  const cats=[...new Set(DB.get().map(p=>p.category).filter(Boolean))];
+  document.getElementById('catBtns').innerHTML=cats.map(c=>`
+    <button class="fbtn${activeCat===c?' on':''}" onclick="setCat('${c}',this)">${c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('');
+}
+
+// ── render grid ───────────────────────────────────────────
+function render(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const list=DB.get().filter(p=>{
+    if(activeCat!=='all'&&p.category!==activeCat) return false;
+    if(q&&!p.name.toLowerCase().includes(q)) return false;
+    return true;
   });
-  toast(`✅ ${name} added to menu`);
-  ['aName','aDesc','aCost'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('aPrice').value='';
-  document.getElementById('aStock').value='20';
-  showTab('items',document.querySelectorAll('.tab')[0]);
-  loadAll();
+
+  if(!list.length){document.getElementById('mgrid').innerHTML='<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text2);font-style:italic">No items found</div>';return;}
+
+  document.getElementById('mgrid').innerHTML=list.map(p=>{
+    const avail=p.availability!=='unavailable';
+    const imgHtml=p.image_url
+      ?`<div class="mc-img"><img src="${p.image_url}" alt="${p.name}"></div>`
+      :`<div class="mc-img">${p.emoji||'🍽'}</div>`;
+    return `
+      <div class="mc${!avail?' unavail':''}">
+        ${imgHtml}
+        <button class="avail-badge ${avail?'av-on':'av-off'}" onclick="toggleAvail('${p.id}')">${avail?'✅ Available':'❌ Unavailable'}</button>
+        <div class="mc-body">
+          <div class="mc-name">${p.name}</div>
+          <div class="mc-desc">${p.description||''}</div>
+          <div class="mc-foot">
+            <span class="mc-price">${fmt(p.unit_price||0)}</span>
+            <span class="mc-cat">${p.category||'general'}</span>
+          </div>
+          <div class="mc-stock">Stock: ${p.current_stock??'—'}</div>
+          <div class="mc-actions">
+            <button class="ma" onclick="openEdit('${p.id}')">✏️ Edit</button>
+            <button class="ma red" onclick="delItem('${p.id}')">🗑 Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleAvail(id){
+  const p=DB.get().find(x=>x.id===id);if(!p)return;
+  p.availability=p.availability==='unavailable'?'available':'unavailable';
+  DB.save(p);render();
+}
+
+// ── emoji grid ────────────────────────────────────────────
+function buildEmojiGrid(){
+  document.getElementById('egrid').innerHTML=EMOJIS.map(e=>`
+    <div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');
+}
+
+function pickEmoji(e){
+  selEmoji=e; imgData=null;
+  document.getElementById('mprevInner').textContent=e;
+  document.getElementById('mprev').innerHTML=`<span id="mprevInner">${e}</span>`;
+  document.querySelectorAll('.eo').forEach(el=>el.classList.toggle('on',el.textContent===e));
+}
+
+function switchMtab(tab,btn){
+  mediaMtab=tab;
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('emojiTab').style.display=tab==='emoji'?'block':'none';
+  document.getElementById('uploadTab').style.display=tab==='upload'?'block':'none';
+}
+
+function previewImg(input){
+  if(input.files&&input.files[0]){
+    const r=new FileReader();
+    r.onload=e=>{
+      imgData=e.target.result;
+      document.getElementById('mprev').innerHTML=`<img src="${imgData}" alt="">`;
+      document.getElementById('imgName').textContent=input.files[0].name;
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── add / edit modal ──────────────────────────────────────
+function openAdd(){
+  editId=null; selEmoji='🍽'; imgData=null;
+  document.getElementById('mTitle').textContent='Add Menu Item';
+  ['iName','iDesc','iPrice','iStock'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('iCat').value='maincourse';
+  document.getElementById('iAvail').value='available';
+  document.getElementById('mprev').innerHTML='<span id="mprevInner">🍽</span>';
+  buildEmojiGrid();
+  document.getElementById('itemModal').style.display='flex';
 }
 
 function openEdit(id){
-  const p=RuviaStore.getProducts().find(x=>x.id===id);if(!p)return;
-  _editId=id;
-  document.getElementById('eName').value=p.name||'';
-  document.getElementById('eCat').value=p.category||'';
-  document.getElementById('ePrice').value=p.unit_price||'';
-  document.getElementById('eStock').value=p.current_stock||0;
-  document.getElementById('eReorder').value=p.reorder_level||10;
-  document.getElementById('eEmoji').value=p.emoji||'🍽️';
-  document.getElementById('eDesc').value=p.description||'';
-  document.getElementById('editModal').style.display='flex';
+  const p=DB.get().find(x=>x.id===id);if(!p)return;
+  editId=id; selEmoji=p.emoji||'🍽'; imgData=p.image_url||null;
+  document.getElementById('mTitle').textContent='Edit: '+p.name;
+  document.getElementById('iName').value=p.name||'';
+  document.getElementById('iDesc').value=p.description||'';
+  document.getElementById('iPrice').value=p.unit_price||'';
+  document.getElementById('iStock').value=p.current_stock||'';
+  document.getElementById('iCat').value=p.category||'maincourse';
+  document.getElementById('iAvail').value=p.availability||'available';
+  const prev=document.getElementById('mprev');
+  prev.innerHTML=imgData?`<img src="${imgData}" alt="">`:`<span id="mprevInner">${selEmoji}</span>`;
+  buildEmojiGrid();
+  document.getElementById('itemModal').style.display='flex';
 }
-function saveEdit(){
-  const products=RuviaStore.getProducts();
-  const i=products.findIndex(p=>p.id===_editId);if(i<0)return;
-  products[i]={...products[i],
-    name:document.getElementById('eName').value,
-    category:document.getElementById('eCat').value,
-    unit_price:parseInt(document.getElementById('ePrice').value)||products[i].unit_price,
-    current_stock:parseInt(document.getElementById('eStock').value)||0,
-    reorder_level:parseInt(document.getElementById('eReorder').value)||10,
-    emoji:document.getElementById('eEmoji').value||'🍽️',
-    description:document.getElementById('eDesc').value
+
+function saveItem(){
+  const name=document.getElementById('iName').value.trim();
+  if(!name){alert('Item name is required.');return;}
+  const item={
+    id:editId||'m'+Date.now(), name,
+    description:document.getElementById('iDesc').value.trim(),
+    unit_price:parseFloat(document.getElementById('iPrice').value)||0,
+    current_stock:parseInt(document.getElementById('iStock').value)||0,
+    reorder_level:5,
+    category:document.getElementById('iCat').value,
+    emoji:imgData?null:selEmoji,
+    image_url:imgData||null,
+    availability:document.getElementById('iAvail').value
   };
-  RuviaStore.saveProducts(products);toast('Item updated');closeModal();loadAll();
-}
-function deleteItem(id){if(!confirm('Delete this item?'))return;RuviaStore.saveProducts(RuviaStore.getProducts().filter(p=>p.id!==id));toast('Item deleted');loadAll();}
-
-function addCategory(){
-  const name=document.getElementById('newCatInput').value.trim();
-  if(!name){toast('Enter a category name','error');return;}
-  const key=name.toLowerCase().replace(/\s+/g,'_');
-  const emoji=document.getElementById('newCatEmoji').value||'📦';
-  CAT_LABELS[key]=emoji+' '+name;
-  document.getElementById('newCatInput').value='';document.getElementById('newCatEmoji').value='';
-  toast('Category added — add items to activate it');loadAll();
-}
-function removeCategory(cat){
-  const has=RuviaStore.getProducts().some(p=>p.category===cat);
-  if(has){toast('Category has items — reassign them first','error');return;}
-  delete CAT_LABELS[cat];loadAll();toast('Category removed');
+  DB.save(item);
+  document.getElementById('itemModal').style.display='none';
+  buildCatBtns(); render();
 }
 
-RuviaStore.onChange(()=>loadAll());
-loadAll();
+function delItem(id){
+  if(!confirm('Delete this menu item?'))return;
+  DB.del(id);
+  buildCatBtns(); render();
+}
+
+// ── print ─────────────────────────────────────────────────
+function printMenu(){
+  const items=DB.get().filter(p=>p.availability!=='unavailable');
+  const cats=[...new Set(items.map(p=>p.category).filter(Boolean))];
+  const cfg=(()=>{const d={hotelName:'Ruvia Hotel',address:'Kampala, Uganda',phone:'+256 700 000000'};try{return{...d,...JSON.parse(localStorage.getItem('ruvia_hotel_config')||'{}')};}catch(e){return d;}})();
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Menu</title><style>
+    body{font-family:Georgia,serif;max-width:700px;margin:0 auto;padding:20mm}
+    h1{text-align:center;font-size:26px;color:#1a3c34;border-bottom:2px solid #1a3c34;padding-bottom:10px;margin-bottom:6px}
+    .sub{text-align:center;font-size:13px;color:#666;margin-bottom:24px}
+    .cat{font-size:16px;font-weight:700;color:#2c5f4a;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid #e0e0e0}
+    .item{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px dotted #eee}
+    .item:last-child{border:none}
+    .il{display:flex;gap:10px;align-items:flex-start}
+    .ie{font-size:20px;width:26px}
+    .in{font-weight:600;font-size:13px}
+    .id{font-size:11px;color:#888;margin-top:2px}
+    .ip{font-weight:700;font-size:14px;color:#2c5f4a;white-space:nowrap}
+    .foot{text-align:center;font-size:11px;color:#999;margin-top:24px;border-top:1px solid #eee;padding-top:12px}
+    @media print{button{display:none}}
+  </style></head><body>`);
+  w.document.write(`<h1>${cfg.hotelName}</h1><div class="sub">Restaurant Menu &nbsp;·&nbsp; ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>`);
+  cats.forEach(cat=>{
+    const catItems=items.filter(p=>p.category===cat);
+    if(!catItems.length) return;
+    w.document.write(`<div class="cat">${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>`);
+    catItems.forEach(p=>w.document.write(`
+      <div class="item">
+        <div class="il"><span class="ie">${p.emoji||'🍽'}</span><div><div class="in">${p.name}</div>${p.description?`<div class="id">${p.description}</div>`:''}</div></div>
+        <div class="ip">USh ${Math.round(p.unit_price||0).toLocaleString()}</div>
+      </div>`));
+  });
+  w.document.write(`<div class="foot">All prices include VAT &nbsp;·&nbsp; ${cfg.phone}</div></body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+function showQR(){
+  const url=encodeURIComponent(location.href);
+  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}`;
+  document.getElementById('qrModal').style.display='flex';
+}
+
+if(window.RuviaStore) RuviaStore.onChange(()=>{buildCatBtns();render();});
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>

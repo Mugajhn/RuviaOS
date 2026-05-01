@@ -2,278 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RuviaOS – Table Management</title>
+<title>RuviaOS — Tables</title>
+<script>(function(){if(localStorage.getItem('ruvia-dark')==='1')document.documentElement.style.background='#0f1117';})()</script>
 <link rel="stylesheet" href="darkmode.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;padding:20px}
-.container{max-width:1400px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1a3c34,#2c5f4a);color:#fff;padding:18px 22px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card,#fff);padding:16px;border-radius:12px;text-align:center;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s}
-.stat-card:hover{transform:translateY(-3px)}
-.stat-value{font-size:28px;font-weight:700}
-.stat-label{color:var(--text2,#666);margin-top:4px;font-size:12px}
-.stat-card.available .stat-value{color:#28a745}
-.stat-card.occupied .stat-value{color:#dc3545}
-.stat-card.dirty .stat-value{color:#e0a800}
-.stat-card.reserved .stat-value{color:#17a2b8}
-.filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.filter-btn{padding:9px 18px;background:var(--card,#fff);border:none;border-radius:25px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;box-shadow:0 2px 5px rgba(0,0,0,.08);color:var(--text,#222)}
-.filter-btn.active{background:var(--accent,#2c5f4a);color:#fff}
-.table-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:16px;margin-bottom:28px}
-.table-card{background:var(--card,#fff);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:var(--shadow);border-left:5px solid #ccc}
-.table-card:hover{transform:translateY(-4px);box-shadow:0 8px 22px rgba(0,0,0,.14)}
-.table-card.available{border-left-color:#28a745;background:#f0fff4}
-.table-card.occupied{border-left-color:#dc3545;background:#fff5f5}
-.table-card.dirty{border-left-color:#e0a800;background:#fffdf0}
-.table-card.reserved{border-left-color:#17a2b8;background:#f0fbff}
-.tn{font-size:26px;font-weight:700;color:var(--text,#222)}
-.tc{font-size:12px;color:var(--text2,#666);margin:4px 0}
-.tl{font-size:11px;color:var(--text2,#888)}
-.ts-badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;margin:6px 0}
-.ts-available{background:#28a745;color:#fff}
-.ts-occupied{background:#dc3545;color:#fff}
-.ts-dirty{background:#e0a800;color:#fff}
-.ts-reserved{background:#17a2b8;color:#fff}
-.waiter-info{font-size:11px;color:var(--text2,#666);margin-top:6px;padding:4px 8px;background:var(--th-bg,#f8f9fa);border-radius:6px}
-.section-title{font-size:16px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--accent,#2c5f4a);display:inline-block;color:var(--text,#222)}
-.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.tab{padding:9px 18px;background:var(--card,#fff);border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;color:var(--text,#222);transition:all .2s}
-.tab.active{background:var(--accent,#2c5f4a);color:#fff}
-.tab-content{display:none}.tab-content.active{display:block}
-.table-container{background:var(--card,#fff);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin-bottom:16px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border,#eee);font-size:12px}
-th{background:var(--th-bg,#f8f9fa);font-weight:600;color:var(--text,#222)}
-tr:hover{background:var(--row-hover,#f5f7fa)}
-.btn{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;font-weight:600;font-size:11px;margin:2px;transition:all .2s}
-.btn-primary{background:var(--accent,#2c5f4a);color:#fff}
-.btn-success{background:#28a745;color:#fff}
-.btn-warning{background:#ffc107;color:#333}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-info{background:#17a2b8;color:#fff}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);justify-content:center;align-items:center;z-index:1000}
-.modal-content{background:var(--card,#fff);padding:22px;border-radius:14px;max-width:460px;width:92%;color:var(--text,#222)}
-.modal-content h3{margin-bottom:14px;color:var(--accent,#2c5f4a)}
-.action-list{display:flex;flex-direction:column;gap:8px;margin:14px 0}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-weight:600;margin-bottom:4px;font-size:12px;color:var(--text2,#555)}
-.form-group input,.form-group select{width:100%;padding:9px;border:1px solid var(--input-border,#ddd);border-radius:7px;font-size:13px;background:var(--input-bg,#fff);color:var(--text,#222)}
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:9px;display:none;z-index:9999;font-size:13px;font-weight:600;color:#fff}
-.toast.success{background:#28a745}.toast.error{background:#dc3545}
-@media(max-width:768px){.table-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+:root{--bg:#f4f6f9;--card:#fff;--text:#1a1a2e;--text2:#6b7280;--border:#e5e7eb;--accent:#2c5f4a;--accent-light:#e8f5f0;--input-bg:#fff;--th-bg:#f9fafb;--shadow-md:0 4px 16px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1400px;margin:0 auto;padding:24px}
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.phdr h1{font-size:22px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{opacity:.9}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.tile.success{border-top:3px solid #28a745}.tile.warn{border-top:3px solid #e0a800}.tile.info{border-top:3px solid #17a2b8}.tile.plain{border-top:3px solid var(--accent)}
+.tv{font-size:24px;font-weight:700;color:var(--text);line-height:1}
+.tl{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+/* filter */
+.fbar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.fbtn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.fbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* tables grid */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:22px}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:.2s;text-align:center;border-top:4px solid var(--border);position:relative}
+.tc:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.tc.available{border-top-color:#28a745}
+.tc.occupied{border-top-color:#dc3545}
+.tc.reserved{border-top-color:#e0a800}
+.tc.cleaning{border-top-color:#17a2b8}
+.tc-icon{font-size:36px;margin-bottom:8px;display:block}
+.tc-num{font-size:18px;font-weight:700}
+.tc-seats{font-size:12px;color:var(--text2);margin-bottom:8px}
+.tc-status{font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px;display:inline-block}
+.ts-available{background:#d4edda;color:#155724}
+.ts-occupied{background:#f8d7da;color:#721c24}
+.ts-reserved{background:#fff3cd;color:#856404}
+.ts-cleaning{background:#d1ecf1;color:#0c5460}
+.tc-waiter{font-size:11px;color:var(--text2);margin-top:5px}
+.tc-waiter span{font-weight:600;color:var(--accent)}
+.order-badge{position:absolute;top:9px;right:9px;background:#dc3545;color:#fff;font-size:9px;font-weight:700;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+/* orders list */
+.osec{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.osec-hdr{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.osec-hdr h3{font-size:14px;font-weight:700}
+.oitem{display:flex;align-items:flex-start;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border)}
+.oitem:last-child{border-bottom:none}
+.otbl{width:38px;height:38px;border-radius:50%;background:var(--th-bg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0}
+.oinfo{flex:1;min-width:0}
+.oname{font-size:13px;font-weight:600}
+.ometa{font-size:11px;color:var(--text2);margin-top:2px}
+/* modals */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+.mhdr{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mhdr h3{font-size:16px;font-weight:700}
+.mbody{padding:20px}
+.mfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.fg input,.fg select{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 18px;border-radius:9px;font-size:13px;cursor:pointer}
+/* status chooser */
+.schoice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.schoice button{padding:11px;border-radius:9px;border:2px solid var(--border);background:var(--card);font-size:12px;font-weight:600;cursor:pointer;color:var(--text);transition:.15s}
+.schoice button:hover,.schoice button.act{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.dr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dr:last-child{border:none}
+.dr span:first-child{color:var(--text2)}
 </style>
 </head>
 <body>
 <div id="navbar-placeholder"></div>
-<script>fetch('navbar.html').then(r=>r.text()).then(d=>{document.getElementById('navbar-placeholder').innerHTML=d;});</script>
-<script src="darkmode.js"></script>
-<script src="ruvia-store.js"></script>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
 
-<div class="container">
-<div class="header">
-  <h1>🪑 Table Management</h1>
-  <div style="display:flex;gap:8px">
-    <button style="background:#fff;color:#2c5f4a;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700" onclick="loadAll()">🔄 Refresh</button>
-    <button class="btn btn-success" onclick="openResModal()">+ Reserve Table</button>
+<div class="page">
+  <div class="phdr">
+    <h1>🍽 Table Management</h1>
+    <button class="btn" onclick="openAddTable()">+ Add Table</button>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="fbar">
+    <button class="fbtn on" onclick="setFilter('all',this)">All Tables</button>
+    <button class="fbtn" onclick="setFilter('available',this)">🟢 Available</button>
+    <button class="fbtn" onclick="setFilter('occupied',this)">🔴 Occupied</button>
+    <button class="fbtn" onclick="setFilter('reserved',this)">🟡 Reserved</button>
+    <button class="fbtn" onclick="setFilter('cleaning',this)">🔵 Cleaning</button>
+  </div>
+
+  <div class="tgrid" id="tablesGrid"></div>
+
+  <div class="osec">
+    <div class="osec-hdr"><h3>📋 Recent Dine-In Orders</h3><span id="ordersCount" style="font-size:12px;color:var(--text2)"></span></div>
+    <div id="ordersList"></div>
   </div>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card available" onclick="filterBy('available')"><div class="stat-value" id="stAvail">-</div><div class="stat-label">🟢 Available</div></div>
-  <div class="stat-card occupied" onclick="filterBy('occupied')"><div class="stat-value" id="stOcc">-</div><div class="stat-label">🔴 Occupied</div></div>
-  <div class="stat-card dirty" onclick="filterBy('dirty')"><div class="stat-value" id="stDirty">-</div><div class="stat-label">🟡 Dirty</div></div>
-  <div class="stat-card reserved" onclick="filterBy('reserved')"><div class="stat-value" id="stRes">-</div><div class="stat-label">📅 Reserved</div></div>
-  <div class="stat-card" onclick="filterBy('all')"><div class="stat-value" id="stTotal">-</div><div class="stat-label">Total</div></div>
-</div>
-
-<div class="filters">
-  <button class="filter-btn active" id="fb-all" onclick="filterBy('all')">All Tables</button>
-  <button class="filter-btn" id="fb-available" onclick="filterBy('available')">🟢 Available</button>
-  <button class="filter-btn" id="fb-occupied" onclick="filterBy('occupied')">🔴 Occupied</button>
-  <button class="filter-btn" id="fb-dirty" onclick="filterBy('dirty')">🟡 Dirty</button>
-  <button class="filter-btn" id="fb-reserved" onclick="filterBy('reserved')">📅 Reserved</button>
-</div>
-
-<div class="table-grid" id="tableGrid"></div>
-
-<div class="tabs">
-  <button class="tab active" onclick="showTab('reservations',this)">📅 Today's Reservations</button>
-  <button class="tab" onclick="showTab('orders',this)">📋 Recent Orders</button>
-</div>
-
-<div id="tab-reservations" class="tab-content active">
-  <div class="table-container"><table>
-    <thead><tr><th>Table</th><th>Guest</th><th>Phone</th><th>Time</th><th>Party</th><th>Status</th><th>Action</th></tr></thead>
-    <tbody id="resBody"></tbody>
-  </table></div>
-</div>
-
-<div id="tab-orders" class="tab-content">
-  <div class="table-container"><table>
-    <thead><tr><th>Table</th><th>Order #</th><th>Guest</th><th>Amount</th><th>Time</th><th>Payment</th></tr></thead>
-    <tbody id="ordersBody"></tbody>
-  </table></div>
-</div>
-</div>
-
-<!-- Table Action Modal -->
-<div id="actionModal" class="modal">
-  <div class="modal-content">
-    <h3 id="actTitle">Table Actions</h3>
-    <div id="actInfo" style="font-size:12px;color:var(--text2);margin-bottom:12px"></div>
-    <div class="action-list" id="actButtons"></div>
-  </div>
-</div>
-
-<!-- Reservation Modal -->
-<div id="resModal" class="modal">
-  <div class="modal-content">
-    <h3>New Table Reservation</h3>
-    <div class="form-group"><label>Table</label><select id="rTable"></select></div>
-    <div class="form-group"><label>Guest Name</label><input id="rGuest" placeholder="Guest name"></div>
-    <div class="form-group"><label>Phone</label><input id="rPhone" placeholder="07xxxxxxxx"></div>
-    <div class="form-group"><label>Time</label><input type="time" id="rTime" value="19:00"></div>
-    <div class="form-group"><label>Party Size</label><input type="number" id="rParty" value="4" min="1"></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button class="btn btn-primary" onclick="saveRes()">Save Reservation</button>
-      <button class="btn btn-danger" onclick="closeModal('resModal')">Cancel</button>
+<!-- Table action modal -->
+<div class="overlay" id="tableModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="mhdr"><h3 id="tmTitle">Table</h3><button onclick="document.getElementById('tableModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <div id="tmInfo" style="margin-bottom:14px"></div>
+      <p style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Change Status</p>
+      <div class="schoice" id="tmChoices"></div>
+      <div id="tmWaiterSection" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <p style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Assign Waiter / Notify Staff</p>
+        <div class="f2">
+          <div class="fg"><label>Staff Member</label><select id="tmStaff"></select></div>
+          <div class="fg"><label>Message</label><input id="tmMsg" placeholder="Needs attention"></div>
+        </div>
+        <button class="btn-save" style="width:100%;padding:9px" onclick="notifyWaiter()">🔔 Send Notification</button>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="document.getElementById('tableModal').style.display='none'">Close</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- Add table modal -->
+<div class="overlay" id="addModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:360px">
+    <div class="mhdr"><h3>➕ Add Table</h3><button onclick="document.getElementById('addModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button></div>
+    <div class="mbody">
+      <div class="f2">
+        <div class="fg"><label>Table Number/Name</label><input id="atNum" placeholder="e.g. T1"></div>
+        <div class="fg"><label>Seats</label><input type="number" id="atSeats" placeholder="4" min="1"></div>
+      </div>
+      <div class="fg"><label>Location</label><select id="atLoc"><option value="indoor">Indoor</option><option value="outdoor">Outdoor/Terrace</option><option value="private">Private Dining</option><option value="bar">Bar Area</option></select></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
+      <button class="btn-save" onclick="addTable()">Add Table</button>
+    </div>
+  </div>
+</div>
 
+<script src="ruvia-store.js"></script>
 <script>
-const TABLES_KEY='ruvia_tables';
-const TRES_KEY='ruvia_table_res';
+const fmt = n => 'USh '+Math.round(n||0).toLocaleString();
+let tableFilter = 'all';
+let activeTableId = null;
 
-function getTables(){
-  try{const d=localStorage.getItem(TABLES_KEY);return d?JSON.parse(d):defaultTables();}catch(e){return defaultTables();}
-}
-function saveTables(t){localStorage.setItem(TABLES_KEY,JSON.stringify(t));}
-function getTableRes(){try{const d=localStorage.getItem(TRES_KEY);return d?JSON.parse(d):[];}catch(e){return [];}}
-function saveTableRes(r){localStorage.setItem(TRES_KEY,JSON.stringify(r));}
-function defaultTables(){const t=[
-  {id:1,number:'1',name:'Window 1',capacity:4,location:'Window Section',status:'available',waiter:null},
-  {id:2,number:'2',name:'Window 2',capacity:4,location:'Window Section',status:'available',waiter:null},
-  {id:3,number:'3',name:'Center 1',capacity:6,location:'Main Hall',status:'occupied',waiter:'James'},
-  {id:4,number:'4',name:'Center 2',capacity:6,location:'Main Hall',status:'available',waiter:null},
-  {id:5,number:'5',name:'Booth 1',capacity:4,location:'Booth Area',status:'occupied',waiter:'Sarah'},
-  {id:6,number:'6',name:'Booth 2',capacity:4,location:'Booth Area',status:'dirty',waiter:null},
-  {id:7,number:'7',name:'Private Room',capacity:10,location:'Private Area',status:'reserved',waiter:'John'},
-  {id:8,number:'8',name:'Bar 1',capacity:2,location:'Bar Area',status:'available',waiter:null},
-  {id:9,number:'9',name:'Bar 2',capacity:2,location:'Bar Area',status:'occupied',waiter:'Mike'},
-  {id:10,number:'10',name:'Terrace 1',capacity:4,location:'Terrace',status:'available',waiter:null}
-];saveTables(t);return t;}
+// ── data helpers ──────────────────────────────────────────
+const DB = {
+  tables(){ try{return JSON.parse(localStorage.getItem('ruvia_tables')||'[]');}catch(e){return[];} },
+  save(arr){ localStorage.setItem('ruvia_tables',JSON.stringify(arr)); },
+  setStatus(id,s){ const a=DB.tables().map(t=>t.id===id?{...t,status:s,openedAt:s==='occupied'&&!DB.tables().find(x=>x.id===id)?.openedAt?new Date().toISOString():s==='available'||s==='cleaning'?null:DB.tables().find(x=>x.id===id)?.openedAt}:t);DB.save(a); },
+  setWaiter(id,w){ const a=DB.tables().map(t=>t.id===id?{...t,waiter:w}:t);DB.save(a); },
+  orders(){ try{return window.RuviaStore?RuviaStore.getOrders():JSON.parse(localStorage.getItem('ruvia_orders')||'[]');}catch(e){return[];} },
+  staff(){ try{return JSON.parse(localStorage.getItem('ruvia_staff')||'[]');}catch(e){return[];} }
+};
 
-let currentFilter='all', selectedTableId=null;
-const fmt=n=>'UGX '+Math.round(n||0).toLocaleString();
-
-function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
-function closeModal(id){document.getElementById(id||'actionModal').style.display='none';}
-function showTab(n,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('active');}
-window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.style.display='none';}
-
-function filterBy(f){
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  const fb=document.getElementById('fb-'+f);if(fb)fb.classList.add('active');
-  renderGrid(getTables());
+// ── seed tables ───────────────────────────────────────────
+function seed(){
+  if(DB.tables().length) return;
+  const tables=[];
+  const locs=['indoor','indoor','indoor','indoor','outdoor','outdoor','private','bar'];
+  const seats=[2,4,4,6,4,4,8,6];
+  for(let i=0;i<8;i++) tables.push({id:'tbl'+(i+1),number:'T'+(i+1),seats:seats[i],location:locs[i],status:'available',waiter:null,openedAt:null});
+  DB.save(tables);
 }
 
-function loadAll(){
-  const tables=getTables(), res=getTableRes(), orders=RuviaStore.getOrders();
-  document.getElementById('stAvail').textContent=tables.filter(t=>t.status==='available').length;
-  document.getElementById('stOcc').textContent=tables.filter(t=>t.status==='occupied').length;
-  document.getElementById('stDirty').textContent=tables.filter(t=>t.status==='dirty').length;
-  document.getElementById('stRes').textContent=tables.filter(t=>t.status==='reserved').length;
-  document.getElementById('stTotal').textContent=tables.length;
-  renderGrid(tables); renderRes(res,tables); renderOrders(orders);
+function boot(){ seed(); renderTiles(); renderTables(); renderOrders(); populateStaffSelects(); }
+
+function setFilter(f,btn){
+  tableFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  renderTables();
 }
 
-function renderGrid(tables){
-  const list=currentFilter==='all'?tables:tables.filter(t=>t.status===currentFilter);
-  const smap={available:'ts-available',occupied:'ts-occupied',dirty:'ts-dirty',reserved:'ts-reserved'};
-  const lmap={available:'🟢 Available',occupied:'🔴 Occupied',dirty:'🟡 Dirty',reserved:'📅 Reserved'};
-  document.getElementById('tableGrid').innerHTML=list.length===0
-    ?`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text2)">No tables in this category</div>`
-    :list.map(t=>`<div class="table-card ${t.status}" onclick="openActions(${t.id})">
-        <div class="tn">Table ${t.number}</div>
-        <div class="tc">👥 ${t.capacity} seats</div>
-        <div class="tl">📍 ${t.location}</div>
-        <div><span class="ts-badge ${smap[t.status]||''}">${lmap[t.status]||t.status}</span></div>
-        ${t.waiter?`<div class="waiter-info">👨‍🍳 ${t.waiter}</div>`:''}
-      </div>`).join('');
+// ── tiles ─────────────────────────────────────────────────
+function renderTiles(){
+  const t=DB.tables();
+  const orders=DB.orders().filter(o=>o.order_type==='dine_in');
+  document.getElementById('tiles').innerHTML=[
+    {lbl:'Available',val:t.filter(x=>x.status==='available').length,cls:'success'},
+    {lbl:'Occupied', val:t.filter(x=>x.status==='occupied').length, cls:'warn'},
+    {lbl:'Reserved', val:t.filter(x=>x.status==='reserved').length, cls:''},
+    {lbl:'Dine-In Orders',val:orders.length,cls:'info'},
+  ].map(t=>`<div class="tile ${t.cls} plain"><div class="tv">${t.val}</div><div class="tl">${t.lbl}</div></div>`).join('');
 }
 
-function renderRes(res,tables){
-  document.getElementById('resBody').innerHTML=res.length===0
-    ?`<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">No reservations today</td></tr>`
-    :res.map(r=>{const t=tables.find(x=>x.id===r.table_id)||{};
-      return `<tr><td>Table ${t.number||r.table_id}</td><td><strong>${r.guest_name}</strong></td><td>${r.phone||'-'}</td><td>${r.time}</td><td>${r.party_size} pax</td><td><span style="color:#17a2b8;font-weight:600">${r.status}</span></td>
-        <td>${r.status==='confirmed'?`<button class="btn btn-success" onclick="checkInRes(${r.id},${r.table_id})">✓ Arrived</button>`:'-'}</td></tr>`;}).join('');
+// ── tables grid ───────────────────────────────────────────
+function renderTables(){
+  const tables=DB.tables().filter(t=>tableFilter==='all'||t.status===tableFilter);
+  const orders=DB.orders();
+  const SC={available:'ts-available',occupied:'ts-occupied',reserved:'ts-reserved',cleaning:'ts-cleaning'};
+  const SL={available:'🟢 Available',occupied:'🔴 Occupied',reserved:'🟡 Reserved',cleaning:'🔵 Cleaning'};
+  const icon=s=>s<=2?'🪑':s<=4?'🍽':'🎉';
+  const el=document.getElementById('tablesGrid');
+  if(!tables.length){el.innerHTML='<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--text2);font-style:italic">No tables match this filter</div>';return;}
+  el.innerHTML=tables.map(t=>{
+    const tOrders=orders.filter(o=>o.table===t.number&&o.order_type==='dine_in').length;
+    const elapsed=t.openedAt?Math.round((Date.now()-new Date(t.openedAt))/60000):null;
+    return `
+      <div class="tc ${t.status}" onclick="openTableModal('${t.id}')">
+        ${tOrders?`<div class="order-badge">${tOrders}</div>`:''}
+        <span class="tc-icon">${icon(t.seats)}</span>
+        <div class="tc-num">${t.number}</div>
+        <div class="tc-seats">👥 ${t.seats} seats · ${t.location}</div>
+        <span class="tc-status ${SC[t.status]||''}">${SL[t.status]||t.status}</span>
+        ${t.waiter?`<div class="tc-waiter">Waiter: <span>${t.waiter}</span></div>`:''}
+        ${elapsed!==null?`<div style="font-size:10px;color:var(--text2);margin-top:4px">Open ${elapsed}min</div>`:''}
+      </div>`;
+  }).join('');
 }
 
-function renderOrders(orders){
-  const tableOrders=orders.filter(o=>o.order_type==='dine_in'||o.table).slice(-15).reverse();
-  document.getElementById('ordersBody').innerHTML=tableOrders.length===0
-    ?`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">No table orders yet</td></tr>`
-    :tableOrders.map(o=>`<tr><td>${o.table||'-'}</td><td style="font-family:monospace">${o.order_number||'-'}</td><td>${o.guest_name||'Walk-in'}</td><td><strong>${fmt(o.total)}</strong></td><td>${(o.created_at||'').slice(0,16)}</td><td style="text-transform:capitalize">${o.payment_method||'-'}</td></tr>`).join('');
+// ── table modal ───────────────────────────────────────────
+function openTableModal(id){
+  activeTableId=id;
+  const t=DB.tables().find(x=>x.id===id);if(!t)return;
+  document.getElementById('tmTitle').textContent=`Table ${t.number}`;
+  document.getElementById('tmInfo').innerHTML=`
+    <div class="dr"><span>Location</span><span style="text-transform:capitalize">${t.location}</span></div>
+    <div class="dr"><span>Seats</span><span>${t.seats}</span></div>
+    <div class="dr"><span>Waiter</span><span>${t.waiter||'—'}</span></div>
+    <div class="dr"><span>Status</span><span style="text-transform:capitalize">${t.status}</span></div>`;
+  document.getElementById('tmChoices').innerHTML=
+    ['available','occupied','reserved','cleaning'].map(s=>`
+      <button class="${s===t.status?'act':''}" onclick="changeTableStatus('${id}','${s}')">
+        ${{available:'🟢 Available',occupied:'🔴 Occupied',reserved:'🟡 Reserved',cleaning:'🔵 Cleaning'}[s]}
+      </button>`).join('');
+  document.getElementById('tmMsg').value=`Table ${t.number} needs attention`;
+  document.getElementById('tableModal').style.display='flex';
 }
 
-function openActions(id){
-  const t=getTables().find(x=>x.id===id);if(!t)return;
-  selectedTableId=id;
-  document.getElementById('actTitle').textContent=`Table ${t.number} – ${t.location}`;
-  document.getElementById('actInfo').innerHTML=`👥 Capacity: ${t.capacity} &nbsp;|&nbsp; Status: <strong>${t.status}</strong>${t.waiter?` &nbsp;|&nbsp; Waiter: ${t.waiter}`:''}`;
-  const btns=document.getElementById('actButtons');
-  const actions=[];
-  if(t.status==='available'){
-    actions.push(`<button class="btn btn-danger" onclick="changeStatus(${id},'occupied')">🍽️ Seat Guests</button>`);
-    actions.push(`<button class="btn btn-info" onclick="changeStatus(${id},'reserved')">📅 Mark Reserved</button>`);
-  }
-  if(t.status==='occupied'){
-    actions.push(`<button class="btn btn-primary" onclick="goToPOS(${id})">🍔 Open POS Order</button>`);
-    actions.push(`<button class="btn btn-warning" onclick="changeStatus(${id},'dirty')">🧹 Clear/Mark Dirty</button>`);
-  }
-  if(t.status==='dirty') actions.push(`<button class="btn btn-success" onclick="changeStatus(${id},'available')">✅ Mark Clean</button>`);
-  if(t.status==='reserved'){
-    actions.push(`<button class="btn btn-success" onclick="changeStatus(${id},'occupied')">👥 Guest Arrived</button>`);
-    actions.push(`<button class="btn btn-danger" onclick="changeStatus(${id},'available')">❌ Cancel Reservation</button>`);
-  }
-  actions.push(`<button class="btn btn-warning" style="margin-top:4px" onclick="promptWaiter(${id})">👨‍🍳 Assign Waiter</button>`);
-  actions.push(`<button class="btn" style="background:var(--border,#eee);color:var(--text,#333)" onclick="closeModal('actionModal')">Close</button>`);
-  btns.innerHTML=actions.join('');
-  document.getElementById('actionModal').style.display='flex';
+function changeTableStatus(id,status){
+  const tables=DB.tables();
+  const t=tables.find(x=>x.id===id);if(!t)return;
+  t.status=status;
+  if(status==='occupied'&&!t.openedAt) t.openedAt=new Date().toISOString();
+  if(status==='available'||status==='cleaning'){t.openedAt=null;t.waiter=null;}
+  DB.save(tables);
+  log(`Table ${t.number} → ${status}`,'tables');
+  renderTiles(); renderTables();
+  // refresh modal
+  openTableModal(id);
 }
-function changeStatus(id,s){const tables=getTables();const t=tables.find(x=>x.id===id);if(!t)return;t.status=s;if(s==='available')t.waiter=null;saveTables(tables);toast(`Table ${t.number} → ${s}`);closeModal('actionModal');loadAll();}
-function promptWaiter(id){const name=prompt('Assign waiter name:');if(!name)return;const tables=getTables();const t=tables.find(x=>x.id===id);if(!t)return;t.waiter=name;saveTables(tables);toast('Waiter assigned');closeModal('actionModal');loadAll();}
-function goToPOS(id){const t=getTables().find(x=>x.id===id);window.location.href='pos.html'+(t?`?table=${t.number}`:'');}
 
-function openResModal(){
-  const tables=getTables().filter(t=>t.status==='available');
-  document.getElementById('rTable').innerHTML=tables.map(t=>`<option value="${t.id}">Table ${t.number} – ${t.location} (${t.capacity} seats)</option>`).join('');
-  document.getElementById('rGuest').value='';document.getElementById('rPhone').value='';
-  document.getElementById('rTime').value='19:00';document.getElementById('rParty').value='4';
-  document.getElementById('resModal').style.display='flex';
-}
-function saveRes(){
-  const tid=parseInt(document.getElementById('rTable').value);
-  const guest=document.getElementById('rGuest').value.trim();
-  if(!tid||!guest){toast('Select table and enter guest name','error');return;}
-  const tables=getTables();const t=tables.find(x=>x.id===tid);if(!t)return;
-  t.status='reserved';saveTables(tables);
-  const res=getTableRes();
-  res.push({id:Date.now(),table_id:tid,guest_name:guest,phone:document.getElementById('rPhone').value,time:document.getElementById('rTime').value,party_size:parseInt(document.getElementById('rParty').value)||4,status:'confirmed'});
-  saveTableRes(res);
-  toast(`Table ${t.number} reserved for ${guest}`);closeModal('resModal');loadAll();
-}
-function checkInRes(rid,tid){changeStatus(tid,'occupied');const res=getTableRes();const r=res.find(x=>x.id===rid);if(r)r.status='seated';saveTableRes(res);toast('Guest seated');loadAll();}
+function notifyWaiter(){
+  const target=document.getElementById('tmStaff').value;
+  const msg=document.getElementById('tmMsg').value.trim()||'Table needs attention';
+  const t=DB.tables().find(x=>x.id===activeTableId);
 
-loadAll();
-RuviaStore.onChange(()=>loadAll());
+  // assign waiter
+  if(activeTableId){ DB.setWaiter(activeTableId,target); }
+
+  try{
+    const n=JSON.parse(localStorage.getItem('ruvia_notifications')||'[]');
+    n.unshift({id:Date.now(),targetUser:target,type:'task',title:`🍽 ${t?.number}: ${msg}`,body:msg,read:false,time:new Date().toISOString(),link:'tables.html'});
+    localStorage.setItem('ruvia_notifications',JSON.stringify(n.slice(0,200)));
+  }catch(e){}
+  log(`Notified ${target}: ${msg}`,'notification');
+  renderTables();
+  alert(`✅ Notification sent to ${target}`);
+}
+
+function populateStaffSelects(){
+  const staff=DB.staff();
+  const sel=document.getElementById('tmStaff');
+  sel.innerHTML='<option value="kitchen">kitchen (default)</option>'+staff.map(s=>`<option value="${s.username}">${s.name}</option>`).join('');
+}
+
+// ── orders list ───────────────────────────────────────────
+function renderOrders(){
+  const orders=DB.orders().filter(o=>o.order_type==='dine_in'||o.table).slice(0,10);
+  document.getElementById('ordersCount').textContent=orders.length+' orders';
+  if(!orders.length){document.getElementById('ordersList').innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px;font-style:italic">No dine-in orders yet</div>';return;}
+  document.getElementById('ordersList').innerHTML=orders.map(o=>`
+    <div class="oitem">
+      <div class="otbl">${o.table||'?'}</div>
+      <div class="oinfo">
+        <div class="oname">${o.order_number} — Table ${o.table||'?'}</div>
+        <div class="ometa">${(o.items||[]).slice(0,3).map(i=>`${i.name}×${i.quantity}`).join(', ')} · ${fmt(o.total)} · ${o.cashier} · ${new Date(o.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── add table ─────────────────────────────────────────────
+function openAddTable(){ document.getElementById('atNum').value=''; document.getElementById('atSeats').value='4'; document.getElementById('addModal').style.display='flex'; }
+function addTable(){
+  const num=document.getElementById('atNum').value.trim();
+  if(!num){alert('Enter a table number or name.');return;}
+  const tables=DB.tables();
+  tables.push({id:'tbl'+Date.now(),number:num,seats:parseInt(document.getElementById('atSeats').value)||4,location:document.getElementById('atLoc').value,status:'available',waiter:null,openedAt:null});
+  DB.save(tables);
+  document.getElementById('addModal').style.display='none';
+  renderTiles(); renderTables();
+}
+
+function log(msg,type){ const u=localStorage.getItem('ruviaos_user')||'staff'; try{const a=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');a.unshift({id:Date.now(),type,message:msg,username:u,category:type,time:new Date().toISOString()});localStorage.setItem('ruvia_activity_log',JSON.stringify(a.slice(0,500)));}catch(e){} }
+
+if(window.RuviaStore) RuviaStore.onChange(()=>{renderTiles();renderTables();renderOrders();});
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>

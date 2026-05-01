@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS — Backup & Restore</title>
+<script>(function(){var s=localStorage.getItem('ruvia-dark');if(s==='1')document.documentElement.style.background='#0f1117';})()</script>
+<link rel="stylesheet" href="darkmode.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:960px;margin:0 auto;padding:24px}
+.page-hdr{margin-bottom:24px}
+.page-hdr h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-hdr p{font-size:13px;color:var(--text2)}
+/* Access guard */
+.access-denied{text-align:center;padding:80px 20px}
+.access-denied .icon{font-size:56px;margin-bottom:16px}
+.access-denied h2{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.access-denied p{font-size:14px;color:var(--text2)}
+/* Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.card-icon{font-size:28px}
+.card-title{font-size:15px;font-weight:700;color:var(--text)}
+.card-desc{font-size:12px;color:var(--text2);margin-top:2px}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;width:100%;margin-top:10px}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-danger{background:#dc3545;color:#fff;border:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;width:100%;margin-top:6px}
+.btn-danger:hover{opacity:.9}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-top:6px;transition:all .15s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+/* Stats */
+.storage-stats{background:var(--th-bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px}
+.ss-row{display:flex;justify-content:space-between;padding:3px 0;color:var(--text2)}
+.ss-row span:last-child{font-weight:600;color:var(--text)}
+/* History */
+.history-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.history-item:last-child{border-bottom:none}
+.hi-icon{font-size:20px;flex-shrink:0}
+.hi-info{flex:1;min-width:0}
+.hi-title{font-size:13px;font-weight:600;color:var(--text)}
+.hi-meta{font-size:11px;color:var(--text2)}
+.hi-size{font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0}
+/* Alert */
+.warning-box{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:12px 16px;font-size:12px;color:#856404;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+body.dark-mode .warning-box{background:#1e1a08;border-color:#a07800;color:#ffc107}
+/* Restore drop zone */
+.drop-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:var(--accent-light)}
+.drop-zone .dz-icon{font-size:32px;margin-bottom:8px}
+.drop-zone p{font-size:13px;color:var(--text2)}
+/* Full width card */
+.full-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px}
+.full-card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700}
+.full-card-body{padding:16px}
+</style>
+</head>
+<body>
+<div id="navbar-placeholder"></div>
+<script src="ruvia-core.js"></script>
+<script src="navbar.js"></script>
+
+<div class="page" id="mainPage" style="display:none">
+  <div class="page-hdr">
+    <h1>🔒 Backup & Restore</h1>
+    <p>Export your hotel data, create backups, and restore from previous saves. Admin only.</p>
+  </div>
+
+  <!-- Storage stats -->
+  <div class="full-card" style="margin-bottom:18px">
+    <div class="full-card-hdr">📊 Storage Overview</div>
+    <div class="full-card-body">
+      <div class="storage-stats" id="storageStats"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        <button class="btn-outline" style="width:auto;padding:8px 16px;margin:0" onclick="refreshStats()">🔄 Refresh</button>
+        <button class="btn-outline" style="width:auto;padding:8px 16px;margin:0;border-color:#dc3545;color:#dc3545" onclick="confirmClearActivity()">🗑 Clear Activity Log</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Export -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-icon">📤</span>
+        <div><div class="card-title">Export Full Backup</div><div class="card-desc">Download all hotel data as JSON</div></div>
+      </div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">Exports rooms, reservations, guests, products, orders, staff, housekeeping tasks, and settings into a single backup file.</p>
+      <button class="btn-primary" onclick="exportBackup()">📥 Download Full Backup</button>
+      <button class="btn-outline" onclick="exportCSVAll()">📊 Export All as CSV</button>
+    </div>
+
+    <!-- Restore -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-icon">📥</span>
+        <div><div class="card-title">Restore from Backup</div><div class="card-desc">Import a previously exported .json file</div></div>
+      </div>
+      <div class="warning-box">⚠️ Restoring will overwrite current data. Make sure to export a backup first.</div>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('restoreFile').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+        <div class="dz-icon">📂</div>
+        <p>Click to select backup file or drag & drop here</p>
+        <p style="margin-top:4px;font-size:11px">Accepts .json backup files</p>
+      </div>
+      <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="handleFileSelect(this)">
+      <div id="restorePreview" style="display:none;background:var(--th-bg);border-radius:9px;padding:10px;font-size:12px;margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- Quick exports -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-hdr"><span class="card-icon">📋</span><div><div class="card-title">Quick Exports</div><div class="card-desc">Export individual data sets</div></div></div>
+      <button class="btn-outline" onclick="exportSection('reservations')">📅 Export Reservations</button>
+      <button class="btn-outline" onclick="exportSection('orders')">🧾 Export Orders</button>
+      <button class="btn-outline" onclick="exportSection('guests')">👤 Export Guest List</button>
+      <button class="btn-outline" onclick="exportSection('staff')">👥 Export Staff List</button>
+      <button class="btn-outline" onclick="exportSection('products')">📦 Export Products / Menu</button>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-icon">⚠️</span><div><div class="card-title">Danger Zone</div><div class="card-desc">Irreversible actions — proceed carefully</div></div></div>
+      <div class="warning-box">These actions cannot be undone. Export a backup first.</div>
+      <button class="btn-danger" onclick="confirmClearOrders()">🗑 Clear All Orders</button>
+      <button class="btn-danger" onclick="confirmClearReservations()">🗑 Clear All Reservations</button>
+      <button class="btn-danger" style="background:#7b1111" onclick="confirmFactoryReset()">💣 Factory Reset (ALL DATA)</button>
+    </div>
+  </div>
+
+  <!-- Backup history -->
+  <div class="full-card">
+    <div class="full-card-hdr">📜 Backup History (This Session)</div>
+    <div id="backupHistory"><div style="padding:20px;text-align:center;color:var(--text2);font-size:12px;font-style:italic">No backups created yet this session</div></div>
+  </div>
+</div>
+
+<!-- Access denied fallback -->
+<div class="access-denied" id="deniedPage" style="display:none">
+  <div class="icon">🔒</div>
+  <h2>Access Restricted</h2>
+  <p>This page is only accessible to Administrators.</p>
+  <br>
+  <a href="index.html" style="color:var(--accent);font-weight:600;text-decoration:none">← Back to Dashboard</a>
+</div>
+
+<script src="ruvia-store.js"></script>
+<script>
+const backupLog = [];
+
+function init(){
+  // RBAC guard — admin only
+  const role = localStorage.getItem('ruviaos_role');
+  if(role && role !== 'admin'){
+    document.getElementById('deniedPage').style.display='block';
+    return;
+  }
+  document.getElementById('mainPage').style.display='block';
+  refreshStats();
+}
+
+function getStorageSize(key){
+  try{ const val=localStorage.getItem(key)||''; return val.length*2; }catch(e){ return 0; }
+}
+
+function fmtBytes(b){ if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(2)+'MB'; }
+
+function refreshStats(){
+  const keys=['ruvia_rooms','ruvia_reservations','ruvia_guests','ruvia_orders','ruvia_products','ruvia_staff','ruvia_activity_log','ruvia_notifications','ruvia_hk_tasks','ruvia_tables'];
+  const names={'ruvia_rooms':'Rooms','ruvia_reservations':'Reservations','ruvia_guests':'Guests','ruvia_orders':'Orders','ruvia_products':'Products/Menu','ruvia_staff':'Staff','ruvia_activity_log':'Activity Log','ruvia_notifications':'Notifications','ruvia_hk_tasks':'Housekeeping Tasks','ruvia_tables':'Tables'};
+  let total=0;
+  const rows=keys.map(k=>{const size=getStorageSize(k);total+=size;let count=0;try{count=JSON.parse(localStorage.getItem(k)||'[]').length;}catch(e){}return{key:k,name:names[k]||k,size,count};});
+  document.getElementById('storageStats').innerHTML=`
+    ${rows.filter(r=>r.size>0).map(r=>`<div class="ss-row"><span>${r.name} (${r.count} records)</span><span>${fmtBytes(r.size)}</span></div>`).join('')}
+    <div class="ss-row" style="border-top:1px dashed var(--border);margin-top:6px;padding-top:6px"><span><strong>Total used</strong></span><span><strong>${fmtBytes(total)}</strong></span></div>`;
+}
+
+function getAllData(){
+  const keys=['ruvia_rooms','ruvia_reservations','ruvia_guests','ruvia_orders','ruvia_products','ruvia_staff','ruvia_activity_log','ruvia_notifications','ruvia_hk_tasks','ruvia_tables','ruvia_hotel_config'];
+  const backup={version:'1.0',created_at:new Date().toISOString(),hotel:'Ruvia Hotel',data:{}};
+  keys.forEach(k=>{try{backup.data[k]=JSON.parse(localStorage.getItem(k)||'null');}catch(e){backup.data[k]=null;}});
+  return backup;
+}
+
+function exportBackup(){
+  const backup=getAllData();
+  const json=JSON.stringify(backup,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const filename=`ruvia-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.href=url;a.download=filename;a.click();
+  const size=fmtBytes(json.length*2);
+  backupLog.unshift({icon:'📤',title:'Full backup exported',meta:filename,size,time:new Date().toLocaleString()});
+  renderHistory();
+  // Activity log
+  try{const user=localStorage.getItem('ruviaos_user')||'admin';const al=JSON.parse(localStorage.getItem('ruvia_activity_log')||'[]');al.unshift({id:Date.now(),type:'backup',message:`${user} created full data backup`,username:user,category:'backup',time:new Date().toISOString()});localStorage.setItem('ruvia_activity_log',JSON.stringify(al.slice(0,500)));}catch(e){}
+}
+
+function exportSection(section){
+  const keyMap={reservations:'ruvia_reservations',orders:'ruvia_orders',guests:'ruvia_guests',staff:'ruvia_staff',products:'ruvia_products'};
+  const key=keyMap[section];
+  const data=JSON.parse(localStorage.getItem(key)||'[]');
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`ruvia-${section}-${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+
+function exportCSVAll(){
+  // Export orders as CSV
+  const orders=JSON.parse(localStorage.getItem('ruvia_orders')||'[]');
+  const csv='OrderNum,Cashier,Type,Total,Payment,Date\n'+orders.map(o=>`"${o.order_number}","${o.cashier||''}","${o.order_type||''}",${o.total||0},"${o.payment_method||''}","${new Date(o.created_at).toLocaleString()}"`).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='ruvia-orders-export.csv';a.click();
+}
+
+function handleDrop(e){
+  e.preventDefault();document.getElementById('dropZone').classList.remove('dragover');
+  const file=e.dataTransfer.files[0];if(file)readFile(file);
+}
+
+function handleFileSelect(input){
+  const file=input.files[0];if(file)readFile(file);
+}
+
+function readFile(file){
+  if(!file.name.endsWith('.json')){alert('Please select a valid .json backup file.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const backup=JSON.parse(e.target.result);
+      if(!backup.data||!backup.version){alert('Invalid backup file. Make sure this is a RuviaOS backup.');return;}
+      const count=Object.values(backup.data).filter(Boolean).reduce((s,v)=>s+(Array.isArray(v)?v.length:1),0);
+      const preview=document.getElementById('restorePreview');
+      preview.style.display='block';
+      preview.innerHTML=`
+        <strong>✅ Valid backup file detected</strong><br>
+        Created: ${new Date(backup.created_at).toLocaleString()}<br>
+        Records found: ~${count}<br><br>
+        <button class="btn-danger" style="width:auto;padding:8px 18px;margin:0" onclick="doRestore(${JSON.stringify(backup).replace(/'/g,'&#39;')})">⚠️ Restore This Backup</button>`;
+      // Store parsed backup for restore
+      window._pendingRestore = backup;
+      preview.querySelector('button').onclick=()=>doRestore(window._pendingRestore);
+    }catch(err){alert('Could not parse backup file: '+err.message);}
+  };
+  reader.readAsText(file);
+}
+
+function doRestore(backup){
+  if(!confirm('⚠️ This will OVERWRITE all current data with the backup. Are you sure?\n\nMake sure you\'ve exported your current data first.'))return;
+  Object.entries(backup.data).forEach(([key,val])=>{
+    if(val!==null&&val!==undefined) localStorage.setItem(key,JSON.stringify(val));
+  });
+  backupLog.unshift({icon:'📥',title:'Data restored from backup',meta:'Backup date: '+new Date(backup.created_at).toLocaleDateString(),size:'—',time:new Date().toLocaleString()});
+  renderHistory();
+  refreshStats();
+  alert('✅ Data restored successfully! Reloading page...');
+  setTimeout(()=>location.reload(), 1000);
+}
+
+function confirmClearOrders(){ if(confirm('Delete ALL order records? This cannot be undone.'))){ localStorage.removeItem('ruvia_orders'); refreshStats(); alert('Orders cleared.'); } }
+function confirmClearReservations(){ if(confirm('Delete ALL reservation records? This cannot be undone.')){ localStorage.removeItem('ruvia_reservations'); refreshStats(); alert('Reservations cleared.'); } }
+function confirmClearActivity(){ if(confirm('Clear activity log?')){ localStorage.removeItem('ruvia_activity_log'); refreshStats(); alert('Activity log cleared.'); } }
+
+function confirmFactoryReset(){
+  const code=prompt('⚠️ FACTORY RESET\n\nThis will delete ALL data including rooms, guests, orders, staff, and settings.\n\nType RESET to confirm:');
+  if(code==='RESET'){
+    const keep=['ruviaos_logged_in','ruviaos_user','ruviaos_role','ruvia-dark','ruvia_hotel_config'];
+    Object.keys(localStorage).forEach(k=>{ if(!keep.includes(k)) localStorage.removeItem(k); });
+    alert('Factory reset complete. Redirecting to login...');
+    setTimeout(()=>location.href='login.html',1000);
+  } else if(code!==null){
+    alert('Reset cancelled. You must type RESET exactly.');
+  }
+}
+
+function renderHistory(){
+  const el=document.getElementById('backupHistory');
+  if(!backupLog.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px;font-style:italic">No backups created yet this session</div>';return;}
+  el.innerHTML=backupLog.map(b=>`
+    <div class="history-item">
+      <span class="hi-icon">${b.icon}</span>
+      <div class="hi-info"><div class="hi-title">${b.title}</div><div class="hi-meta">${b.meta} · ${b.time}</div></div>
+      <span class="hi-size">${b.size}</span>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

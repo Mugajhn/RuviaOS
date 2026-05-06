@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS — Menu QR Code</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f4f6f9;
+  --card:#fff;
+  --text:#1a1a2e;
+  --text2:#6b7280;
+  --border:#e5e7eb;
+  --accent:#2c5f4a;
+  --accent-dark:#1a3c34;
+  --accent-light:#e8f5f0;
+  --input-bg:#fff;
+  --th-bg:#f9fafb;
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+}
+
+html.dark-mode{
+  --bg:#0f1117;--card:#1a1d27;--text:#e8eaf0;--text2:#9ca3af;
+  --border:#2d3148;--accent-light:#1a2e26;--input-bg:#1f2235;--th-bg:#1f2235;
+}
+
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+.page{max-width:900px;margin:0 auto;padding:28px 20px}
+
+.page-hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;flex-wrap:wrap;gap:12px;
+}
+
+.page-hdr h1{font-size:22px;font-weight:700}
+.page-hdr .sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+
+/* ── Cards ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--shadow-md);
+}
+
+.card-hdr{
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+.card-hdr h3{font-size:14px;font-weight:700}
+.card-body{padding:20px}
+
+/* ── Form ── */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.fg input,.fg select{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--border);
+  border-radius:9px;font-size:13px;
+  background:var(--input-bg);color:var(--text);
+  outline:none;transition:border-color .18s;
+}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
+.fg .hint{font-size:10px;color:var(--text2);margin-top:3px}
+
+/* ── QR Display ── */
+.qr-stage{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:28px 20px;
+  gap:14px;
+}
+
+.qr-frame{
+  position:relative;
+  padding:14px;
+  background:var(--card);
+  border-radius:16px;
+  border:2px solid var(--border);
+  box-shadow:var(--shadow-md);
+  transition:.3s;
+}
+
+.qr-frame.ready{border-color:var(--accent)}
+
+.qr-frame img{
+  display:block;
+  border-radius:8px;
+}
+
+/* Corner decorations */
+.qr-frame::before,.qr-frame::after{
+  content:'';
+  position:absolute;
+  width:18px;height:18px;
+  border-color:var(--accent);
+  border-style:solid;
+}
+.qr-frame::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.qr-frame::after{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+
+.qr-logo{
+  font-size:11px;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.qr-caption{
+  font-size:12px;
+  color:var(--text2);
+  text-align:center;
+  max-width:200px;
+  line-height:1.5;
+}
+
+.url-display{
+  width:100%;
+  padding:9px 13px;
+  background:var(--th-bg);
+  border:1px solid var(--border);
+  border-radius:9px;
+  font-size:11px;
+  color:var(--text2);
+  word-break:break-all;
+  line-height:1.5;
+  font-family:monospace;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.url-display:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+
+.btn-primary{
+  flex:1;
+  background:var(--accent);color:#fff;
+  border:none;padding:10px 16px;
+  border-radius:9px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.2s;
+  white-space:nowrap;
+}
+.btn-primary:hover{opacity:.88}
+
+.btn-ghost{
+  flex:1;
+  background:transparent;
+  border:1.5px solid var(--border);
+  color:var(--text2);
+  padding:10px 16px;
+  border-radius:9px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.15s;
+  white-space:nowrap;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── Size options ── */
+.size-chips{display:flex;gap:6px;flex-wrap:wrap}
+
+.schip{
+  padding:5px 14px;
+  border-radius:20px;
+  border:1.5px solid var(--border);
+  background:transparent;
+  color:var(--text2);
+  font-size:11px;font-weight:600;
+  cursor:pointer;transition:.15s;
+}
+.schip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Color presets ── */
+.color-row{display:flex;gap:8px;flex-wrap:wrap}
+
+.cchip{
+  width:28px;height:28px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2.5px solid transparent;
+  transition:.15s;
+}
+.cchip.active{border-color:var(--text);transform:scale(1.15)}
+
+/* ── Preview card (print version) ── */
+.print-preview{
+  background:var(--card);
+  border:2px dashed var(--border);
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  display:none;
+}
+
+.print-preview.visible{display:block}
+
+.print-hotel{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.print-tagline{font-size:11px;color:var(--text2);margin-bottom:12px}
+.print-instruction{font-size:10px;color:var(--text2);margin-top:10px;font-style:italic}
+
+/* ── Stats bar ── */
+.stats-bar{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+
+.stat-tile{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:13px 14px;
+  border-left:3px solid var(--accent);
+}
+
+.stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:2px}
+.stat-val{font-size:20px;font-weight:700;color:var(--accent)}
+
+/* ── Print QR sheet ── */
+@media print{
+  body{background:#fff}
+  .page-hdr,.layout>.card:first-child,.stats-bar,.btn-row{display:none!important}
+  .print-preview{
+    display:block!important;
+    border:none;
+    max-width:300px;
+    margin:0 auto;
+  }
+  .qr-frame{border:1px solid #ccc}
+}
+
+/* ── Loading state ── */
+.qr-loading{
+  width:200px;height:200px;
+  border-radius:8px;
+  background:var(--th-bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+  animation:shimmer 1.5s infinite;
+}
+
+@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:1}}
+</style>
+</head>
+<body>
+
+<script>
+(function(){
+  var s=localStorage.getItem('ruvia-dark');
+  if(s==='1'||(s===null&&window.matchMedia('(prefers-color-scheme:dark)').matches))
+    document.documentElement.classList.add('dark-mode');
+})();
+</script>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-hdr">
+    <div>
+      <h1>📱 Menu QR Code</h1>
+      <div class="sub">Generate a scannable QR linking to the live menu page</div>
+    </div>
+    <button class="btn-primary" style="flex:none;padding:9px 18px" onclick="printQRSheet()">🖨 Print QR Sheet</button>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-tile">
+      <div class="stat-lbl">Menu Items</div>
+      <div class="stat-val" id="statTotal">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-lbl">Available</div>
+      <div class="stat-val" id="statAvail">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-lbl">Categories</div>
+      <div class="stat-val" id="statCats">—</div>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- Left: Settings -->
+    <div class="card">
+      <div class="card-hdr"><h3>⚙ QR Settings</h3></div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>Menu URL</label>
+          <input type="url" id="menuUrl" value="" placeholder="https://yourdomain.com/menu-live.html"
+            oninput="generateQR()" />
+          <div class="hint">The URL guests will land on when they scan. Point this to your hosted menu-live.html</div>
+        </div>
+
+        <div class="fg">
+          <label>QR Code Size</label>
+          <div class="size-chips">
+            <button class="schip" onclick="setSize(150,this)">Small</button>
+            <button class="schip active" onclick="setSize(200,this)">Medium</button>
+            <button class="schip" onclick="setSize(250,this)">Large</button>
+            <button class="schip" onclick="setSize(300,this)">XL</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>QR Color</label>
+          <div class="color-row">
+            <div class="cchip active" style="background:#2c5f4a" onclick="setColor('2c5f4a','000000',this)" title="Forest Green"></div>
+            <div class="cchip" style="background:#1a1a2e" onclick="setColor('1a1a2e','ffffff',this)" title="Dark Navy"></div>
+            <div class="cchip" style="background:#000000" onclick="setColor('000000','ffffff',this)" title="Classic Black"></div>
+            <div class="cchip" style="background:#b8955a" onclick="setColor('b8955a','ffffff',this)" title="Gold"></div>
+            <div class="cchip" style="background:#dc3545" onclick="setColor('dc3545','ffffff',this)" title="Red"></div>
+            <div class="cchip" style="background:#17a2b8" onclick="setColor('17a2b8','ffffff',this)" title="Teal"></div>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Hotel Name (for print sheet)</label>
+          <input type="text" id="hotelName" value="Ruvia Hotel" oninput="updatePreview()" />
+        </div>
+
+        <div class="fg">
+          <label>Tagline / Caption</label>
+          <input type="text" id="tagline" value="Scan to view our full menu" oninput="updatePreview()" />
+        </div>
+
+        <div class="fg">
+          <label>Table / Location Label (optional)</label>
+          <input type="text" id="tableLabel" placeholder="e.g. Table 4 · Restaurant" oninput="updatePreview()" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: QR Display -->
+    <div class="card">
+      <div class="card-hdr">
+        <h3>🔲 Your QR Code</h3>
+        <span id="qrStatus" style="font-size:11px;color:var(--text2)">Enter URL to generate</span>
+      </div>
+
+      <div class="qr-stage">
+
+        <!-- QR Image -->
+        <div class="qr-frame" id="qrFrame">
+          <div class="qr-loading" id="qrPlaceholder">🔲</div>
+          <img id="qrImg" src="" alt="QR Code" style="display:none;border-radius:8px">
+        </div>
+
+        <div class="qr-logo" id="qrHotelLabel">RUVIA HOTEL</div>
+
+        <div class="qr-caption" id="qrCaption">Scan to view our full menu</div>
+
+        <!-- URL display (click to copy) -->
+        <div class="url-display" id="urlDisplay" onclick="copyUrl()" title="Click to copy URL">
+          Paste your menu URL in settings →
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-row">
+          <button class="btn-primary" onclick="downloadQR()">⬇ Download QR</button>
+          <button class="btn-ghost" onclick="copyUrl()">📋 Copy URL</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Print preview (shown for print) -->
+  <div class="print-preview" id="printPreview">
+    <div class="print-hotel" id="ppHotelName">Ruvia Hotel</div>
+    <div class="print-tagline" id="ppTagline">Scan to view our full menu</div>
+    <div id="ppQrWrap" style="display:flex;justify-content:center;margin:12px 0"></div>
+    <div style="font-size:12px;color:#1a1a2e;font-weight:600" id="ppTable"></div>
+    <div class="print-instruction">Point your phone camera at the QR code</div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── State ─────────────────────────────────────────────────
+let qrSize = 200;
+let qrColor = '2c5f4a';
+let qrBg = '000000'; // not used directly — always white bg
+
+// ── Init ──────────────────────────────────────────────────
+function init() {
+  // Pre-fill URL with current page's menu-live.html path
+  const base = window.location.href.replace(/\/[^/]*$/, '/');
+  document.getElementById('menuUrl').value = base + 'menu-live.html';
+
+  loadStats();
+  generateQR();
+}
+
+// ── Stats from localStorage ───────────────────────────────
+function loadStats() {
+  try {
+    const items = JSON.parse(localStorage.getItem('ruvia_products') || '[]');
+    const avail = items.filter(p => p.availability !== 'unavailable');
+    const cats  = [...new Set(items.map(p => p.category).filter(Boolean))];
+    document.getElementById('statTotal').textContent = items.length;
+    document.getElementById('statAvail').textContent = avail.length;
+    document.getElementById('statCats').textContent  = cats.length;
+  } catch(e) {
+    document.getElementById('statTotal').textContent = '—';
+  }
+}
+
+// ── QR Generation ─────────────────────────────────────────
+function generateQR() {
+  const url = document.getElementById('menuUrl').value.trim();
+  const img  = document.getElementById('qrImg');
+  const ph   = document.getElementById('qrPlaceholder');
+  const frame= document.getElementById('qrFrame');
+  const status = document.getElementById('qrStatus');
+  const urlDisp= document.getElementById('urlDisplay');
+
+  if (!url) {
+    img.style.display = 'none';
+    ph.style.display  = 'flex';
+    frame.classList.remove('ready');
+    status.textContent = 'Enter URL to generate';
+    urlDisp.textContent = 'Paste your menu URL in settings →';
+    return;
+  }
+
+  // Use qrserver.com (free, no key needed)
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&color=${qrColor}&bgcolor=ffffff&data=${encodeURIComponent(url)}&margin=6&ecc=M`;
+
+  img.style.display = 'none';
+  ph.style.display  = 'flex';
+  ph.textContent    = '⏳';
+  frame.classList.remove('ready');
+  status.textContent = 'Generating…';
+
+  img.onload = () => {
+    ph.style.display  = 'none';
+    img.style.display = 'block';
+    img.width  = qrSize;
+    img.height = qrSize;
+    frame.classList.add('ready');
+    status.textContent = '✅ Ready to scan';
+  };
+
+  img.onerror = () => {
+    ph.textContent = '❌';
+    status.textContent = 'Failed — check internet';
+  };
+
+  img.src = qrUrl;
+  urlDisp.textContent = url;
+
+  updatePreview();
+}
+
+// ── Size / Color controls ─────────────────────────────────
+function setSize(px, btn) {
+  qrSize = px;
+  document.querySelectorAll('.schip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  generateQR();
+}
+
+function setColor(fg, bg, el) {
+  qrColor = fg;
+  document.querySelectorAll('.cchip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  generateQR();
+}
+
+// ── Preview text update ───────────────────────────────────
+function updatePreview() {
+  const name = document.getElementById('hotelName').value || 'Ruvia Hotel';
+  const tag  = document.getElementById('tagline').value || 'Scan to view our full menu';
+  const tbl  = document.getElementById('tableLabel').value;
+
+  document.getElementById('qrHotelLabel').textContent = name.toUpperCase();
+  document.getElementById('qrCaption').textContent    = tag;
+
+  document.getElementById('ppHotelName').textContent  = name;
+  document.getElementById('ppTagline').textContent    = tag;
+  document.getElementById('ppTable').textContent      = tbl;
+}
+
+// ── Copy URL ──────────────────────────────────────────────
+function copyUrl() {
+  const url = document.getElementById('menuUrl').value.trim();
+  if (!url) { alert('No URL set yet.'); return; }
+  navigator.clipboard.writeText(url).then(() => {
+    const el = document.getElementById('urlDisplay');
+    const orig = el.textContent;
+    el.textContent = '✅ Copied to clipboard!';
+    el.style.color = 'var(--accent)';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 2000);
+  }).catch(() => prompt('Copy this URL:', url));
+}
+
+// ── Download QR ───────────────────────────────────────────
+function downloadQR() {
+  const url = document.getElementById('menuUrl').value.trim();
+  if (!url) { alert('Please enter a menu URL first.'); return; }
+
+  const name = (document.getElementById('hotelName').value || 'Ruvia Hotel')
+    .toLowerCase().replace(/\s+/g, '-');
+
+  const downloadUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=${qrColor}&bgcolor=ffffff&data=${encodeURIComponent(url)}&margin=10&ecc=M`;
+
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = `${name}-menu-qr.png`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ── Print QR sheet ────────────────────────────────────────
+function printQRSheet() {
+  const url = document.getElementById('menuUrl').value.trim();
+  if (!url) { alert('Please enter a menu URL first.'); return; }
+
+  const name    = document.getElementById('hotelName').value || 'Ruvia Hotel';
+  const tagline = document.getElementById('tagline').value || 'Scan to view our full menu';
+  const tbl     = document.getElementById('tableLabel').value;
+  const qrUrl   = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&color=${qrColor}&bgcolor=ffffff&data=${encodeURIComponent(url)}&margin=10&ecc=H`;
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Menu QR — ${name}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .sheet{
+      text-align:center;
+      border:1.5px solid #e5e7eb;
+      border-radius:20px;
+      padding:36px 40px;
+      max-width:340px;
+      box-shadow:0 4px 20px rgba(0,0,0,.08);
+    }
+    .hotel{font-size:20px;font-weight:700;color:#2c5f4a;margin-bottom:4px}
+    .tagline{font-size:13px;color:#6b7280;margin-bottom:24px}
+    .qr-wrap{
+      display:inline-block;
+      padding:12px;
+      border:2px solid #2c5f4a;
+      border-radius:14px;
+      margin-bottom:16px;
+    }
+    .qr-wrap img{display:block;border-radius:8px}
+    .scan-text{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:4px}
+    .wifi-hint{font-size:11px;color:#9ca3af;margin-bottom:16px}
+    .table-lbl{font-size:12px;font-weight:600;color:#2c5f4a;padding:4px 16px;border:1.5px solid #2c5f4a;border-radius:20px;display:inline-block;margin-bottom:8px}
+    .url{font-size:9px;color:#9ca3af;word-break:break-all;max-width:260px;margin:0 auto}
+    .corner{width:16px;height:16px;border-color:#2c5f4a;border-style:solid;position:absolute}
+    @media print{body{padding:0}button{display:none}}
+  </style>
+  </head><body>
+  <div class="sheet">
+    <div class="hotel">${name}</div>
+    <div class="tagline">${tagline}</div>
+    <div class="qr-wrap">
+      <img src="${qrUrl}" width="280" height="280" alt="Menu QR Code">
+    </div>
+    <div class="scan-text">📱 Point your camera here</div>
+    <div class="wifi-hint">No app needed · Works with any smartphone</div>
+    ${tbl ? `<div class="table-lbl">${tbl}</div><br>` : ''}
+    <div class="url">${url}</div>
+  </div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),500)<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

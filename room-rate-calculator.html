@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RuviaOS — Room Rate Calculator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f4f6f9;
+  --card:#fff;
+  --text:#1a1a2e;
+  --text2:#6b7280;
+  --border:#e5e7eb;
+  --accent:#2c5f4a;
+  --accent-light:#e8f5f0;
+  --accent-dark:#1a3c34;
+  --input-bg:#fff;
+  --th-bg:#f9fafb;
+  --row-hover:#f3f4f6;
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --success:#28a745;
+  --warn:#e0a800;
+  --danger:#dc3545;
+  --info:#17a2b8;
+}
+
+html.dark-mode{
+  --bg:#0f1117;
+  --card:#1a1d27;
+  --text:#e8eaf0;
+  --text2:#9ca3af;
+  --border:#2d3148;
+  --accent-light:#1a2e26;
+  --input-bg:#1f2235;
+  --th-bg:#1f2235;
+  --row-hover:#1f2235;
+}
+
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ── Page layout ── */
+.page{max-width:820px;margin:0 auto;padding:28px 20px}
+
+.page-hdr{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.page-hdr h1{font-size:22px;font-weight:700}
+.page-hdr .sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ── Cards ── */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--shadow-md);
+  margin-bottom:18px;
+}
+
+.card-hdr{
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.card-hdr h3{font-size:14px;font-weight:700}
+.card-body{padding:20px}
+
+/* ── Form ── */
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr}}
+
+.fg{display:flex;flex-direction:column;gap:5px}
+
+.fg label{
+  font-size:10px;
+  font-weight:700;
+  color:var(--text2);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.fg input,
+.fg select{
+  padding:10px 13px;
+  border:1.5px solid var(--border);
+  border-radius:9px;
+  font-size:13px;
+  background:var(--input-bg);
+  color:var(--text);
+  outline:none;
+  transition:border-color .18s;
+  width:100%;
+}
+
+.fg input:focus,
+.fg select:focus{border-color:var(--accent)}
+
+.fg .hint{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* ── Room type chips ── */
+.room-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+
+.rchip{
+  padding:7px 14px;
+  border-radius:20px;
+  border:1.5px solid var(--border);
+  background:transparent;
+  color:var(--text2);
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.15s;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.rchip:hover{border-color:var(--accent);color:var(--accent)}
+.rchip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.rchip .price{font-size:10px;opacity:.8}
+
+/* ── Night counter ── */
+.nights-control{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.nc-btn{
+  width:34px;height:34px;
+  border-radius:50%;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;
+  line-height:1;
+}
+
+.nc-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.nc-val{
+  font-size:22px;
+  font-weight:700;
+  min-width:36px;
+  text-align:center;
+  color:var(--accent);
+}
+
+/* ── Fee rows ── */
+.fees-section{display:flex;flex-direction:column;gap:8px;padding:14px 20px}
+
+.fee-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.fee-row label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--text2);
+  flex:0 0 140px;
+}
+
+.fee-row input{
+  padding:8px 11px;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  font-size:13px;
+  background:var(--input-bg);
+  color:var(--text);
+  outline:none;
+  width:120px;
+  transition:border-color .18s;
+}
+
+.fee-row input:focus{border-color:var(--accent)}
+
+.fee-row .zero-badge{
+  font-size:10px;
+  padding:2px 8px;
+  border-radius:10px;
+  background:var(--accent-light);
+  color:var(--accent);
+  font-weight:700;
+}
+
+.fee-note{
+  font-size:10px;
+  color:var(--text2);
+  padding:0 20px 14px;
+  font-style:italic;
+}
+
+/* ── Breakdown / result ── */
+.breakdown{
+  background:var(--th-bg);
+  border-radius:11px;
+  padding:16px 18px;
+  margin-top:4px;
+}
+
+.br-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:5px 0;
+  font-size:13px;
+}
+
+.br-row .lbl{color:var(--text2)}
+.br-row .val{font-weight:600}
+
+.br-row.waived .val{
+  color:var(--text2);
+  text-decoration:line-through;
+  font-style:italic;
+}
+
+.br-row.waived .badge{
+  font-size:9px;
+  padding:1px 6px;
+  border-radius:8px;
+  background:var(--accent-light);
+  color:var(--accent);
+  font-weight:700;
+  margin-left:6px;
+}
+
+.br-divider{
+  border:none;
+  border-top:1.5px dashed var(--border);
+  margin:8px 0;
+}
+
+.br-total{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:10px;
+}
+
+.br-total .lbl{
+  font-size:15px;
+  font-weight:700;
+}
+
+.br-total .val{
+  font-size:22px;
+  font-weight:800;
+  color:var(--accent);
+}
+
+.br-total .currency{
+  font-size:13px;
+  font-weight:600;
+  color:var(--text2);
+  margin-right:4px;
+}
+
+/* ── Per-night callout ── */
+.per-night{
+  font-size:11px;
+  color:var(--text2);
+  text-align:right;
+  margin-top:6px;
+  font-style:italic;
+}
+
+/* ── Empty state ── */
+.empty-state{
+  text-align:center;
+  padding:30px 20px;
+  color:var(--text2);
+}
+
+.empty-state .icon{font-size:36px;margin-bottom:8px}
+.empty-state p{font-size:13px}
+
+/* ── Buttons ── */
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  padding:10px 22px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+
+.btn-ghost{
+  background:transparent;
+  border:1.5px solid var(--border);
+  color:var(--text2);
+  padding:8px 16px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── Tax settings panel ── */
+.tax-panel{
+  display:none;
+  padding:16px 20px;
+  border-top:1px solid var(--border);
+  background:var(--accent-light);
+}
+
+.tax-panel.open{display:block}
+
+.tax-panel h4{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+
+.tax-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+@media(max-width:560px){.tax-grid{grid-template-columns:1fr}}
+
+/* ── Summary bar ── */
+.summary-bar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.sbar-tile{
+  flex:1;
+  min-width:100px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
+  border-left:4px solid var(--accent);
+}
+
+.sbar-tile.warn{border-left-color:var(--warn)}
+.sbar-tile.info{border-left-color:var(--info)}
+
+.sbar-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:3px}
+.sbar-val{font-size:20px;font-weight:700;color:var(--accent)}
+.sbar-tile.warn .sbar-val{color:var(--warn)}
+.sbar-tile.info .sbar-val{color:var(--info)}
+
+/* ── Top badge ── */
+.zero-tax-note{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--accent);
+  background:var(--accent-light);
+  padding:4px 12px;
+  border-radius:20px;
+}
+
+/* ── Print / copy ── */
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+</style>
+</head>
+<body>
+
+<!-- Dark mode init -->
+<script>
+(function(){
+  var s=localStorage.getItem('ruvia-dark');
+  if(s==='1'||(s===null&&window.matchMedia('(prefers-color-scheme:dark)').matches))
+    document.documentElement.classList.add('dark-mode');
+})();
+</script>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-hdr">
+    <div>
+      <h1>🧮 Room Rate Calculator</h1>
+      <div class="sub">Auto-calculates total · Taxes currently waived (Uganda standard)</div>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="resetForm()">↺ Reset</button>
+      <button class="btn-ghost" onclick="toggleTaxPanel()">⚙ Tax Settings</button>
+    </div>
+  </div>
+
+  <!-- Summary tiles (dynamic) -->
+  <div class="summary-bar" id="summaryBar" style="display:none">
+    <div class="sbar-tile">
+      <div class="sbar-lbl">Room Rate/Night</div>
+      <div class="sbar-val" id="sb-rate">—</div>
+    </div>
+    <div class="sbar-tile warn">
+      <div class="sbar-lbl">Nights</div>
+      <div class="sbar-val" id="sb-nights">—</div>
+    </div>
+    <div class="sbar-tile info">
+      <div class="sbar-lbl">Extra Fees</div>
+      <div class="sbar-val" id="sb-fees">—</div>
+    </div>
+    <div class="sbar-tile">
+      <div class="sbar-lbl">Grand Total</div>
+      <div class="sbar-val" id="sb-total" style="font-size:16px">—</div>
+    </div>
+  </div>
+
+  <!-- Room Type Selector -->
+  <div class="card">
+    <div class="card-hdr">
+      <h3>🛏 Select Room Type</h3>
+      <div class="zero-tax-note">✓ 0% Tax · Uganda</div>
+    </div>
+    <div class="room-chips" id="roomChips">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Custom price override -->
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="fg" style="flex:1;min-width:180px">
+        <label>Custom Rate / Night (USh) — optional override</label>
+        <input type="number" id="customPrice" placeholder="e.g. 150000" min="0" oninput="onCustomPrice()" />
+      </div>
+      <div class="fg" style="flex:1;min-width:180px">
+        <label>Room Number / Label</label>
+        <input type="text" id="roomLabel" placeholder="e.g. 201 — Deluxe King" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Dates & Nights -->
+  <div class="card">
+    <div class="card-hdr"><h3>📅 Stay Details</h3></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="fg">
+          <label>Check-In Date</label>
+          <input type="date" id="checkIn" onchange="onDateChange()" />
+        </div>
+        <div class="fg">
+          <label>Check-Out Date</label>
+          <input type="date" id="checkOut" onchange="onDateChange()" />
+        </div>
+        <div class="fg">
+          <label>Number of Nights</label>
+          <div class="nights-control">
+            <button class="nc-btn" onclick="adjustNights(-1)">−</button>
+            <span class="nc-val" id="nightsVal">1</span>
+            <button class="nc-btn" onclick="adjustNights(1)">+</button>
+          </div>
+          <div class="hint">Auto-calculated from dates, or set manually</div>
+        </div>
+        <div class="fg">
+          <label>Number of Guests</label>
+          <select id="guestCount" onchange="calculate()">
+            <option value="1">1 Guest</option>
+            <option value="2" selected>2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+            <option value="5+">5+ Guests</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Extra Fees -->
+  <div class="card">
+    <div class="card-hdr">
+      <h3>➕ Extra Fees / Charges</h3>
+      <button class="btn-ghost" onclick="clearFees()" style="font-size:11px;padding:5px 12px">Clear All</button>
+    </div>
+    <div class="fees-section">
+      <div class="fee-row">
+        <label>Breakfast (per person/night)</label>
+        <input type="number" id="feeBreakfast" value="0" min="0" oninput="calculate()" placeholder="USh" />
+      </div>
+      <div class="fee-row">
+        <label>Airport Transfer</label>
+        <input type="number" id="feeTransfer" value="0" min="0" oninput="calculate()" placeholder="USh" />
+      </div>
+      <div class="fee-row">
+        <label>Laundry</label>
+        <input type="number" id="feeLaundry" value="0" min="0" oninput="calculate()" placeholder="USh" />
+      </div>
+      <div class="fee-row">
+        <label>Mini-bar / Room Service</label>
+        <input type="number" id="feeMinibar" value="0" min="0" oninput="calculate()" placeholder="USh" />
+      </div>
+      <div class="fee-row">
+        <label>Other / Miscellaneous</label>
+        <input type="number" id="feeOther" value="0" min="0" oninput="calculate()" placeholder="USh" />
+      </div>
+    </div>
+    <div class="fee-note">💡 Breakfast is multiplied by guest count × nights. Other fees are flat totals.</div>
+  </div>
+
+  <!-- Tax Settings (hidden by default) -->
+  <div class="card" id="taxCard" style="display:none">
+    <div class="card-hdr">
+      <h3>⚙ Tax / Levy Settings</h3>
+      <span style="font-size:11px;color:var(--text2)">Usually 0% in Uganda — billed on final invoice</span>
+    </div>
+    <div class="card-body">
+      <div class="tax-grid">
+        <div class="fg">
+          <label>VAT / Tax Rate (%)</label>
+          <input type="number" id="taxRate" value="0" min="0" max="100" step="0.5" oninput="calculate()" placeholder="0" />
+          <div class="hint">Set to 0 if taxes are on final bill (Uganda default)</div>
+        </div>
+        <div class="fg">
+          <label>Service Charge (%)</label>
+          <input type="number" id="serviceRate" value="0" min="0" max="100" step="0.5" oninput="calculate()" placeholder="0" />
+          <div class="hint">Optional hospitality levy</div>
+        </div>
+        <div class="fg">
+          <label>Tourism Levy (flat, USh)</label>
+          <input type="number" id="tourismLevy" value="0" min="0" oninput="calculate()" placeholder="0" />
+        </div>
+        <div class="fg">
+          <label>City / Local Tax (flat, USh)</label>
+          <input type="number" id="cityTax" value="0" min="0" oninput="calculate()" placeholder="0" />
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-ghost" onclick="setTaxPreset('ug')">🇺🇬 Uganda (0%)</button>
+        <button class="btn-ghost" onclick="setTaxPreset('vat18')">VAT 18%</button>
+        <button class="btn-ghost" onclick="setTaxPreset('vat16')">VAT 16%</button>
+        <button class="btn-ghost" onclick="setTaxPreset('service10')">Service 10%</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Breakdown -->
+  <div class="card">
+    <div class="card-hdr">
+      <h3>💰 Bill Breakdown</h3>
+      <button class="btn-primary" id="copyBtn" onclick="copyBreakdown()">📋 Copy Summary</button>
+    </div>
+    <div class="card-body">
+      <div id="resultArea">
+        <div class="empty-state">
+          <div class="icon">🧾</div>
+          <p>Select a room type and set your dates to see the full bill</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ─── Room type catalog ───────────────────────────────────
+const ROOMS = [
+  { id:'std',  label:'Standard',     price:80000,  emoji:'🛏' },
+  { id:'dlx',  label:'Deluxe',       price:120000, emoji:'✨' },
+  { id:'ste',  label:'Suite',        price:200000, emoji:'🏆' },
+  { id:'exec', label:'Executive',    price:280000, emoji:'💼' },
+  { id:'fam',  label:'Family Room',  price:160000, emoji:'👨‍👩‍👧' },
+  { id:'twn',  label:'Twin Room',    price:95000,  emoji:'🛏🛏' },
+];
+
+const fmt = n => 'USh ' + Math.round(n||0).toLocaleString();
+const fmtShort = n => 'USh ' + Math.round(n||0).toLocaleString();
+
+let selectedRoom = null;
+let nightsCount = 1;
+let taxPanelOpen = false;
+
+// ─── Init ────────────────────────────────────────────────
+function init() {
+  renderChips();
+  const today = new Date();
+  const tom = new Date(today); tom.setDate(tom.getDate()+1);
+  document.getElementById('checkIn').value  = today.toISOString().slice(0,10);
+  document.getElementById('checkOut').value = tom.toISOString().slice(0,10);
+  document.getElementById('checkIn').min    = today.toISOString().slice(0,10);
+  nightsCount = 1;
+  document.getElementById('nightsVal').textContent = 1;
+}
+
+// ─── Room chips ──────────────────────────────────────────
+function renderChips() {
+  const wrap = document.getElementById('roomChips');
+  wrap.innerHTML = ROOMS.map(r =>
+    `<button class="rchip" id="chip-${r.id}" onclick="selectRoom('${r.id}')">
+      ${r.emoji} ${r.label} <span class="price">${fmt(r.price)}/night</span>
+    </button>`
+  ).join('');
+}
+
+function selectRoom(id) {
+  selectedRoom = ROOMS.find(r => r.id === id);
+  document.querySelectorAll('.rchip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-'+id)?.classList.add('active');
+  // Clear custom override if a preset is chosen
+  document.getElementById('customPrice').value = '';
+  calculate();
+}
+
+function onCustomPrice() {
+  // When custom price is typed, deselect room chips
+  const val = parseFloat(document.getElementById('customPrice').value);
+  if (!isNaN(val) && val > 0) {
+    document.querySelectorAll('.rchip').forEach(c => c.classList.remove('active'));
+    selectedRoom = null;
+  }
+  calculate();
+}
+
+// ─── Date handling ───────────────────────────────────────
+function onDateChange() {
+  const ci = document.getElementById('checkIn').value;
+  const co = document.getElementById('checkOut').value;
+  if (ci && co) {
+    const diff = Math.round((new Date(co) - new Date(ci)) / 86400000);
+    if (diff > 0) {
+      nightsCount = diff;
+      document.getElementById('nightsVal').textContent = diff;
+    }
+  }
+  calculate();
+}
+
+function adjustNights(delta) {
+  nightsCount = Math.max(1, nightsCount + delta);
+  document.getElementById('nightsVal').textContent = nightsCount;
+
+  // Sync check-out date
+  const ci = document.getElementById('checkIn').value;
+  if (ci) {
+    const d = new Date(ci);
+    d.setDate(d.getDate() + nightsCount);
+    document.getElementById('checkOut').value = d.toISOString().slice(0,10);
+  }
+  calculate();
+}
+
+// ─── Fee helpers ─────────────────────────────────────────
+const gv = id => parseFloat(document.getElementById(id).value) || 0;
+
+// ─── Main calculation ────────────────────────────────────
+function calculate() {
+  // Resolve base price
+  const customPrice = parseFloat(document.getElementById('customPrice').value);
+  let basePrice = 0;
+  if (!isNaN(customPrice) && customPrice > 0) {
+    basePrice = customPrice;
+  } else if (selectedRoom) {
+    basePrice = selectedRoom.price;
+  } else {
+    showEmpty();
+    hideSummary();
+    return;
+  }
+
+  const nights   = nightsCount;
+  const guests   = parseInt(document.getElementById('guestCount').value) || 2;
+  const roomLabel = document.getElementById('roomLabel').value.trim()
+    || (selectedRoom ? `${selectedRoom.emoji} ${selectedRoom.label}` : 'Custom Room');
+
+  // Room subtotal
+  const roomSubtotal = basePrice * nights;
+
+  // Extra fees
+  const feeBreakfast = gv('feeBreakfast') * guests * nights;
+  const feeTransfer  = gv('feeTransfer');
+  const feeLaundry   = gv('feeLaundry');
+  const feeMinibar   = gv('feeMinibar');
+  const feeOther     = gv('feeOther');
+  const totalFees    = feeBreakfast + feeTransfer + feeLaundry + feeMinibar + feeOther;
+
+  const subtotal = roomSubtotal + totalFees;
+
+  // Taxes
+  const taxRate      = gv('taxRate') / 100;
+  const serviceRate  = gv('serviceRate') / 100;
+  const tourismLevy  = gv('tourismLevy');
+  const cityTax      = gv('cityTax');
+
+  const taxAmount     = Math.round(subtotal * taxRate);
+  const serviceAmount = Math.round(subtotal * serviceRate);
+  const totalTaxes    = taxAmount + serviceAmount + tourismLevy + cityTax;
+  const taxesWaived   = taxRate === 0 && serviceRate === 0 && tourismLevy === 0 && cityTax === 0;
+
+  const grandTotal = subtotal + totalTaxes;
+  const perNight   = grandTotal / nights;
+
+  // ── Render breakdown ──
+  const resultArea = document.getElementById('resultArea');
+  resultArea.innerHTML = `
+    <div class="breakdown">
+      <!-- Room header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:700">${roomLabel}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${guests} guest${guests!==1?'s':''} · ${nights} night${nights!==1?'s':''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text2)">Base Rate</div>
+          <div style="font-size:14px;font-weight:700;color:var(--accent)">${fmt(basePrice)}/night</div>
+        </div>
+      </div>
+
+      <hr class="br-divider">
+
+      <!-- Room cost -->
+      <div class="br-row">
+        <span class="lbl">Room (${fmt(basePrice)} × ${nights} night${nights!==1?'s':''})</span>
+        <span class="val">${fmt(roomSubtotal)}</span>
+      </div>
+
+      <!-- Extra fees (only if non-zero) -->
+      ${gv('feeBreakfast') > 0 ? `<div class="br-row">
+        <span class="lbl">Breakfast (${fmt(gv('feeBreakfast'))} × ${guests} guest${guests!==1?'s':''} × ${nights} night${nights!==1?'s':''})</span>
+        <span class="val">${fmt(feeBreakfast)}</span>
+      </div>` : ''}
+      ${feeTransfer > 0 ? `<div class="br-row"><span class="lbl">Airport Transfer</span><span class="val">${fmt(feeTransfer)}</span></div>` : ''}
+      ${feeLaundry  > 0 ? `<div class="br-row"><span class="lbl">Laundry</span><span class="val">${fmt(feeLaundry)}</span></div>` : ''}
+      ${feeMinibar  > 0 ? `<div class="br-row"><span class="lbl">Mini-bar / Room Service</span><span class="val">${fmt(feeMinibar)}</span></div>` : ''}
+      ${feeOther    > 0 ? `<div class="br-row"><span class="lbl">Other Charges</span><span class="val">${fmt(feeOther)}</span></div>` : ''}
+
+      ${totalFees > 0 ? `<div class="br-row" style="border-top:1px solid var(--border);padding-top:7px;margin-top:4px">
+        <span class="lbl" style="font-weight:600">Subtotal (room + fees)</span>
+        <span class="val">${fmt(subtotal)}</span>
+      </div>` : ''}
+
+      <hr class="br-divider">
+
+      <!-- Taxes -->
+      ${taxesWaived ? `
+      <div class="br-row waived">
+        <span class="lbl">Taxes & Levies <span class="badge">WAIVED — ON FINAL BILL</span></span>
+        <span class="val">USh 0</span>
+      </div>` : `
+      ${taxAmount     > 0 ? `<div class="br-row"><span class="lbl">VAT (${gv('taxRate')}%)</span><span class="val">${fmt(taxAmount)}</span></div>` : ''}
+      ${serviceAmount > 0 ? `<div class="br-row"><span class="lbl">Service Charge (${gv('serviceRate')}%)</span><span class="val">${fmt(serviceAmount)}</span></div>` : ''}
+      ${tourismLevy   > 0 ? `<div class="br-row"><span class="lbl">Tourism Levy</span><span class="val">${fmt(tourismLevy)}</span></div>` : ''}
+      ${cityTax       > 0 ? `<div class="br-row"><span class="lbl">City / Local Tax</span><span class="val">${fmt(cityTax)}</span></div>` : ''}
+      ${totalTaxes    > 0 ? `<div class="br-row" style="padding-top:4px"><span class="lbl" style="font-weight:600">Total Taxes</span><span class="val">${fmt(totalTaxes)}</span></div>` : ''}
+      `}
+
+      <hr class="br-divider">
+
+      <!-- Grand total -->
+      <div class="br-total">
+        <div class="lbl">GRAND TOTAL</div>
+        <div class="val"><span class="currency">USh</span>${Math.round(grandTotal).toLocaleString()}</div>
+      </div>
+
+      <div class="per-night">≈ ${fmt(perNight)} per night · ${guests} guest${guests!==1?'s':''}</div>
+    </div>
+
+    <!-- Quick reference table -->
+    <div style="margin-top:14px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:8px">
+        MULTI-NIGHT QUICK REFERENCE
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">
+        ${[1,2,3,5,7,10,14,30].filter(n => n <= Math.max(nights * 2, 10)).slice(0,8).map(n => {
+          const t = (basePrice * n) + (gv('feeBreakfast') * guests * n) + feeTransfer + feeLaundry + feeMinibar + feeOther;
+          const tWithTax = t + Math.round(t * taxRate) + Math.round(t * serviceRate) + (n === 1 ? tourismLevy + cityTax : 0);
+          return `<div style="background:var(--th-bg);border-radius:9px;padding:10px;text-align:center;border:${n===nights?'2px solid var(--accent)':'1px solid var(--border)'}">
+            <div style="font-size:10px;color:var(--text2);font-weight:600">${n} night${n!==1?'s':''}</div>
+            <div style="font-size:13px;font-weight:700;color:${n===nights?'var(--accent)':'var(--text)'};margin-top:3px">${(tWithTax/1000).toFixed(0)}k</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  // Update summary bar
+  updateSummary(basePrice, nights, totalFees, grandTotal);
+
+  // Store for copy
+  window._lastCalc = { roomLabel, basePrice, nights, guests, roomSubtotal, feeBreakfast, feeTransfer, feeLaundry, feeMinibar, feeOther, totalFees, subtotal, taxAmount, serviceAmount, tourismLevy, cityTax, totalTaxes, taxesWaived, grandTotal, perNight };
+}
+
+// ─── Summary bar ─────────────────────────────────────────
+function updateSummary(rate, nights, fees, total) {
+  document.getElementById('summaryBar').style.display = 'flex';
+  document.getElementById('sb-rate').textContent   = fmt(rate);
+  document.getElementById('sb-nights').textContent = nights + ' night' + (nights!==1?'s':'');
+  document.getElementById('sb-fees').textContent   = fmt(fees);
+  document.getElementById('sb-total').textContent  = fmt(total);
+}
+
+function hideSummary() {
+  document.getElementById('summaryBar').style.display = 'none';
+}
+
+function showEmpty() {
+  document.getElementById('resultArea').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">🧾</div>
+      <p>Select a room type and set your dates to see the full bill</p>
+    </div>`;
+}
+
+// ─── Tax panel toggle ─────────────────────────────────────
+function toggleTaxPanel() {
+  taxPanelOpen = !taxPanelOpen;
+  document.getElementById('taxCard').style.display = taxPanelOpen ? 'block' : 'none';
+}
+
+function setTaxPreset(preset) {
+  const presets = {
+    ug:        { taxRate:0,  serviceRate:0,  tourismLevy:0, cityTax:0 },
+    vat18:     { taxRate:18, serviceRate:0,  tourismLevy:0, cityTax:0 },
+    vat16:     { taxRate:16, serviceRate:0,  tourismLevy:0, cityTax:0 },
+    service10: { taxRate:0,  serviceRate:10, tourismLevy:0, cityTax:0 },
+  };
+  const p = presets[preset]; if (!p) return;
+  document.getElementById('taxRate').value     = p.taxRate;
+  document.getElementById('serviceRate').value = p.serviceRate;
+  document.getElementById('tourismLevy').value = p.tourismLevy;
+  document.getElementById('cityTax').value     = p.cityTax;
+  calculate();
+}
+
+// ─── Clear fees ───────────────────────────────────────────
+function clearFees() {
+  ['feeBreakfast','feeTransfer','feeLaundry','feeMinibar','feeOther']
+    .forEach(id => document.getElementById(id).value = 0);
+  calculate();
+}
+
+// ─── Reset ────────────────────────────────────────────────
+function resetForm() {
+  selectedRoom = null;
+  nightsCount = 1;
+  document.querySelectorAll('.rchip').forEach(c => c.classList.remove('active'));
+  document.getElementById('customPrice').value = '';
+  document.getElementById('roomLabel').value   = '';
+  document.getElementById('guestCount').value  = '2';
+  document.getElementById('nightsVal').textContent = 1;
+  clearFees();
+  setTaxPreset('ug');
+  init();
+  showEmpty();
+  hideSummary();
+}
+
+// ─── Copy summary ─────────────────────────────────────────
+function copyBreakdown() {
+  const c = window._lastCalc;
+  if (!c) { alert('Calculate a rate first.'); return; }
+
+  let txt = `RuviaOS — Room Rate Summary\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  txt += `Room:     ${c.roomLabel}\n`;
+  txt += `Nights:   ${c.nights}\n`;
+  txt += `Guests:   ${c.guests}\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  txt += `Room Cost:  ${fmt(c.roomSubtotal)}\n`;
+  if (c.totalFees > 0) txt += `Extra Fees: ${fmt(c.totalFees)}\n`;
+  if (c.taxesWaived) txt += `Taxes:      Waived (on final bill)\n`;
+  else if (c.totalTaxes > 0) txt += `Taxes:      ${fmt(c.totalTaxes)}\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  txt += `TOTAL:    ${fmt(c.grandTotal)}\n`;
+  txt += `Per Night: ${fmt(c.perNight)}\n`;
+  txt += `\nGenerated by RuviaOS`;
+
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Summary', 2000);
+  }).catch(() => alert(txt));
+}
+
+// ─── Boot ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
